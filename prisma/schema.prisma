@@ -879,8 +879,23 @@ model users {
   user_roles user_roles[]
 }
 
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model scm_shop_account {
+  id              Int       @id @default(autoincrement())
+  moniker         String?   @db.VarChar
+  mobile          String?   @unique(map: "uniq_mobile") @db.VarChar(16)
+  password        String?   @db.VarChar(60)
+  role_type       Int       @default(0) @db.SmallInt
+  last_login      DateTime? @db.Timestamp(6)
+  create_time     DateTime? @db.Timestamp(6)
+  status          Int       @default(1) @db.SmallInt
+  organization_id Int?
+  serial_num      String?   @unique @db.VarChar
+}
+
 enum user_type_enum {
   STAFF
   CLIENT
-  SUPPLIER
+  SUPPLIER_TONGPEI
+  SUPPLIER_ZHIPEI
 }

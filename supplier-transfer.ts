@@ -1,23 +1,34 @@
 // transfer scm_supplier_person and scm_supplier_account to supplier
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, user_type_enum } from '@prisma/client';
 
 const run = async () => {
   const prisma = new PrismaClient();
 
   const supplierPerson = await prisma.scm_supplier_person.findMany();
   const sellerAccount = await prisma.scm_seller_account.findMany();
-  const suppliers = await prisma.scm_supplier.findMany();
-  // await prisma.staff
 
-  for (const person of supplierPerson) {
-  }
+  const supplierMap = supplierPerson.map((person) => ({
+    name: person.name!,
+    mobile: person.phone_number!,
+    password: person.password!,
+    user_type: user_type_enum.SUPPLIER_TONGPEI,
+  }));
 
-  for (const seller of sellerAccount) {
-  }
+  const sellerAccountMap = sellerAccount.map((seller) => ({
+    name: seller.moniker!,
+    mobile: seller.mobile!,
+    password: seller.password!,
+    user_type: user_type_enum.SUPPLIER_ZHIPEI,
+  }));
 
-  for (const supplier of suppliers) {
-  }
+  await prisma.users.createMany({
+    data: supplierMap,
+  });
+
+  await prisma.users.createMany({
+    data: sellerAccountMap,
+  });
 };
 
 run();
