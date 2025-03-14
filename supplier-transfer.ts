@@ -274,6 +274,7 @@ const run = async () => {
   if (sellerDataToInsert.length > 0) {
     await prisma.supplier_details.createMany({
       data: sellerDataToInsert,
+      skipDuplicates: true,  // 跳过重复的 user_id
     });
     console.log('scm_seller_account->supplier_details data inserted successfully');
   } else {
