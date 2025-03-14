@@ -1967,6 +1967,7 @@ model supplier_details {
   push_order Int?
   is_first   Int?
   created_at DateTime? @default(now()) @db.Timestamp(6)
+  mail       String?   @db.VarChar(255)
   users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
