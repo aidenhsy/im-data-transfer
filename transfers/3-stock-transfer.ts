@@ -11,7 +11,7 @@ const run = async () => {
   const totalLength = orderStocks.length;
   let index = 0;
   for (const orderStock of orderStocks) {
-    console.log(`${index + 1}/${totalLength}`);
+    console.log(`${index++}/${totalLength}`);
     const supplier = await prisma.supplier.findFirst({
       where: {
         supplier_name: orderStock.scm_seller?.seller_name,
