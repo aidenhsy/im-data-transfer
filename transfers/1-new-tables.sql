@@ -152,40 +152,13 @@ INSERT INTO client_tier (id, tier_name)
 VALUES (1, '普通'),
        (2, '黑卡');
 
-create table client_shops
-(
-    id                SERIAL PRIMARY KEY,
-    shop_name         varchar(50),
-    phone_number      varchar(20),
-    tier_id           int references client_tier (id) not null default 1,
-    city              varchar references cities (id),
-    address           varchar(255),
-    latitude          varchar(50),
-    longitude         varchar(50),
-    status            int,
-    automatic_receive bool,
-    created_at        TIMESTAMP                                DEFAULT CURRENT_TIMESTAMP
-);
-
-COMMENT ON TABLE client_shops IS '客人门店信息';
-COMMENT ON COLUMN client_shops.id IS '主键，唯一标识店铺';
-COMMENT ON COLUMN client_shops.shop_name IS '店铺名称';
-COMMENT ON COLUMN client_shops.phone_number IS '店铺电话';
-COMMENT ON COLUMN client_shops.tier_id IS '会员等级 ID，关联 client_tier 表，默认为 1（普通会员）';
-COMMENT ON COLUMN client_shops.city IS '店铺所在城市，关联 cities 表的 ID';
-COMMENT ON COLUMN client_shops.address IS '店铺详细地址';
-COMMENT ON COLUMN client_shops.latitude IS '店铺的纬度';
-COMMENT ON COLUMN client_shops.longitude IS '店铺的经度';
-COMMENT ON COLUMN client_shops.status IS '店铺状态（例如 0：关闭，1：营业中，2：暂停营业）';
-COMMENT ON COLUMN client_shops.automatic_receive IS '是否自动接单（true：自动接单，false：手动接单）';
-COMMENT ON COLUMN client_shops.created_at IS '记录创建时间，默认为当前时间';
-
-ALTER TABLE scm_order ADD COLUMN client_shop_id INT references client_shops(id);
+ALTER TABLE scm_shop ADD COLUMN client_tier_id INT references scm_shop(id);
+UPDATE scm_shop set client_tier_id = 2;
 
 CREATE TABLE user_client_shop (
     id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),  -- 主键，唯一标识
     user_id    INT NOT NULL REFERENCES users(id),  -- 用户 ID，关联 users 表
-    shop_id    INT NOT NULL REFERENCES client_shops(id),  -- 店铺 ID，关联 client_shops 表
+    shop_id    INT NOT NULL REFERENCES scm_shop(id),  -- 店铺 ID，关联 client_shops 表
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- 记录创建时间，默认为当前时间
     unique (user_id, shop_id)
 );
@@ -195,7 +168,7 @@ COMMENT ON TABLE user_client_shop IS '用户与店铺的关联表，用于存储
 -- 添加列注释
 COMMENT ON COLUMN user_client_shop.id IS '主键，唯一标识';
 COMMENT ON COLUMN user_client_shop.user_id IS '用户 ID，关联 users 表';
-COMMENT ON COLUMN user_client_shop.shop_id IS '店铺 ID，关联 client_shops 表';
+COMMENT ON COLUMN user_client_shop.shop_id IS '店铺 ID，关联 scm_shops 表';
 COMMENT ON COLUMN user_client_shop.created_at IS '记录创建时间，默认为当前时间';
 
 ALTER TABLE scm_order_stock ADD column supplier_id INT references supplier(id);

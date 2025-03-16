@@ -199,22 +199,6 @@ const run = async () => {
     });
   }
 
-  console.log('开始转换顾客门店');
-  for (const clientShop of clientShops) {
-    await prisma.client_shops.create({
-      data: {
-        id: clientShop.id,
-        shop_name: clientShop.shop_name,
-        tier_id: 2,
-        city: clientShop.city_id,
-        address: clientShop.address,
-        latitude: clientShop.latitude,
-        longitude: clientShop.longitude,
-        status: clientShop.status,
-      },
-    });
-  }
-
   console.log('开始转换顾客');
   for (const client of clients) {
     const newClient = await prisma.users.upsert({
@@ -231,7 +215,7 @@ const run = async () => {
       },
     });
 
-    const clientShops = await prisma.scm_shop_scm_shop_account.findMany({
+    const shops = await prisma.scm_shop_scm_shop_account.findMany({
       where: {
         scm_shop_account: {
           mobile: client.mobile!,
@@ -239,7 +223,7 @@ const run = async () => {
       },
     });
 
-    const clientShopIds = clientShops.map((shop) => shop.shop_id);
+    const clientShopIds = clientShops.map((shop) => shop.id);
 
     await prisma.user_client_shop.createMany({
       data: clientShopIds.map((id) => ({

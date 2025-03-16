@@ -1,7 +1,11 @@
 ALTER TABLE scm_order_stock drop column if exists seller_id;
 ALTER TABLE scm_suppliers_goods_daily drop column if exists suppliers_id;
-DROP TABLE IF EXISTS scm_seller;
+ALTER TABLE scm_supplier_price_plan drop column if exists supplier_id;
+ALTER TABLE scm_good_units drop column if exists unit_id;
+ALTER TABLE scm_goods drop column if exists base_unit_id;
+ALTER TABLE scm_supplier_price_plan drop column if exists util_id;
 
+DROP TABLE IF EXISTS scm_seller;
 DROP TABLE IF EXISTS st_accounts CASCADE;
 DROP TABLE IF EXISTS st_bill_list CASCADE;
 DROP TABLE IF EXISTS st_daily_count CASCADE;
