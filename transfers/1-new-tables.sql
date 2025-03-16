@@ -175,3 +175,18 @@ ALTER TABLE scm_order_stock ADD column supplier_id INT references supplier(id);
 ALTER TABLE scm_suppliers_goods_daily ADD column supplier_id INT references supplier(id);
 
 ALTER TABLE scm_supplier_price_plan ADD column supplierid INT references supplier(id);
+
+CREATE TABLE picker_client_shop (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id INT references users(id) NOT NULL,
+    shop_id INT references scm_shop(id) NOT NULL,
+    UNIQUE (user_id, shop_id)
+);
+
+
+-- 添加表的注释
+COMMENT ON TABLE picker_client_shop IS '分拣人员与店铺的关联关系';
+-- 添加列的注释
+COMMENT ON COLUMN picker_client_shop.id IS '主键，唯一标识此关系';
+COMMENT ON COLUMN picker_client_shop.user_id IS '用户ID，引用users表的id';
+COMMENT ON COLUMN picker_client_shop.shop_id IS '店铺ID，引用scm_shop表的id';

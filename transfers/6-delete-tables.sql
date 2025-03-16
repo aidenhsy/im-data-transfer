@@ -4,6 +4,9 @@ ALTER TABLE scm_supplier_price_plan drop column if exists supplier_id;
 ALTER TABLE scm_good_units drop column if exists unit_id;
 ALTER TABLE scm_goods drop column if exists base_unit_id;
 ALTER TABLE scm_supplier_price_plan drop column if exists util_id;
+ALTER TABLE scm_shop drop column if exists brand_id;
+ALTER TABLE scm_shop drop column if exists supply_plan_id;
+ALTER TABLE scm_goods drop column if exists util_id;
 
 DROP TABLE IF EXISTS scm_seller;
 DROP TABLE IF EXISTS st_accounts CASCADE;
@@ -72,8 +75,6 @@ DROP TABLE IF EXISTS scm_predict_order;
 DROP TABLE IF EXISTS scm_supply_plan_scm_goods;
 DROP TABLE IF EXISTS scm_shop_scm_shop_account;
 
--- have to run after scripts
-DROP TABLE IF EXISTS scm_shop;
 DROP TABLE IF EXISTS scm_supply_plan;
 DROP TABLE IF EXISTS scm_shop_brand;
 DROP TABLE IF EXISTS scm_shop_account;

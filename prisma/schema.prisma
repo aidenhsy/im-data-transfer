@@ -781,6 +781,7 @@ model scm_shop {
   is_enabled                     Boolean?                         @default(true)
   sales_plan_id                  String?                          @db.VarChar
   client_tier_id                 Int?
+  picker_client_shop             picker_client_shop[]
   scm_admin_group_scm_shop       scm_admin_group_scm_shop[]
   scm_order                      scm_order[]
   scm_predict_order              scm_predict_order[]
@@ -1011,21 +1012,23 @@ model scm_store_picking_supplyitems_vege_routes {
 }
 
 model scm_storehouse {
-  mobile          String            @db.VarChar
-  password        String            @db.VarChar
-  group_id        Int               @db.SmallInt
-  nickname        String            @db.VarChar
-  status          Int               @default(1) @db.SmallInt
-  create_time     DateTime?         @default(now()) @db.Timestamp(6)
-  id              Int               @id @default(autoincrement())
-  scm_admin_token scm_admin_token[]
-  scm_admin_group scm_admin_group   @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_group_id118")
+  mobile                  String                    @db.VarChar
+  password                String                    @db.VarChar
+  group_id                Int                       @db.SmallInt
+  nickname                String                    @db.VarChar
+  status                  Int                       @default(1) @db.SmallInt
+  create_time             DateTime?                 @default(now()) @db.Timestamp(6)
+  id                      Int                       @id @default(autoincrement())
+  scm_admin_token         scm_admin_token[]
+  scm_admin_group         scm_admin_group           @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_group_id118")
+  scm_storehouse_scm_shop scm_storehouse_scm_shop[]
 }
 
 model scm_storehouse_scm_shop {
-  id            Int @id @default(autoincrement())
-  storehouse_id Int
-  shop_id       Int
+  id             Int            @id @default(autoincrement())
+  storehouse_id  Int
+  shop_id        Int
+  scm_storehouse scm_storehouse @relation(fields: [storehouse_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_storehouse")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1994,6 +1997,17 @@ model permissions {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model picker_client_shop {
+  id       String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id  Int
+  shop_id  Int
+  scm_shop scm_shop @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users    users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([user_id, shop_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model role_permissions {
   id            String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   role_id       Int
@@ -2090,13 +2104,14 @@ model user_supplier {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
-  id               Int                @id @default(autoincrement())
-  user_name        String             @db.VarChar(50)
-  mobile           String             @unique @db.VarChar(50)
-  password         String             @db.VarChar(255)
-  created_at       DateTime?          @default(now()) @db.Timestamp(6)
-  user_client_shop user_client_shop[]
-  user_role_types  user_role_types[]
-  user_roles       user_roles[]
-  user_supplier    user_supplier[]
+  id                 Int                  @id @default(autoincrement())
+  user_name          String               @db.VarChar(50)
+  mobile             String               @unique @db.VarChar(50)
+  password           String               @db.VarChar(255)
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  picker_client_shop picker_client_shop[]
+  user_client_shop   user_client_shop[]
+  user_role_types    user_role_types[]
+  user_roles         user_roles[]
+  user_supplier      user_supplier[]
 }
