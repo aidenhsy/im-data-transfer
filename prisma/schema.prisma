@@ -406,14 +406,12 @@ model scm_order_stock {
   stock_id          Int?                @db.SmallInt
   direct            Int                 @db.SmallInt
   create_time       DateTime?           @default(now()) @db.Timestamp(6)
-  seller_id         Int?
   stock_order_no    String?             @unique(map: "unique_stock_order_no") @db.VarChar(60)
   status            Int?                @default(0) @db.SmallInt
   receival_time     DateTime?           @db.Timestamp(6)
   locking           Int?                @default(0) @db.SmallInt
   supplier_id       Int?
   scm_order_details scm_order_details[]
-  scm_seller        scm_seller?         @relation(fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_stock_seller_id_fkey7118117")
   scm_stock         scm_stock?          @relation(fields: [stock_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_stock_stock_id_fkey15226")
   supplier          supplier?           @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -442,25 +440,6 @@ model scm_return_goods_month {
   shop_id     Int
 }
 
-model scm_seller {
-  id              Int               @id @default(autoincrement())
-  seller_name     String            @db.VarChar(60)
-  phone_number    String?           @db.VarChar
-  mail            String?           @db.VarChar
-  scm_order_stock scm_order_stock[]
-}
-
-model scm_seller_account {
-  id          Int       @id @default(autoincrement())
-  seller_id   Int       @db.SmallInt
-  moniker     String?   @db.VarChar(100)
-  mobile      String?   @db.VarChar(16)
-  password    String?   @db.VarChar(60)
-  last_login  DateTime? @db.Timestamp(6)
-  create_time DateTime? @default(now()) @db.Timestamp(6)
-  group_id    Int?      @default(5) @db.SmallInt
-}
-
 model scm_sender_mail {
   id           Int       @id @default(autoincrement())
   sender_name  String    @db.VarChar
@@ -476,20 +455,6 @@ model scm_sender_mail_log {
   sender_mail_id Int
   sender_date    DateTime @db.Date
   times          Int
-}
-
-model scm_shopping {
-  id          Int       @id @default(autoincrement())
-  shop_id     Int
-  account_id  Int
-  num         Decimal   @db.Decimal(10, 2)
-  stall_id    Int?
-  create_time DateTime? @default(now()) @db.Timestamp(6)
-  price       Decimal?  @db.Decimal(10, 2)
-  total_price Decimal?  @db.Decimal(10, 2)
-  goods_id    Int?
-
-  @@index([shop_id], map: "idx_scm_shopping_shop_id")
 }
 
 model scm_shopping_history {
@@ -527,16 +492,6 @@ model scm_stock {
   small_storage   String?           @db.VarChar
   scm_goods       scm_goods[]
   scm_order_stock scm_order_stock[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_storage {
-  id          Int       @id @default(autoincrement())
-  file_name   String    @db.VarChar(200)
-  suffix      String?   @db.VarChar(10)
-  file_size   Int?
-  file_path   String    @db.VarChar(200)
-  create_time DateTime? @db.Timestamp(6)
 }
 
 model scm_storage_facility {
@@ -587,16 +542,6 @@ model scm_storage_position_scm_goods {
   @@id([storage_position_id, good_id])
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_storage_position_scm_goods_copy {
-  storage_position_id String?  @db.VarChar
-  good_id             Int?
-  qty                 Decimal? @db.Decimal(10, 2)
-  is_ex               Int?     @db.SmallInt
-
-  @@ignore
-}
-
 model scm_store_picking_supplyitems {
   id                String             @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
   order_details_id  Int?
@@ -621,22 +566,6 @@ model scm_store_picking_supplyitems_vege_routes {
   storage_position_id          String    @db.VarChar
   qty                          Decimal   @db.Decimal
   create_time                  DateTime? @db.Timestamp(6)
-}
-
-model scm_storehouse {
-  mobile      String    @db.VarChar
-  password    String    @db.VarChar
-  group_id    Int       @db.SmallInt
-  nickname    String    @db.VarChar
-  status      Int       @default(1) @db.SmallInt
-  create_time DateTime? @default(now()) @db.Timestamp(6)
-  id          Int       @id @default(autoincrement())
-}
-
-model scm_storehouse_scm_shop {
-  id            Int @id @default(autoincrement())
-  storehouse_id Int
-  shop_id       Int
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -683,7 +612,9 @@ model scm_suppliers_goods_daily {
   date         DateTime?     @db.Date
   qty          Decimal?      @db.Decimal
   generate     Int?          @default(0) @db.SmallInt
+  supplier_id  Int?
   scm_goods    scm_goods?    @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_suppliers_goods_daily_goods_id_fkey30447")
+  supplier     supplier?     @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_supplier scm_supplier? @relation(fields: [suppliers_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_suppliers_goods_daily_suppliers_id_fkey318797")
 
   @@unique([goods_id, suppliers_id, date], map: "unique_goods_supplier_date")
@@ -813,18 +744,19 @@ model scm_version {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model supplier {
-  id              Int               @id @default(autoincrement())
-  supplier_name   String            @db.VarChar(100)
-  phone_number    String            @db.VarChar(20)
-  serial_num      String?           @db.VarChar(100)
-  supplier_type   Int?
-  settlement      Int?
-  push_order      Int?
-  is_first        Int?
-  mail            String?           @db.VarChar(100)
-  created_at      DateTime?         @default(now()) @db.Timestamp(6)
-  scm_order_stock scm_order_stock[]
-  user_supplier   user_supplier[]
+  id                        Int                         @id @default(autoincrement())
+  supplier_name             String                      @db.VarChar(100)
+  phone_number              String                      @db.VarChar(20)
+  serial_num                String?                     @db.VarChar(100)
+  supplier_type             Int?
+  settlement                Int?
+  push_order                Int?
+  is_first                  Int?
+  mail                      String?                     @db.VarChar(100)
+  created_at                DateTime?                   @default(now()) @db.Timestamp(6)
+  scm_order_stock           scm_order_stock[]
+  scm_suppliers_goods_daily scm_suppliers_goods_daily[]
+  user_supplier             user_supplier[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

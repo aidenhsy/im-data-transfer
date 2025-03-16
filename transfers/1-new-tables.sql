@@ -1,13 +1,3 @@
--- Drop tables script from bottom up (dependent tables first)
-DROP TABLE IF EXISTS supplier CASCADE;
-DROP TABLE IF EXISTS role_permissions CASCADE;
-DROP TABLE IF EXISTS permissions CASCADE;
-DROP TABLE IF EXISTS user_roles CASCADE;
-DROP TABLE IF EXISTS roles CASCADE;
-DROP TABLE IF EXISTS user_role_types CASCADE;
-DROP TABLE IF EXISTS role_types CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
-
 CREATE TABLE users
 (
     id         SERIAL PRIMARY KEY,
@@ -209,3 +199,4 @@ COMMENT ON COLUMN user_client_shop.shop_id IS '店铺 ID，关联 client_shops �
 COMMENT ON COLUMN user_client_shop.created_at IS '记录创建时间，默认为当前时间';
 
 ALTER TABLE scm_order_stock ADD column supplier_id INT references supplier(id);
+ALTER TABLE scm_suppliers_goods_daily ADD column supplier_id INT references supplier(id);
