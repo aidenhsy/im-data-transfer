@@ -19,14 +19,14 @@ const run = async () => {
   // 顾客门店
   const clientShops = await prisma.scm_shop.findMany();
 
-  // await prisma.role_types.createMany({
-  //   data: [
-  //     { id: 1, type_name: 'STAFF' },
-  //     { id: 2, type_name: 'CLIENT' },
-  //     { id: 3, type_name: 'ZPSUPPLIER' },
-  //     { id: 4, type_name: 'TPSUPPLIER' },
-  //   ],
-  // });
+  await prisma.role_types.createMany({
+    data: [
+      { id: 1, type_name: 'STAFF' },
+      { id: 2, type_name: 'CLIENT' },
+      { id: 3, type_name: 'ZPSUPPLIER' },
+      { id: 4, type_name: 'TPSUPPLIER' },
+    ],
+  });
 
   console.log('开始添加统配供应商');
   await prisma.supplier.createMany({
