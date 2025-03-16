@@ -200,3 +200,5 @@ COMMENT ON COLUMN user_client_shop.created_at IS '记录创建时间，默认为
 
 ALTER TABLE scm_order_stock ADD column supplier_id INT references supplier(id);
 ALTER TABLE scm_suppliers_goods_daily ADD column supplier_id INT references supplier(id);
+
+ALTER TABLE scm_supplier_price_plan ADD column supplierid INT references supplier(id);

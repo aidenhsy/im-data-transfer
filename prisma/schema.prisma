@@ -570,18 +570,16 @@ model scm_store_picking_supplyitems_vege_routes {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_supplier {
-  id                        Int                         @id @default(autoincrement())
-  supplier_name             String                      @db.VarChar(60)
-  phone_number              String?                     @db.VarChar(60)
-  serial_num                String                      @db.VarChar(60)
-  settlement                Int                         @default(1) @db.SmallInt
-  create_time               DateTime?                   @default(now()) @db.Timestamp(6)
-  is_first                  Int?                        @default(1) @db.SmallInt
-  push_order                Int?                        @default(0) @db.SmallInt
-  mail                      String?                     @db.VarChar
-  scm_supplier_person       scm_supplier_person[]
-  scm_supplier_price_plan   scm_supplier_price_plan[]
-  scm_suppliers_goods_daily scm_suppliers_goods_daily[]
+  id                      Int                       @id @default(autoincrement())
+  supplier_name           String                    @db.VarChar(60)
+  phone_number            String?                   @db.VarChar(60)
+  serial_num              String                    @db.VarChar(60)
+  settlement              Int                       @default(1) @db.SmallInt
+  create_time             DateTime?                 @default(now()) @db.Timestamp(6)
+  is_first                Int?                      @default(1) @db.SmallInt
+  push_order              Int?                      @default(0) @db.SmallInt
+  mail                    String?                   @db.VarChar
+  scm_supplier_price_plan scm_supplier_price_plan[]
 }
 
 model scm_supplier_box {
@@ -596,28 +594,15 @@ model scm_supplier_box_scm_supplier {
   box_id      Int
 }
 
-model scm_supplier_person {
-  id           Int          @id @default(autoincrement())
-  supplier_id  Int
-  name         String       @db.VarChar(60)
-  phone_number String       @db.VarChar(60)
-  password     String?      @db.VarChar
-  scm_supplier scm_supplier @relation(fields: [supplier_id], references: [id], onDelete: Cascade, map: "scm_supplier_person_supplier_id_fkey19384")
-}
-
 model scm_suppliers_goods_daily {
-  id           Int           @id @default(autoincrement())
-  goods_id     Int?
-  suppliers_id Int?
-  date         DateTime?     @db.Date
-  qty          Decimal?      @db.Decimal
-  generate     Int?          @default(0) @db.SmallInt
-  supplier_id  Int?
-  scm_goods    scm_goods?    @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_suppliers_goods_daily_goods_id_fkey30447")
-  supplier     supplier?     @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_supplier scm_supplier? @relation(fields: [suppliers_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_suppliers_goods_daily_suppliers_id_fkey318797")
-
-  @@unique([goods_id, suppliers_id, date], map: "unique_goods_supplier_date")
+  id          Int        @id @default(autoincrement())
+  goods_id    Int?
+  date        DateTime?  @db.Date
+  qty         Decimal?   @db.Decimal
+  generate    Int?       @default(0) @db.SmallInt
+  supplier_id Int?
+  scm_goods   scm_goods? @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_suppliers_goods_daily_goods_id_fkey30447")
+  supplier    supplier?  @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model scm_tc_shop {
@@ -712,8 +697,10 @@ model scm_supplier_price_plan {
   util_id      Int?
   sale_price   Decimal?     @db.Decimal(10, 2)
   small_price  Decimal?     @db.Decimal(12, 6)
+  supplierid   Int?
   scm_goods    scm_goods    @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods5124")
   scm_supplier scm_supplier @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_supplier5222")
+  supplier     supplier?    @relation(fields: [supplierid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_util     scm_util?    @relation(fields: [util_id], references: [id], onDelete: Cascade, map: "scm_supplier_price_plan_util_id_fkey5323")
 
   @@unique([goods_id, supplier_id], map: "unique_supplier_good")
@@ -755,42 +742,9 @@ model supplier {
   mail                      String?                     @db.VarChar(100)
   created_at                DateTime?                   @default(now()) @db.Timestamp(6)
   scm_order_stock           scm_order_stock[]
+  scm_supplier_price_plan   scm_supplier_price_plan[]
   scm_suppliers_goods_daily scm_suppliers_goods_daily[]
   user_supplier             user_supplier[]
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model test_flyback {
-  id          Int       @id @default(autoincrement())
-  user_id     String    @db.Uuid
-  total_price Decimal   @db.Decimal(10, 2)
-  order_date  DateTime? @default(now()) @db.Timestamp(6)
-}
-
-model test_flyway {
-  id         Int       @id @default(autoincrement())
-  name       String    @db.VarChar(100)
-  created_at DateTime? @default(now()) @db.Timestamp(6)
-}
-
-model testproduct {
-  id        Int        @id @default(autoincrement())
-  name      String?    @db.VarChar
-  user_id   Int?
-  testtable testtable? @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "testproduct_user_id_fkey55116")
-}
-
-model testtable {
-  id          Int           @id @default(autoincrement())
-  name        String?       @db.VarChar
-  phone       Decimal?      @db.Decimal
-  email       String?       @db.VarChar
-  testproduct testproduct[]
-}
-
-model testtable2 {
-  id   Int     @id(map: "must_be_different") @default(autoincrement())
-  name String? @db.VarChar
 }
 
 model user_role_types {
@@ -801,24 +755,6 @@ model user_role_types {
   users        users      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([user_id, role_type_id])
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model user_copy {
-  user Unsupported("name")?
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model user_copy1 {
-  id         Int?
-  user_name  String?   @db.VarChar(50)
-  mobile     String?   @db.VarChar(50)
-  password   String?   @db.VarChar(255)
-  created_at DateTime? @db.Timestamp(6)
-
-  @@ignore
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments

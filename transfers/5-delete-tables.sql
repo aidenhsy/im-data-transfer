@@ -1,4 +1,5 @@
 ALTER TABLE scm_order_stock drop column if exists seller_id;
+ALTER TABLE scm_suppliers_goods_daily drop column if exists suppliers_id;
 DROP TABLE IF EXISTS scm_seller;
 
 DROP TABLE IF EXISTS st_accounts CASCADE;
@@ -80,8 +81,8 @@ DROP TABLE IF EXISTS scm_storage;
 DROP TABLE IF EXISTS scm_storage_position_scm_goods_copy;
 DROP TABLE IF EXISTS scm_storehouse;
 DROP TABLE IF EXISTS scm_storehouse_scm_shop;
-DROP TABLE IF EXISTS scm_supplier;
 DROP TABLE IF EXISTS scm_supplier_person;
+DROP TABLE IF EXISTS scm_supplier;
 DROP TABLE IF EXISTS scm_supply_plan;
 DROP TABLE IF EXISTS scm_supply_plan_scm_goods;
 DROP TABLE IF EXISTS scm_tc_shop;
@@ -92,6 +93,8 @@ DROP TABLE IF EXISTS test_flyway;
 DROP TABLE IF EXISTS testproduct;
 DROP TABLE IF EXISTS testtable;
 DROP TABLE IF EXISTS testtable2;
+DROP TABLE IF EXISTS user_copy;
+DROP TABLE IF EXISTS user_copy1;
 
 
 
