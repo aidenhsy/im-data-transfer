@@ -106,6 +106,8 @@ CREATE TABLE supplier
     mail       VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+select id, tc_shop_id from scm_shop;
 -- 供应商详情表
 COMMENT ON TABLE supplier IS '包含供应商用户额外具体详情的表。和用户一对一关系';
 COMMENT ON COLUMN supplier.id IS '供应商详情表的主键。';
@@ -183,10 +185,37 @@ CREATE TABLE picker_client_shop (
     UNIQUE (user_id, shop_id)
 );
 
-
 -- 添加表的注释
 COMMENT ON TABLE picker_client_shop IS '分拣人员与店铺的关联关系';
 -- 添加列的注释
 COMMENT ON COLUMN picker_client_shop.id IS '主键，唯一标识此关系';
 COMMENT ON COLUMN picker_client_shop.user_id IS '用户ID，引用users表的id';
 COMMENT ON COLUMN picker_client_shop.shop_id IS '店铺ID，引用scm_shop表的id';
+
+CREATE TYPE pricing_strategy_type AS ENUM ('cost', 'margin', 'custom');
+
+create table scm_good_pricing
+(
+    id serial primary key,
+    goods_id integer not null references scm_goods(id),
+    good_unit_id varchar not null references scm_good_units(id),
+    client_tier_id integer references client_tier(id),
+    pricing_strategy pricing_strategy_type NOT NULL,
+    profit_margin numeric(8, 2), -- percentage markup, used when pricing_strategy = 'margin'
+    sale_price numeric(12, 2), -- fixed price, used when pricing_strategy = 'custom'
+    is_active boolean default true not null,
+    created_at timestamp default CURRENT_TIMESTAMP,
+
+    CONSTRAINT unique_pricing_configuration UNIQUE (goods_id, good_unit_id, client_tier_id, pricing_strategy)
+);
+
+comment on table scm_good_pricing is '商品价格表，支持多种定价策略';
+comment on column scm_good_pricing.id is '主键，自增ID';
+comment on column scm_good_pricing.goods_id is '关联的商品ID';
+comment on column scm_good_pricing.good_unit_id is '关联的商品单位ID';
+comment on column scm_good_pricing.client_tier_id is '客户等级ID，为空时表示默认价格';
+comment on column scm_good_pricing.pricing_strategy is '定价策略: cost=成本定价, margin=利润率定价, custom=自定义价格';
+comment on column scm_good_pricing.profit_margin is '利润率百分比，当策略为margin时使用，例如：25.00表示25%的加成';
+comment on column scm_good_pricing.sale_price is '自定义销售价格，当策略为custom时使用';
+comment on column scm_good_pricing.is_active is '价格是否激活，true表示当前可用';
+comment on column scm_good_pricing.created_at is '记录创建时间，默认为当前时间';
