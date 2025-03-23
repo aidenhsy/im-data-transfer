@@ -41,12 +41,14 @@ COMMENT ON COLUMN user_roles.created_at IS '角色分配给用户时的时间戳
 UPDATE scm_supply_plan_scm_goods SET is_enabled=false where status=0;
 UPDATE scm_supply_plan_scm_goods set is_enabled=true where status=1;
 ALTER TABLE scm_supply_plan_scm_goods DROP COLUMN IF EXISTS status;
-ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS order_unit varchar(20);
-ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS order_unit_id varchar;
-ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS base_unit varchar(20);
-ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS base_unit_id varchar;
-ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS order_to_base_ratio numeric(12,2);
+
+ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS order_unit_id varchar references scm_good_units(id);
+ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS base_unit_id varchar references scm_good_units(id);
+ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS count_unit_id varchar references scm_good_units(id);
 ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS goods_name varchar(100);
+ALTER TABLE scm_good_units ADD CONSTRAINT scm_good_ratio UNIQUE (supply_plan_goods_id, ratio_to_base);
+
+
 
 UPDATE scm_supply_plan_scm_goods sg
 SET goods_name = g.name

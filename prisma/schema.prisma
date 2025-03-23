@@ -44,21 +44,25 @@ model roles {
 }
 
 model scm_good_units {
-  id                                                     String                     @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  goods_id                                               Int?
-  ratio_to_base                                          Decimal                    @db.Decimal
-  name                                                   String?                    @db.VarChar
-  supply_plan_goods_id                                   String?                    @db.VarChar
-  scm_goods_scm_good_units_goods_idToscm_goods           scm_goods?                 @relation("scm_good_units_goods_idToscm_goods", fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_fk")
-  scm_supply_plan_scm_goods                              scm_supply_plan_scm_goods? @relation(fields: [supply_plan_goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_goods_scm_goods_base_good_unit_idToscm_good_units  scm_goods[]                @relation("scm_goods_base_good_unit_idToscm_good_units")
-  scm_goods_scm_goods_count_good_unit_idToscm_good_units scm_goods[]                @relation("scm_goods_count_good_unit_idToscm_good_units")
-  scm_goods_scm_goods_order_good_unit_idToscm_good_units scm_goods[]                @relation("scm_goods_order_good_unit_idToscm_good_units")
-  st_daily_count_items                                   st_daily_count_items[]
-  st_ingredient                                          st_ingredient[]
-  st_safe_store_goods                                    st_safe_store_goods[]
+  id                                                                                String                      @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  goods_id                                                                          Int?
+  ratio_to_base                                                                     Decimal                     @db.Decimal
+  name                                                                              String?                     @db.VarChar
+  supply_plan_goods_id                                                              String?                     @db.VarChar
+  scm_goods_scm_good_units_goods_idToscm_goods                                      scm_goods?                  @relation("scm_good_units_goods_idToscm_goods", fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_fk")
+  scm_supply_plan_scm_goods                                                         scm_supply_plan_scm_goods?  @relation(fields: [supply_plan_goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_goods_scm_goods_base_good_unit_idToscm_good_units                             scm_goods[]                 @relation("scm_goods_base_good_unit_idToscm_good_units")
+  scm_goods_scm_goods_count_good_unit_idToscm_good_units                            scm_goods[]                 @relation("scm_goods_count_good_unit_idToscm_good_units")
+  scm_goods_scm_goods_order_good_unit_idToscm_good_units                            scm_goods[]                 @relation("scm_goods_order_good_unit_idToscm_good_units")
+  scm_supply_plan_scm_goods_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_supply_plan_scm_goods[] @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units")
+  scm_supply_plan_scm_goods_scm_supply_plan_scm_goods_count_unit_idToscm_good_units scm_supply_plan_scm_goods[] @relation("scm_supply_plan_scm_goods_count_unit_idToscm_good_units")
+  scm_supply_plan_scm_goods_scm_supply_plan_scm_goods_order_unit_idToscm_good_units scm_supply_plan_scm_goods[] @relation("scm_supply_plan_scm_goods_order_unit_idToscm_good_units")
+  st_daily_count_items                                                              st_daily_count_items[]
+  st_ingredient                                                                     st_ingredient[]
+  st_safe_store_goods                                                               st_safe_store_goods[]
 
   @@unique([goods_id, ratio_to_base], map: "unique_good_id_ratio_to_base")
+  @@unique([supply_plan_goods_id, ratio_to_base], map: "scm_good_ratio")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -259,25 +263,26 @@ model scm_supply_plan {
 }
 
 model scm_supply_plan_scm_goods {
-  supply_plan_id           Int?
-  good_id                  Int?
-  id                       String                     @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  price                    Decimal?                   @db.Decimal(12, 6)
-  is_enabled               Boolean?                   @default(true)
-  is_predict               Boolean?                   @default(false)
-  order_unit               String?                    @db.VarChar(20)
-  order_unit_id            String?                    @db.VarChar
-  base_unit                String?                    @db.VarChar(20)
-  base_unit_id             String?                    @db.VarChar
-  order_to_base_ratio      Decimal?                   @db.Decimal(12, 2)
-  goods_name               String?                    @db.VarChar(100)
-  scm_good_units           scm_good_units[]
-  scm_goods                scm_goods?                 @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_fk")
-  scm_supply_plan          scm_supply_plan?           @relation(fields: [supply_plan_id], references: [id], onDelete: Cascade, map: "scm_supply_plan_scm_goods_supply_plan_id_fkey11")
-  st_daily_count_items     st_daily_count_items[]
-  st_ingredient            st_ingredient[]
-  st_predict_order_details st_predict_order_details[]
-  st_safe_store_goods      st_safe_store_goods[]
+  supply_plan_id                                                         Int?
+  good_id                                                                Int?
+  id                                                                     String                     @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  price                                                                  Decimal?                   @db.Decimal(12, 6)
+  is_enabled                                                             Boolean?                   @default(true)
+  is_predict                                                             Boolean?                   @default(false)
+  goods_name                                                             String?                    @db.VarChar(100)
+  order_unit_id                                                          String?                    @db.VarChar
+  base_unit_id                                                           String?                    @db.VarChar
+  count_unit_id                                                          String?                    @db.VarChar
+  scm_good_units                                                         scm_good_units[]
+  scm_goods                                                              scm_goods?                 @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_fk")
+  scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_good_units_scm_supply_plan_scm_goods_count_unit_idToscm_good_units scm_good_units?            @relation("scm_supply_plan_scm_goods_count_unit_idToscm_good_units", fields: [count_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_good_units_scm_supply_plan_scm_goods_order_unit_idToscm_good_units scm_good_units?            @relation("scm_supply_plan_scm_goods_order_unit_idToscm_good_units", fields: [order_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_supply_plan                                                        scm_supply_plan?           @relation(fields: [supply_plan_id], references: [id], onDelete: Cascade, map: "scm_supply_plan_scm_goods_supply_plan_id_fkey11")
+  st_daily_count_items                                                   st_daily_count_items[]
+  st_ingredient                                                          st_ingredient[]
+  st_predict_order_details                                               st_predict_order_details[]
+  st_safe_store_goods                                                    st_safe_store_goods[]
 
   @@unique([supply_plan_id, good_id], map: "constraint_name")
   @@unique([supply_plan_id, good_id], map: "unique_supply_plan_goods")

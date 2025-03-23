@@ -119,7 +119,10 @@ alter table scm_good_units drop column if exists is_count_unit;
 alter table scm_good_units drop column if exists is_base_unit;
 alter table scm_good_units drop column if exists is_order_unit;
 alter table scm_good_units drop column if exists goods_id;
-
+ALTER TABLE scm_goods drop column if exists base_good_unit_id;
+ALTER TABLE scm_goods drop column if exists order_good_unit_id;
+ALTER TABLE scm_goods drop column if exists count_good_unit_id;
+ALTER TABLE scm_good_units DROP CONSTRAINT IF EXISTS unique_good_id_ratio_to_base;
 
 DROP TABLE IF EXISTS scm_order;
 DROP TABLE IF EXISTS scm_order_details;

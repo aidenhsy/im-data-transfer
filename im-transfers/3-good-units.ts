@@ -9,6 +9,7 @@ const run = async () => {
         include: {
           scm_good_units_scm_goods_base_good_unit_idToscm_good_units: true,
           scm_good_units_scm_goods_order_good_unit_idToscm_good_units: true,
+          scm_good_units_scm_goods_count_good_unit_idToscm_good_units: true,
         },
       },
     },
@@ -25,8 +26,18 @@ const run = async () => {
 
   for (const item of scmGoods) {
     console.log(`Processing ${index++} of ${totalLength}`);
-    const newBaseUnit = await prisma.scm_good_units.create({
-      data: {
+    const newBaseUnit = await prisma.scm_good_units.upsert({
+      where: {
+        supply_plan_goods_id_ratio_to_base: {
+          supply_plan_goods_id: item.id,
+          ratio_to_base:
+            item.scm_goods
+              ?.scm_good_units_scm_goods_base_good_unit_idToscm_good_units
+              ?.ratio_to_base!,
+        },
+      },
+      update: {},
+      create: {
         supply_plan_goods_id: item.id,
         ratio_to_base:
           item.scm_goods
@@ -37,8 +48,18 @@ const run = async () => {
       },
     });
 
-    const newOrderUnit = await prisma.scm_good_units.create({
-      data: {
+    const newOrderUnit = await prisma.scm_good_units.upsert({
+      where: {
+        supply_plan_goods_id_ratio_to_base: {
+          supply_plan_goods_id: item.id,
+          ratio_to_base:
+            item.scm_goods
+              ?.scm_good_units_scm_goods_order_good_unit_idToscm_good_units
+              ?.ratio_to_base!,
+        },
+      },
+      update: {},
+      create: {
         supply_plan_goods_id: item.id,
         ratio_to_base:
           item.scm_goods
@@ -49,16 +70,36 @@ const run = async () => {
       },
     });
 
+    const newCountUnit = await prisma.scm_good_units.upsert({
+      where: {
+        supply_plan_goods_id_ratio_to_base: {
+          supply_plan_goods_id: item.id,
+          ratio_to_base:
+            item.scm_goods
+              ?.scm_good_units_scm_goods_count_good_unit_idToscm_good_units
+              ?.ratio_to_base!,
+        },
+      },
+      update: {},
+      create: {
+        supply_plan_goods_id: item.id,
+        ratio_to_base:
+          item.scm_goods
+            ?.scm_good_units_scm_goods_count_good_unit_idToscm_good_units
+            ?.ratio_to_base!,
+        name: item.scm_goods
+          ?.scm_good_units_scm_goods_count_good_unit_idToscm_good_units?.name,
+      },
+    });
+
     await prisma.scm_supply_plan_scm_goods.update({
       where: {
         id: item.id,
       },
       data: {
         base_unit_id: newBaseUnit.id,
-        base_unit: newBaseUnit.name,
         order_unit_id: newOrderUnit.id,
-        order_unit: newOrderUnit.name,
-        order_to_base_ratio: newOrderUnit.ratio_to_base,
+        count_unit_id: newCountUnit.id,
         goods_name: item.scm_goods?.name,
       },
     });
