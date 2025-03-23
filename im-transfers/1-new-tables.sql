@@ -57,17 +57,6 @@ WHERE sg.good_id = g.id;
 
 ALTER TABLE st_ingredient ADD COLUMN good_unit_id varchar references scm_good_units(id);
 
-UPDATE st_ingredient i
-SET good_unit_id = g.base_good_unit_id
-FROM scm_goods g
-WHERE i.goods_id = g.id;
-
-UPDATE scm_supply_plan_scm_goods sg
-SET order_to_base_ratio = u.ratio_to_base
-FROM scm_goods g
-JOIN scm_good_units u on g.order_good_unit_id = u.id
-WHERE sg.good_id = g.id;
-
 ALTER TABLE scm_good_units ADD COLUMN supply_plan_goods_id varchar references scm_supply_plan_scm_goods(id);
 
 ALTER TABLE scm_supply_plan_scm_goods DROP CONSTRAINT IF EXISTS scm_supply_plan_scm_goods_good_id_fkey12;
