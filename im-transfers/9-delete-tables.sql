@@ -137,3 +137,10 @@ DROP TABLE IF EXISTS scm_order;
 DROP TABLE IF EXISTS scm_order_details;
 DROP TABLE IF EXISTS scm_good_units;
 DROP TABLE IF EXISTS scm_goods;
+
+DROP EXTENSION IF EXISTS pg_stat_statements;
+
+ALTER TABLE scm_supply_plan_scm_goods
+ALTER COLUMN stock_category_id SET NOT NULL;
+
+ALTER TABLE scm_supply_plan_scm_goods DROP COLUMN IF EXISTS status;
