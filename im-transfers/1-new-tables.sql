@@ -47,7 +47,8 @@ ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS base_unit_id varc
 ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS count_unit_id varchar references scm_good_units(id);
 ALTER TABLE scm_supply_plan_scm_goods ADD COLUMN IF NOT EXISTS goods_name varchar(100);
 ALTER TABLE scm_good_units ADD CONSTRAINT scm_good_ratio UNIQUE (supply_plan_goods_id, ratio_to_base);
-
+ALTER TABLE st_daily_count_items ADD COLUMN unit_id varchar references scm_good_units(id);
+select count(*) from scm_good_units where supply_plan_goods_id is not null;
 
 
 UPDATE scm_supply_plan_scm_goods sg

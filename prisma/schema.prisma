@@ -51,9 +51,6 @@ model scm_good_units {
   supply_plan_goods_id                                                              String?                     @db.VarChar
   scm_goods_scm_good_units_goods_idToscm_goods                                      scm_goods?                  @relation("scm_good_units_goods_idToscm_goods", fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_fk")
   scm_supply_plan_scm_goods                                                         scm_supply_plan_scm_goods?  @relation(fields: [supply_plan_goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_goods_scm_goods_base_good_unit_idToscm_good_units                             scm_goods[]                 @relation("scm_goods_base_good_unit_idToscm_good_units")
-  scm_goods_scm_goods_count_good_unit_idToscm_good_units                            scm_goods[]                 @relation("scm_goods_count_good_unit_idToscm_good_units")
-  scm_goods_scm_goods_order_good_unit_idToscm_good_units                            scm_goods[]                 @relation("scm_goods_order_good_unit_idToscm_good_units")
   scm_supply_plan_scm_goods_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_supply_plan_scm_goods[] @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units")
   scm_supply_plan_scm_goods_scm_supply_plan_scm_goods_count_unit_idToscm_good_units scm_supply_plan_scm_goods[] @relation("scm_supply_plan_scm_goods_count_unit_idToscm_good_units")
   scm_supply_plan_scm_goods_scm_supply_plan_scm_goods_order_unit_idToscm_good_units scm_supply_plan_scm_goods[] @relation("scm_supply_plan_scm_goods_order_unit_idToscm_good_units")
@@ -61,56 +58,49 @@ model scm_good_units {
   st_ingredient                                                                     st_ingredient[]
   st_safe_store_goods                                                               st_safe_store_goods[]
 
-  @@unique([goods_id, ratio_to_base], map: "unique_good_id_ratio_to_base")
   @@unique([supply_plan_goods_id, ratio_to_base], map: "scm_good_ratio")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_goods {
-  id                                                          Int                           @id @default(autoincrement())
-  name                                                        String                        @db.VarChar(60)
-  category_id                                                 Int
-  serial_num                                                  String?                       @db.VarChar(60)
-  details                                                     String?
-  sort                                                        Int                           @default(0) @db.SmallInt
-  status                                                      Int                           @default(1) @db.SmallInt
-  create_time                                                 DateTime?                     @default(now()) @db.Timestamp(6)
-  update_time                                                 DateTime?                     @db.Timestamp(6)
-  sort_cate_id                                                Int?                          @db.SmallInt
-  tt_code                                                     String?                       @db.VarChar
-  organization_id                                             Int?
-  letter_name                                                 String?                       @db.VarChar
-  weighing                                                    Int?                          @default(0) @db.SmallInt
-  supplier_id                                                 Int?
-  goods_price_id                                              Int?
-  remarks                                                     String?                       @db.VarChar
-  direct                                                      Int?                          @default(1) @db.SmallInt
-  seller_id                                                   Int?                          @db.SmallInt
-  supplier_sorting                                            Int?                          @default(0) @db.SmallInt
-  s_day                                                       Int?                          @default(0) @db.SmallInt
-  e_day                                                       Int?                          @default(0) @db.SmallInt
-  sorting                                                     Int?                          @default(0)
-  base_unit_id                                                String?                       @db.VarChar
-  photo_url                                                   String?                       @db.VarChar
-  is_count                                                    Boolean?                      @default(true)
-  base_good_unit_id                                           String?                       @db.VarChar
-  order_good_unit_id                                          String?                       @db.VarChar
-  spec_text                                                   String?                       @db.VarChar
-  price                                                       Decimal?                      @db.Decimal(12, 6)
-  storage_unit                                                String?                       @db.VarChar
-  storage_sale_ratio                                          Int?
-  count_good_unit_id                                          String?                       @db.VarChar
-  scm_good_units_scm_good_units_goods_idToscm_goods           scm_good_units[]              @relation("scm_good_units_goods_idToscm_goods")
-  scm_good_units_scm_goods_base_good_unit_idToscm_good_units  scm_good_units?               @relation("scm_goods_base_good_unit_idToscm_good_units", fields: [base_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_good_base_unit90")
-  scm_good_units_scm_goods_count_good_unit_idToscm_good_units scm_good_units?               @relation("scm_goods_count_good_unit_idToscm_good_units", fields: [count_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_good_count_unit01")
-  scm_good_units_scm_goods_order_good_unit_idToscm_good_units scm_good_units?               @relation("scm_goods_order_good_unit_idToscm_good_units", fields: [order_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_good_order_unit108")
-  scm_order_details                                           scm_order_details[]
-  scm_supply_plan_scm_goods                                   scm_supply_plan_scm_goods[]
-  st_daily_count_items                                        st_daily_count_items[]
-  st_ingredient                                               st_ingredient[]
-  st_inventory_detail                                         st_inventory_detail[]
-  st_kitchen_department_goods                                 st_kitchen_department_goods[]
-  st_predict_order_details                                    st_predict_order_details[]
+  id                                                Int                           @id @default(autoincrement())
+  name                                              String                        @db.VarChar(60)
+  category_id                                       Int
+  serial_num                                        String?                       @db.VarChar(60)
+  details                                           String?
+  sort                                              Int                           @default(0) @db.SmallInt
+  status                                            Int                           @default(1) @db.SmallInt
+  create_time                                       DateTime?                     @default(now()) @db.Timestamp(6)
+  update_time                                       DateTime?                     @db.Timestamp(6)
+  sort_cate_id                                      Int?                          @db.SmallInt
+  tt_code                                           String?                       @db.VarChar
+  organization_id                                   Int?
+  letter_name                                       String?                       @db.VarChar
+  weighing                                          Int?                          @default(0) @db.SmallInt
+  supplier_id                                       Int?
+  goods_price_id                                    Int?
+  remarks                                           String?                       @db.VarChar
+  direct                                            Int?                          @default(1) @db.SmallInt
+  seller_id                                         Int?                          @db.SmallInt
+  supplier_sorting                                  Int?                          @default(0) @db.SmallInt
+  s_day                                             Int?                          @default(0) @db.SmallInt
+  e_day                                             Int?                          @default(0) @db.SmallInt
+  sorting                                           Int?                          @default(0)
+  base_unit_id                                      String?                       @db.VarChar
+  photo_url                                         String?                       @db.VarChar
+  is_count                                          Boolean?                      @default(true)
+  spec_text                                         String?                       @db.VarChar
+  price                                             Decimal?                      @db.Decimal(12, 6)
+  storage_unit                                      String?                       @db.VarChar
+  storage_sale_ratio                                Int?
+  scm_good_units_scm_good_units_goods_idToscm_goods scm_good_units[]              @relation("scm_good_units_goods_idToscm_goods")
+  scm_order_details                                 scm_order_details[]
+  scm_supply_plan_scm_goods                         scm_supply_plan_scm_goods[]
+  st_daily_count_items                              st_daily_count_items[]
+  st_ingredient                                     st_ingredient[]
+  st_inventory_detail                               st_inventory_detail[]
+  st_kitchen_department_goods                       st_kitchen_department_goods[]
+  st_predict_order_details                          st_predict_order_details[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -411,17 +401,17 @@ model st_daily_count_items {
   good_id                   Int?
   supply_plan_good_id       String?                    @db.VarChar
   count_id                  String?                    @db.Uuid
-  good_unit_id              String?                    @db.VarChar
   price                     Decimal?                   @db.Decimal(12, 2)
   hypo_count                Decimal?                   @db.Decimal(12, 2)
   real_hypo_count           Decimal?                   @db.Decimal(12, 2)
   actual_count              Decimal?                   @db.Decimal(12, 2)
   created_at                DateTime?                  @default(now()) @db.Timestamptz(6)
   updated_at                DateTime?                  @default(now()) @db.Timestamptz(6)
+  unit_id                   String?                    @db.VarChar
   st_daily_count            st_daily_count?            @relation(fields: [count_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_goods                 scm_goods?                 @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_good_units            scm_good_units?            @relation(fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_supply_plan_scm_goods scm_supply_plan_scm_goods? @relation(fields: [supply_plan_good_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_good_units            scm_good_units?            @relation(fields: [unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model st_daily_sales {
