@@ -19,12 +19,6 @@ model cities {
   scm_shop scm_shop[]
 }
 
-model com_main_unit {
-  id       Int        @id @default(autoincrement())
-  name     String?    @unique(map: "unqiue_name") @db.VarChar(60)
-  scm_util scm_util[]
-}
-
 model day_info {
   id                             String                           @id @db.VarChar
   is_working                     Int?
@@ -32,7 +26,6 @@ model day_info {
   day_of_week                    Int?
   date                           DateTime?                        @db.Date
   scm_order                      scm_order[]
-  scm_predict_order              scm_predict_order[]
   st_daily_count                 st_daily_count[]
   st_daily_sales                 st_daily_sales[]
   st_inventory_single            st_inventory_single[]
@@ -40,270 +33,29 @@ model day_info {
   st_predict_daily_sales_details st_predict_daily_sales_details[]
   st_predict_order               st_predict_order[]
   st_predict_order_details       st_predict_order_details[]
-  temp_inventory_analysis        temp_inventory_analysis[]
-}
-
-model flyway_schema_history {
-  installed_rank Int      @id(map: "flyway_schema_history_pk")
-  version        String?  @db.VarChar(50)
-  description    String   @db.VarChar(200)
-  type           String   @db.VarChar(20)
-  script         String   @db.VarChar(1000)
-  checksum       Int?
-  installed_by   String   @db.VarChar(100)
-  installed_on   DateTime @default(now()) @db.Timestamp(6)
-  execution_time Int
-  success        Boolean
-
-  @@index([success], map: "flyway_schema_history_s_idx")
-}
-
-model migration {
-  id       Int      @id @default(autoincrement())
-  name     String   @default("") @db.VarChar(200)
-  app_name String   @default("") @db.VarChar(200)
-  ran_on   DateTime @default(now()) @db.Timestamp(6)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_account_role {
-  id        Int    @id @default(autoincrement())
-  role_name String @db.VarChar(60)
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_admin {
-  id               Int               @id @default(autoincrement())
-  mobile           String            @db.VarChar(20)
-  password         String            @db.VarChar(60)
-  group_id         Int               @db.SmallInt
-  nickname         String?           @db.VarChar(50)
-  head_pic         String?           @db.VarChar(512)
-  last_ip          String?           @db.VarChar(15)
-  last_login       DateTime?         @db.Timestamp(6)
-  status           Int               @default(1) @db.SmallInt
-  create_time      DateTime?         @db.Timestamp(6)
-  update_time      DateTime?         @db.Timestamp(6)
-  organization_id  Int?
-  scm_admin_group  scm_admin_group   @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_group_id117")
-  scm_organization scm_organization? @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_admin_organization_id_fkey9")
-  scm_admin_token  scm_admin_token[]
-
-  @@index([status], map: "idx_scm_admin_status")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_admin_group {
-  id                       Int                        @id @default(autoincrement())
-  name                     String                     @db.VarChar(20)
-  description              String?                    @db.VarChar(200)
-  sort                     Int                        @default(0) @db.SmallInt
-  status                   Int                        @default(1) @db.SmallInt
-  en_name                  String?                    @db.VarChar
-  scm_admin                scm_admin[]
-  scm_admin_group_scm_shop scm_admin_group_scm_shop[]
-  scm_group_auth           scm_group_auth[]
-  scm_storehouse           scm_storehouse[]
-}
-
-model scm_admin_group_scm_shop {
-  id              Int              @id @default(autoincrement())
-  group_id        Int?
-  shop_id         Int?
-  scm_admin_group scm_admin_group? @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_admin_group_scm_shop_group_id_fkey33")
-  scm_shop        scm_shop?        @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_admin_group_scm_shop_shop_id_fkey32")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_admin_token {
-  id             Int             @id @default(autoincrement())
-  user_id        Int
-  code           String          @db.VarChar(32)
-  token          String          @db.VarChar
-  typeof         Int             @default(0) @db.SmallInt
-  token_expires  DateTime        @db.Timestamp(6)
-  admin_id       Int?
-  storehouse_id  Int?
-  scm_admin      scm_admin?      @relation(fields: [admin_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_admin_token_admin_id_fkey119")
-  scm_storehouse scm_storehouse? @relation(fields: [storehouse_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_admin_token_storehouse_id_fkey120")
-
-  @@unique([typeof, user_id], map: "unique_user_type")
-}
-
-model scm_brand_account {
-  id               String            @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  brand_id         Int?
-  account_id       Int?
-  scm_shop_account scm_shop_account? @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_brand_account_account_id_fkey60")
-  scm_shop_brand   scm_shop_brand?   @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_brand_account_brand_id_fkey59")
-
-  @@unique([brand_id, account_id], map: "unique_brand_account")
-}
-
-model scm_bulk_picking {
-  id                      String                    @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  date                    DateTime?                 @db.Date
-  quantity_needed         Decimal?                  @db.Decimal
-  created_at              DateTime?                 @default(now()) @db.Timestamp(6)
-  quantity_picked         Decimal?                  @default(0) @db.Decimal
-  stock_id                Int?                      @db.SmallInt
-  automatic               Int?                      @default(1) @db.SmallInt
-  goods_id                Int?
-  order_id                Int?
-  scm_bulk_picking_routes scm_bulk_picking_routes[]
-
-  @@index([date], map: "idx_scm_bulk_picking_date")
-}
-
-model scm_bulk_picking_routes {
-  id                   String                @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  bulk_picking_id      String?               @db.VarChar
-  good_id              Int?
-  storage_position_id  String?               @db.VarChar
-  storage_position_qty Decimal?              @db.Decimal
-  quantity_needed      Decimal?              @db.Decimal
-  quantity_picked      Decimal?              @db.Decimal
-  date                 DateTime?             @db.Date
-  scm_bulk_picking     scm_bulk_picking?     @relation(fields: [bulk_picking_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_bulk_picking_routes_bulk_picking_id_fkey23")
-  scm_goods            scm_goods?            @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_bulk_picking_routes_good_id_fkey22")
-  scm_storage_position scm_storage_position? @relation(fields: [storage_position_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_bulk_picking_routes_storage_position_id_fkey21")
-}
-
-model scm_business_district {
-  id   Int     @id @default(autoincrement())
-  name String? @db.VarChar(60)
-}
-
-model scm_center_inventory_detail {
-  id            Int      @id @default(autoincrement())
-  single_id     Int?
-  goods_id      Int?
-  goods_name    String?  @db.VarChar(60)
-  price         Decimal  @db.Decimal(12, 6)
-  sale_unit     String?  @db.VarChar(60)
-  out_qty       Decimal  @db.Decimal(10, 2)
-  inventory_qty Decimal? @default(0) @db.Decimal(10, 2)
-  letter_name   String?  @db.VarChar(60)
-  balance_qty   Decimal? @db.Decimal(10, 2)
-  balance_price Decimal? @db.Decimal(12, 6)
-  user_id       Int?
-  ent_qty       Decimal? @db.Decimal(10, 2)
-  storage_qty   Decimal? @db.Decimal(10, 2)
-  refund_qty    Decimal? @default(0) @db.Decimal(10, 2)
-  loss_qty      Decimal? @default(0) @db.Decimal(10, 2)
-  return_qty    Decimal? @default(0) @db.Decimal(10, 2)
-}
-
-model scm_center_inventory_single {
-  id          Int       @id @default(autoincrement())
-  storage_id  String?   @db.VarChar
-  end_date    DateTime  @db.Date
-  create_time DateTime? @default(now()) @db.Timestamp(6)
-  status      Int       @default(0) @db.SmallInt
-  user_id     Int?
-  submit_time DateTime? @db.Timestamp(6)
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_ent_details {
-  id                      Int                       @id @default(autoincrement())
-  ent_no                  String                    @db.VarChar(60)
-  quantity                Decimal                   @default(0) @db.Decimal(10, 2)
-  create_time             DateTime?                 @default(now()) @db.Timestamp(6)
-  en_qty                  Decimal?                  @default(0) @db.Decimal(10, 2)
-  status                  Int?                      @default(0) @db.SmallInt
-  goods_id                Int?
-  sale_price              Decimal?                  @db.Decimal(12, 6)
-  small_price             Decimal?                  @db.Decimal(12, 6)
-  sale_unit               String?                   @db.VarChar(10)
-  small_unit              String?                   @db.VarChar(10)
-  ratio                   Int?
-  total_price             Decimal?                  @db.Decimal(12, 6)
-  storage_unit            String?                   @db.VarChar
-  storage_sale_ratio      Int?
-  storage_price           Decimal?                  @db.Decimal(12, 6)
-  just_amount             Decimal?                  @db.Decimal(12, 6)
-  remaining_qty           Decimal?                  @db.Decimal(12, 4)
-  scm_ent_stock           scm_ent_stock             @relation(fields: [ent_no], references: [ent_no], onDelete: NoAction, onUpdate: NoAction, map: "ent_no_key27")
-  scm_ent_fifo_allocation scm_ent_fifo_allocation[]
-}
-
-model scm_ent_fifo_allocation {
-  id                    String              @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  ent_details_id        Int?
-  outbound_id           String?             @db.VarChar
-  allocated_qty         Decimal?            @db.Decimal(12, 4)
-  allocated_time        DateTime?           @db.Timestamptz(6)
-  allocated_date_string String?             @db.VarChar(20)
-  scm_ent_details       scm_ent_details?    @relation(fields: [ent_details_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_goods_outbound    scm_goods_outbound? @relation(fields: [outbound_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model scm_ent_mail {
-  id            Int       @id @default(autoincrement())
-  supplier_id   Int?
-  supplier_name String?   @db.VarChar(60)
-  mail          String?   @db.VarChar(60)
-  list          String?
-  date          DateTime? @db.Date
-  status        Int?      @db.SmallInt
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_ent_pallet {
-  id             Int       @id @default(autoincrement())
-  goods_id       Int
-  ent_details_id Int
-  quantity       Decimal   @db.Decimal(10, 2)
-  pallet_id      String    @db.VarChar
-  create_time    DateTime? @default(now()) @db.Timestamp(6)
-  status         Int?      @default(0) @db.SmallInt
-  revoke         Int?      @default(0) @db.SmallInt
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_ent_stock {
-  id              Int               @id @default(autoincrement())
-  ent_no          String            @unique(map: "unique_ent_no") @db.VarChar(60)
-  supplier_id     Int
-  stock_id        Int?              @db.SmallInt
-  admin_id        Int
-  deliver_time    DateTime?         @db.Timestamp(6)
-  create_time     DateTime?         @default(now()) @db.Timestamp(6)
-  status          Int?              @default(0) @db.SmallInt
-  storage_date    DateTime?         @db.Date
-  remarks         String?           @db.VarChar
-  add_amount      Decimal?          @default(0) @db.Decimal(10, 2)
-  automatic       Int?              @default(0) @db.SmallInt
-  storage_time    DateTime?         @db.Timestamp(6)
-  scm_ent_details scm_ent_details[]
-}
-
-model scm_finance_mail {
-  id          Int     @id @default(autoincrement())
-  seller_name String  @db.VarChar(100)
-  seller_id   Int?
-  mail        String  @db.VarChar(60)
-  file_path   String? @db.VarChar
-  month       String? @db.VarChar
-  number      Int?    @default(0) @db.SmallInt
+model roles {
+  id         Int          @id @default(autoincrement())
+  role_name  String       @unique @db.VarChar(100)
+  created_at DateTime?    @default(now()) @db.Timestamp(6)
+  user_roles user_roles[]
 }
 
 model scm_good_units {
-  id                                                     String                      @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  goods_id                                               Int
-  ratio_to_base                                          Decimal                     @db.Decimal
-  is_base_unit                                           Boolean?                    @default(false)
-  is_order_unit                                          Boolean?                    @default(false)
-  name                                                   String?                     @db.VarChar
-  is_count_unit                                          Boolean?                    @default(false)
-  scm_goods_scm_good_units_goods_idToscm_goods           scm_goods                   @relation("scm_good_units_goods_idToscm_goods", fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_goods_scm_goods_base_good_unit_idToscm_good_units  scm_goods[]                 @relation("scm_goods_base_good_unit_idToscm_good_units")
-  scm_goods_scm_goods_count_good_unit_idToscm_good_units scm_goods[]                 @relation("scm_goods_count_good_unit_idToscm_good_units")
-  scm_goods_scm_goods_order_good_unit_idToscm_good_units scm_goods[]                 @relation("scm_goods_order_good_unit_idToscm_good_units")
-  scm_supply_plan_scm_goods                              scm_supply_plan_scm_goods[]
+  id                                                     String                     @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  goods_id                                               Int?
+  ratio_to_base                                          Decimal                    @db.Decimal
+  name                                                   String?                    @db.VarChar
+  supply_plan_goods_id                                   String?                    @db.VarChar
+  scm_goods_scm_good_units_goods_idToscm_goods           scm_goods?                 @relation("scm_good_units_goods_idToscm_goods", fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_fk")
+  scm_supply_plan_scm_goods                              scm_supply_plan_scm_goods? @relation(fields: [supply_plan_goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_goods_scm_goods_base_good_unit_idToscm_good_units  scm_goods[]                @relation("scm_goods_base_good_unit_idToscm_good_units")
+  scm_goods_scm_goods_count_good_unit_idToscm_good_units scm_goods[]                @relation("scm_goods_count_good_unit_idToscm_good_units")
+  scm_goods_scm_goods_order_good_unit_idToscm_good_units scm_goods[]                @relation("scm_goods_order_good_unit_idToscm_good_units")
   st_daily_count_items                                   st_daily_count_items[]
-  st_inventory_count                                     st_inventory_count[]
+  st_ingredient                                          st_ingredient[]
   st_safe_store_goods                                    st_safe_store_goods[]
 
   @@unique([goods_id, ratio_to_base], map: "unique_good_id_ratio_to_base")
@@ -311,270 +63,50 @@ model scm_good_units {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_goods {
-  id                                                          Int                              @id @default(autoincrement())
-  name                                                        String                           @db.VarChar(60)
+  id                                                          Int                           @id @default(autoincrement())
+  name                                                        String                        @db.VarChar(60)
   category_id                                                 Int
-  serial_num                                                  String?                          @db.VarChar(60)
+  serial_num                                                  String?                       @db.VarChar(60)
   details                                                     String?
-  sort                                                        Int                              @default(0) @db.SmallInt
-  status                                                      Int                              @default(1) @db.SmallInt
-  create_time                                                 DateTime?                        @default(now()) @db.Timestamp(6)
-  update_time                                                 DateTime?                        @db.Timestamp(6)
-  stock_id                                                    Int?                             @db.SmallInt
-  sort_cate_id                                                Int?                             @db.SmallInt
-  tt_code                                                     String?                          @db.VarChar
+  sort                                                        Int                           @default(0) @db.SmallInt
+  status                                                      Int                           @default(1) @db.SmallInt
+  create_time                                                 DateTime?                     @default(now()) @db.Timestamp(6)
+  update_time                                                 DateTime?                     @db.Timestamp(6)
+  sort_cate_id                                                Int?                          @db.SmallInt
+  tt_code                                                     String?                       @db.VarChar
   organization_id                                             Int?
-  letter_name                                                 String?                          @db.VarChar
-  weighing                                                    Int?                             @default(0) @db.SmallInt
+  letter_name                                                 String?                       @db.VarChar
+  weighing                                                    Int?                          @default(0) @db.SmallInt
   supplier_id                                                 Int?
   goods_price_id                                              Int?
-  remarks                                                     String?                          @db.VarChar
-  direct                                                      Int?                             @default(1) @db.SmallInt
-  seller_id                                                   Int?                             @db.SmallInt
-  supplier_sorting                                            Int?                             @default(0) @db.SmallInt
-  s_day                                                       Int?                             @default(0) @db.SmallInt
-  e_day                                                       Int?                             @default(0) @db.SmallInt
-  sorting                                                     Int?                             @default(0)
-  base_unit_id                                                String?                          @db.VarChar
-  photo_url                                                   String?                          @db.VarChar
-  is_count                                                    Boolean?                         @default(true)
-  base_good_unit_id                                           String                           @db.VarChar
-  order_good_unit_id                                          String                           @db.VarChar
-  spec_text                                                   String?                          @db.VarChar
-  util_id                                                     Int?
-  price                                                       Decimal?                         @db.Decimal(12, 6)
-  storage_unit                                                String?                          @db.VarChar
+  remarks                                                     String?                       @db.VarChar
+  direct                                                      Int?                          @default(1) @db.SmallInt
+  seller_id                                                   Int?                          @db.SmallInt
+  supplier_sorting                                            Int?                          @default(0) @db.SmallInt
+  s_day                                                       Int?                          @default(0) @db.SmallInt
+  e_day                                                       Int?                          @default(0) @db.SmallInt
+  sorting                                                     Int?                          @default(0)
+  base_unit_id                                                String?                       @db.VarChar
+  photo_url                                                   String?                       @db.VarChar
+  is_count                                                    Boolean?                      @default(true)
+  base_good_unit_id                                           String?                       @db.VarChar
+  order_good_unit_id                                          String?                       @db.VarChar
+  spec_text                                                   String?                       @db.VarChar
+  price                                                       Decimal?                      @db.Decimal(12, 6)
+  storage_unit                                                String?                       @db.VarChar
   storage_sale_ratio                                          Int?
-  count_good_unit_id                                          String                           @db.VarChar
-  scm_bulk_picking_routes                                     scm_bulk_picking_routes[]
-  scm_good_units_scm_good_units_goods_idToscm_goods           scm_good_units[]                 @relation("scm_good_units_goods_idToscm_goods")
-  scm_good_units_scm_goods_base_good_unit_idToscm_good_units  scm_good_units                   @relation("scm_goods_base_good_unit_idToscm_good_units", fields: [base_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_good_base_unit90")
-  scm_good_units_scm_goods_count_good_unit_idToscm_good_units scm_good_units                   @relation("scm_goods_count_good_unit_idToscm_good_units", fields: [count_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_good_count_unit01")
-  scm_good_units_scm_goods_order_good_unit_idToscm_good_units scm_good_units                   @relation("scm_goods_order_good_unit_idToscm_good_units", fields: [order_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_good_order_unit108")
-  scm_goods_category                                          scm_goods_category               @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_category0")
-  scm_stock                                                   scm_stock?                       @relation(fields: [stock_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_scm_goods_scm_stock124")
-  scm_util                                                    scm_util?                        @relation(fields: [util_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_scm_goods_util")
-  scm_goods_brand                                             scm_goods_brand[]
-  scm_goods_img                                               scm_goods_img[]
-  scm_goods_outbound                                          scm_goods_outbound[]
-  scm_hide_price                                              scm_hide_price[]
-  scm_inventory_detail                                        scm_inventory_detail[]
+  count_good_unit_id                                          String?                       @db.VarChar
+  scm_good_units_scm_good_units_goods_idToscm_goods           scm_good_units[]              @relation("scm_good_units_goods_idToscm_goods")
+  scm_good_units_scm_goods_base_good_unit_idToscm_good_units  scm_good_units?               @relation("scm_goods_base_good_unit_idToscm_good_units", fields: [base_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_good_base_unit90")
+  scm_good_units_scm_goods_count_good_unit_idToscm_good_units scm_good_units?               @relation("scm_goods_count_good_unit_idToscm_good_units", fields: [count_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_good_count_unit01")
+  scm_good_units_scm_goods_order_good_unit_idToscm_good_units scm_good_units?               @relation("scm_goods_order_good_unit_idToscm_good_units", fields: [order_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_good_order_unit108")
   scm_order_details                                           scm_order_details[]
-  scm_price_plan_scm_goods                                    scm_price_plan_scm_goods[]
-  scm_storage_position_scm_goods                              scm_storage_position_scm_goods[]
-  scm_supplier_price_plan                                     scm_supplier_price_plan[]
-  scm_suppliers_goods_daily                                   scm_suppliers_goods_daily[]
   scm_supply_plan_scm_goods                                   scm_supply_plan_scm_goods[]
   st_daily_count_items                                        st_daily_count_items[]
   st_ingredient                                               st_ingredient[]
   st_inventory_detail                                         st_inventory_detail[]
-  st_inventory_items                                          st_inventory_items[]
   st_kitchen_department_goods                                 st_kitchen_department_goods[]
   st_predict_order_details                                    st_predict_order_details[]
-}
-
-model scm_goods_brand {
-  id             String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  goods_id       Int?
-  brands_id      Int?
-  scm_shop_brand scm_shop_brand? @relation(fields: [brands_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_goods_brand_brands_id_fkey58")
-  scm_goods      scm_goods?      @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_goods_brand_goods_id_fkey57")
-
-  @@unique([goods_id, brands_id], map: "unique_goods_brand")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_goods_category {
-  id         Int         @id @default(autoincrement())
-  parent_id  Int         @default(0)
-  name       String      @db.VarChar(16)
-  phonetic   String      @db.VarChar(8)
-  storage_id Int?
-  sort       Int         @default(0) @db.SmallInt
-  status     Int         @default(1) @db.SmallInt
-  level      Int?        @db.SmallInt
-  serial_num String?     @unique @db.VarChar
-  scm_goods  scm_goods[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_goods_img {
-  id          Int         @id @default(autoincrement())
-  goods_id    Int
-  storage_id  Int
-  create_time DateTime?   @db.Timestamp(6)
-  scm_storage scm_storage @relation(fields: [storage_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_storage_id49")
-  scm_goods   scm_goods   @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_id56")
-}
-
-model scm_goods_outbound {
-  id                      String                    @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  goods_id                Int?
-  order_detail_id         Int?
-  qty                     Decimal?                  @db.Decimal(12, 4)
-  out_time                DateTime?                 @db.Timestamptz(6)
-  out_date_string         String?                   @db.VarChar(20)
-  scm_ent_fifo_allocation scm_ent_fifo_allocation[]
-  scm_goods               scm_goods?                @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_order_details       scm_order_details?        @relation(fields: [order_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_goods_price {
-  id                 Int       @id @default(autoincrement())
-  goods_id           Int?
-  spec_text          String?   @db.VarChar(60)
-  small_unit         String?   @db.VarChar(10)
-  sale_unit          String?   @db.VarChar(10)
-  ratio              Int?
-  status             Int       @default(1) @db.SmallInt
-  price              Decimal   @db.Decimal(12, 6)
-  create_time        DateTime? @default(now()) @db.Timestamp(6)
-  update_time        DateTime? @default(now()) @db.Timestamp(6)
-  util_id            Int?
-  storage_unit       String?   @db.VarChar
-  storage_sale_ratio Int?
-  scm_util           scm_util? @relation(fields: [util_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_util_id50")
-}
-
-model scm_goods_price_history {
-  goods_id    Int?
-  spec_text   String?   @db.VarChar(60)
-  small_unit  String?   @db.VarChar(10)
-  sale_unit   String?   @db.VarChar(10)
-  ratio       Int?
-  status      Int?      @default(1) @db.SmallInt
-  price       Decimal?  @db.Decimal(10, 4)
-  create_time DateTime? @default(now()) @db.Timestamp(6)
-  update_time DateTime? @default(now()) @db.Timestamp(6)
-  price_date  DateTime? @default(now()) @db.Timestamp(6)
-  id          Int       @id @default(autoincrement())
-  util_id     Int?
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_group_auth {
-  id              Int             @id @default(autoincrement())
-  group_id        Int             @db.SmallInt
-  menu_id         Int             @db.SmallInt
-  create_time     DateTime?       @default(now()) @db.Timestamp(6)
-  scm_admin_group scm_admin_group @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_group_id121")
-  scm_menu        scm_menu        @relation(fields: [menu_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_menu_id122")
-
-  @@index([group_id], map: "idx_scm_group_auth_group_id")
-}
-
-model scm_hide_price {
-  id          Int       @id @default(autoincrement())
-  goods_id    Int
-  hide_price  Decimal   @db.Decimal(10, 2)
-  create_time DateTime? @db.Timestamp(6)
-  update_time DateTime? @db.Timestamp(6)
-  scm_goods   scm_goods @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_id125")
-}
-
-model scm_inventory_detail {
-  id                   Int                   @id @default(autoincrement())
-  single_id            Int?
-  goods_id             Int?
-  goods_name           String?               @db.VarChar(60)
-  qty                  Decimal?              @default(0) @db.Decimal(10, 2)
-  inventory_qty        Decimal?              @default(0) @db.Decimal(10, 2)
-  user_id              Int?
-  price                Decimal?              @default(0) @db.Decimal(12, 6)
-  sale_unit            String?               @db.VarChar(10)
-  letter_name          String?               @db.VarChar
-  balance_qty          Decimal?              @default(0) @db.Decimal(10, 2)
-  balance_price        Decimal?              @default(0) @db.Decimal(12, 6)
-  scm_goods            scm_goods?            @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_id_fk68")
-  scm_inventory_single scm_inventory_single? @relation(fields: [single_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "single_id_fk")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_inventory_detail_copy {
-  id                    Int?
-  single_id             Int?
-  goods_id              Int?
-  goods_name            String?  @db.VarChar(60)
-  qty                   Decimal? @db.Decimal(10, 2)
-  inventory_qty         Decimal? @db.Decimal(10, 2)
-  user_id               Int?
-  price                 Decimal? @db.Decimal(12, 6)
-  sale_unit             String?  @db.VarChar(10)
-  letter_name           String?  @db.VarChar
-  balance_qty           Decimal? @db.Decimal(10, 2)
-  balance_price         Decimal? @db.Decimal(12, 6)
-  overage_qty           Decimal? @db.Decimal(12, 2)
-  use_qty               Decimal? @db.Decimal(12, 4)
-  inventory_total_price Decimal? @db.Decimal
-  use_total_price       Decimal? @db.Decimal(12, 2)
-
-  @@ignore
-}
-
-model scm_inventory_single {
-  id                   Int                    @id @default(autoincrement())
-  shop_id              Int?
-  start_date           DateTime?              @db.Date
-  end_date             DateTime?              @db.Date
-  create_time          DateTime?              @db.Timestamp(6)
-  status               Int                    @default(0) @db.SmallInt
-  user_id              Int?
-  last_amount          Decimal                @default(0) @db.Decimal(12, 6)
-  submit_time          DateTime?              @db.Timestamp(6)
-  scm_inventory_detail scm_inventory_detail[]
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_inventory_single_copy {
-  id                     Int?
-  shop_id                Int?
-  start_date             DateTime? @db.Date
-  end_date               DateTime? @db.Date
-  create_time            DateTime? @db.Timestamp(6)
-  status                 Int?      @db.SmallInt
-  user_id                Int?
-  last_amount            Decimal?  @db.Decimal(12, 6)
-  submit_time            DateTime? @db.Timestamp(6)
-  day_info_id            String?   @db.VarChar
-  total_inventory_amount Decimal?  @db.Decimal(12, 2)
-
-  @@ignore
-}
-
-model scm_inventory_single_order_stock {
-  id              Int     @id @default(autoincrement())
-  single_id       Int
-  order_stock_ids String?
-}
-
-model scm_mail {
-  id          Int       @id @default(autoincrement())
-  seller_name String    @db.VarChar(100)
-  seller_id   Int?
-  mail        String    @db.VarChar(60)
-  list        String?
-  date        DateTime? @db.Date
-  status      Int?      @default(0) @db.SmallInt
-}
-
-model scm_meal_plan {
-  id        Int    @id @default(autoincrement())
-  plan_name String @db.VarChar
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_menu {
-  id             Int              @id @default(autoincrement())
-  parent_id      Int              @default(0)
-  name           String           @db.VarChar(16)
-  icon           String?          @db.VarChar(64)
-  remark         String?          @db.VarChar(200)
-  url            String?          @db.VarChar(200)
-  is_navi        Int              @default(1) @db.SmallInt
-  sort           Int              @default(0) @db.SmallInt
-  status         Int              @default(1) @db.SmallInt
-  scm_group_auth scm_group_auth[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -600,160 +132,29 @@ model scm_order {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_order_details {
-  id                            Int                             @id @default(autoincrement())
-  stock_order_no                String?                         @db.VarChar(60)
-  goods_name                    String?                         @db.VarChar(60)
-  num                           Decimal                         @db.Decimal
-  price                         Decimal                         @db.Decimal(12, 6)
-  spec_text                     String?                         @db.VarChar(60)
-  ratio                         Int?
-  status                        Int                             @default(0) @db.SmallInt
-  order_id                      Int?
-  create_time                   DateTime?                       @default(now()) @db.Timestamp(6)
-  total_price                   Decimal?                        @db.Decimal(12, 6)
-  small_unit                    String?                         @db.VarChar(10)
-  sale_unit                     String?                         @db.VarChar(10)
-  goods_id                      Int?
-  delivery_qty                  Decimal?                        @default(0) @db.Decimal(10, 2)
-  letter_name                   String?                         @db.VarChar
-  hide_price                    Decimal?                        @default(0) @db.Decimal(12, 6)
-  yu_price                      Decimal?                        @default(0) @db.Decimal(12, 6)
-  item_total                    Decimal?                        @db.Decimal(12, 2)
-  remaining_quantity            Decimal?                        @db.Decimal(10, 4)
-  scm_goods_outbound            scm_goods_outbound[]
-  scm_goods                     scm_goods?                      @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_goods_id_fkey44")
-  scm_order                     scm_order?                      @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_order_id_fkey43")
-  scm_order_stock               scm_order_stock?                @relation(fields: [stock_order_no], references: [stock_order_no], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_stock_order_no_fkey42")
-  scm_store_picking_supplyitems scm_store_picking_supplyitems[]
-  st_inventory_allocation       st_inventory_allocation[]
+  id                 Int        @id @default(autoincrement())
+  goods_name         String?    @db.VarChar(60)
+  num                Decimal    @db.Decimal
+  price              Decimal    @db.Decimal(12, 6)
+  spec_text          String?    @db.VarChar(60)
+  ratio              Int?
+  status             Int        @default(0) @db.SmallInt
+  order_id           Int?
+  create_time        DateTime?  @default(now()) @db.Timestamp(6)
+  total_price        Decimal?   @db.Decimal(12, 6)
+  small_unit         String?    @db.VarChar(10)
+  sale_unit          String?    @db.VarChar(10)
+  goods_id           Int?
+  delivery_qty       Decimal?   @default(0) @db.Decimal(10, 2)
+  letter_name        String?    @db.VarChar
+  hide_price         Decimal?   @default(0) @db.Decimal(12, 6)
+  yu_price           Decimal?   @default(0) @db.Decimal(12, 6)
+  item_total         Decimal?   @db.Decimal(12, 2)
+  remaining_quantity Decimal?   @db.Decimal(10, 4)
+  scm_goods          scm_goods? @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_goods_id_fkey44")
+  scm_order          scm_order? @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_order_id_fkey43")
 
   @@index([order_id], map: "idx_scm_order_details_order_id")
-  @@index([stock_order_no], map: "idx_scm_order_details_stock_order_no")
-}
-
-model scm_order_details_log {
-  id               Int       @id @default(autoincrement())
-  order_details_id Int
-  log_type         Int       @default(1) @db.SmallInt
-  old_value        Decimal   @db.Decimal(12, 6)
-  new_value        Decimal   @db.Decimal(12, 6)
-  create_time      DateTime? @default(now()) @db.Timestamp(6)
-  remark           String?   @db.VarChar
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_order_stock {
-  id                Int                 @id @default(autoincrement())
-  order_id          Int
-  stock_id          Int?                @db.SmallInt
-  direct            Int                 @db.SmallInt
-  create_time       DateTime?           @default(now()) @db.Timestamp(6)
-  seller_id         Int?
-  stock_order_no    String?             @unique(map: "unique_stock_order_no") @db.VarChar(60)
-  status            Int?                @default(0) @db.SmallInt
-  receival_time     DateTime?           @db.Timestamp(6)
-  locking           Int?                @default(0) @db.SmallInt
-  supplier_id       Int?
-  scm_order_details scm_order_details[]
-  scm_seller        scm_seller?         @relation(fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_stock_seller_id_fkey7")
-  scm_stock         scm_stock?          @relation(fields: [stock_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_stock_stock_id_fkey15")
-  supplier          supplier?           @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model scm_organization {
-  id               Int                @id @default(autoincrement())
-  name             String             @db.VarChar(60)
-  scm_admin        scm_admin[]
-  scm_shop_account scm_shop_account[]
-  scm_shop_brand   scm_shop_brand[]
-}
-
-model scm_predict_order {
-  id                    String    @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  day_info_id           String?   @db.VarChar
-  predict_date          DateTime? @db.Date
-  is_confirmed          Boolean?
-  predicted_order_total Decimal?  @db.Decimal(12, 2)
-  shop_id               Int?
-  day_info              day_info? @relation(fields: [day_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_predict_order_day_info_id_fkey102")
-  scm_shop              scm_shop? @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_predict_order_shop_id_fkey103")
-}
-
-model scm_price_plan {
-  id                       Int                        @id @default(autoincrement())
-  name                     String                     @db.VarChar
-  scm_price_plan_scm_goods scm_price_plan_scm_goods[]
-  scm_supply_plan          scm_supply_plan[]
-}
-
-model scm_price_plan_scm_goods {
-  id             Int            @id @default(autoincrement())
-  price_plan_id  Int
-  good_id        Int
-  price          Decimal        @db.Decimal(12, 6)
-  status         Int            @default(0) @db.SmallInt
-  scm_goods      scm_goods      @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "good_id_fk39")
-  scm_price_plan scm_price_plan @relation(fields: [price_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "price_plan_id_fk37")
-}
-
-model scm_return_goods {
-  id              Int       @id @default(autoincrement())
-  supplier_id     Int?
-  goods_id        Int?
-  date            DateTime? @db.Date
-  qty             Decimal?  @db.Decimal(12, 6)
-  price           Decimal?  @db.Decimal(12, 6)
-  status          Int?      @default(0) @db.SmallInt
-  order_detail_id Int?
-  reason          Int?      @default(0) @db.SmallInt
-  create_time     DateTime? @default(now()) @db.Timestamp(6)
-  remark          String?   @db.VarChar
-}
-
-model scm_return_goods_month {
-  id          Int       @id @default(autoincrement())
-  goods_id    Int
-  date        DateTime  @db.Date
-  qty         Decimal   @db.Decimal(10, 4)
-  create_time DateTime? @db.Timestamp(6)
-  remark      String?   @db.VarChar
-  shop_id     Int
-}
-
-model scm_seller {
-  id              Int               @id @default(autoincrement())
-  seller_name     String            @db.VarChar(60)
-  phone_number    String?           @db.VarChar
-  mail            String?           @db.VarChar
-  scm_order_stock scm_order_stock[]
-}
-
-model scm_seller_account {
-  id          Int       @id @default(autoincrement())
-  seller_id   Int       @db.SmallInt
-  moniker     String?   @db.VarChar(100)
-  mobile      String?   @db.VarChar(16)
-  password    String?   @db.VarChar(60)
-  last_login  DateTime? @db.Timestamp(6)
-  create_time DateTime? @default(now()) @db.Timestamp(6)
-  group_id    Int?      @default(5) @db.SmallInt
-}
-
-model scm_sender_mail {
-  id           Int       @id @default(autoincrement())
-  sender_name  String    @db.VarChar
-  sender_email String    @db.VarChar
-  smtp_server  String    @db.VarChar
-  smtp_port    Int
-  password     String    @db.VarChar
-  create_time  DateTime? @default(now()) @db.Timestamp(6)
-}
-
-model scm_sender_mail_log {
-  id             Int      @id @default(autoincrement())
-  sender_mail_id Int
-  sender_date    DateTime @db.Date
-  times          Int
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -775,27 +176,18 @@ model scm_shop {
   is_join                        Int?                             @default(0) @db.SmallInt
   tc_shop_id                     Int?                             @default(0)
   city_id                        String?                          @db.VarChar
-  ingredient_type_id             String?                          @db.VarChar
   model_url                      String?                          @db.VarChar
   automatic_receiving            Int                              @default(1) @db.SmallInt
   is_enabled                     Boolean?                         @default(true)
   sales_plan_id                  String?                          @db.VarChar
-  client_tier_id                 Int?
-  picker_client_shop             picker_client_shop[]
-  scm_admin_group_scm_shop       scm_admin_group_scm_shop[]
   scm_order                      scm_order[]
-  scm_predict_order              scm_predict_order[]
   scm_shop_brand                 scm_shop_brand                   @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_brand_id38")
   cities                         cities?                          @relation(fields: [city_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_city_id_fkey71")
-  scm_shop                       scm_shop?                        @relation("scm_shopToscm_shop", fields: [client_tier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  other_scm_shop                 scm_shop[]                       @relation("scm_shopToscm_shop")
-  st_ingredient_types            st_ingredient_types?             @relation(fields: [ingredient_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_ingredient_type_id_fkey72")
   st_sales_plan                  st_sales_plan?                   @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_sales_plan_id_fkey83")
   scm_supply_plan                scm_supply_plan?                 @relation(fields: [supply_plan_id], references: [id], onDelete: Cascade, map: "scm_shop_supply_plan_id_fkey13")
   scm_shop_scm_shop_account      scm_shop_scm_shop_account[]
   st_daily_count                 st_daily_count[]
   st_daily_sales                 st_daily_sales[]
-  st_food_item_copy_on           st_food_item_copy_on[]
   st_inventory_single            st_inventory_single[]
   st_kitchen_department          st_kitchen_department[]
   st_predict_daily_sales         st_predict_daily_sales[]
@@ -803,10 +195,6 @@ model scm_shop {
   st_predict_order               st_predict_order[]
   st_predict_order_details       st_predict_order_details[]
   st_safe_store_goods            st_safe_store_goods[]
-  st_shop_section                st_shop_section[]
-  st_shop_table                  st_shop_table[]
-  temp_inventory_analysis        temp_inventory_analysis[]
-  user_client_shop               user_client_shop[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -816,42 +204,32 @@ model scm_shop_account {
   mobile                    String?                     @unique(map: "uniq_mobile") @db.VarChar(16)
   password                  String?                     @db.VarChar(60)
   role_type                 Int                         @default(0) @db.SmallInt
-  last_login                DateTime?                   @db.Timestamp(6)
-  create_time               DateTime?                   @db.Timestamp(6)
   status                    Int                         @default(1) @db.SmallInt
-  organization_id           Int?
-  serial_num                String?                     @unique @db.VarChar
-  scm_brand_account         scm_brand_account[]
-  scm_organization          scm_organization?           @relation(fields: [organization_id], references: [id], onDelete: Cascade, map: "scm_shop_account_organization_id_fkey10")
+  created_at                DateTime?                   @default(now()) @db.Timestamp(6)
   scm_shop_scm_shop_account scm_shop_scm_shop_account[]
-  st_inventory_count        st_inventory_count[]
   st_inventory_single       st_inventory_single[]
+  user_roles                user_roles[]
+  users_brands              users_brands[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_shop_brand {
-  id                      Int                       @id @default(autoincrement())
-  brand_name              String                    @db.VarChar(60)
-  create_time             DateTime?                 @default(now()) @db.Timestamp(6)
-  organization_id         Int?
-  tcsl_id                 String?                   @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  big_org_id              Int?                      @default(3)
-  is_enabled              Boolean?                  @default(false)
-  scm_brand_account       scm_brand_account[]
-  scm_goods_brand         scm_goods_brand[]
-  scm_shop                scm_shop[]
-  big_org                 big_org?                  @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
-  scm_organization        scm_organization?         @relation(fields: [organization_id], references: [id], onDelete: Cascade, map: "scm_shop_brand_organization_id_fkey14")
-  scm_supply_plan         scm_supply_plan[]
-  st_daily_sales          st_daily_sales[]
-  st_food_category        st_food_category[]
-  st_food_item            st_food_item[]
-  st_food_item_copy_on    st_food_item_copy_on[]
-  st_ingredient           st_ingredient[]
-  st_ingredient_types     st_ingredient_types[]
-  st_kitchen_department   st_kitchen_department[]
-  st_sales_plan           st_sales_plan[]
-  temp_inventory_analysis temp_inventory_analysis[]
+  id                    Int                     @id @default(autoincrement())
+  brand_name            String                  @db.VarChar(60)
+  create_time           DateTime?               @default(now()) @db.Timestamp(6)
+  tcsl_id               String?                 @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  big_org_id            Int?                    @default(3)
+  is_enabled            Boolean?                @default(false)
+  scm_shop              scm_shop[]
+  big_org               big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
+  scm_supply_plan       scm_supply_plan[]
+  st_daily_sales        st_daily_sales[]
+  st_food_category      st_food_category[]
+  st_food_item          st_food_item[]
+  st_ingredient         st_ingredient[]
+  st_kitchen_department st_kitchen_department[]
+  st_sales_plan         st_sales_plan[]
+  users_brands          users_brands[]
 
   @@index([tcsl_id], map: "idx_sc_shop_brand_tcsl_id")
 }
@@ -865,256 +243,19 @@ model scm_shop_scm_shop_account {
   @@id([shop_id, shop_account_id])
 }
 
-model scm_shopping {
-  id          Int       @id @default(autoincrement())
-  shop_id     Int
-  account_id  Int
-  num         Decimal   @db.Decimal(10, 2)
-  stall_id    Int?
-  create_time DateTime? @default(now()) @db.Timestamp(6)
-  price       Decimal?  @db.Decimal(10, 2)
-  total_price Decimal?  @db.Decimal(10, 2)
-  goods_id    Int?
-
-  @@index([shop_id], map: "idx_scm_shopping_shop_id")
-}
-
-model scm_shopping_history {
-  id          Int       @id @default(autoincrement())
-  shop_id     Int
-  account_id  Int
-  num         Int
-  price       Decimal   @db.Decimal(10, 2)
-  stall_id    Int?
-  create_time DateTime? @db.Timestamp(6)
-  goods_id    Int?
-  hide_price  Decimal?  @default(0) @db.Decimal(10, 2)
-}
-
-model scm_small_storage {
-  id                   String                 @id(map: "small_storage_pkey") @db.VarChar
-  facility_id          String?                @db.VarChar
-  name                 String?                @db.VarChar
-  temperature          String?                @db.VarChar
-  scm_storage_facility scm_storage_facility?  @relation(fields: [facility_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "small_storage_facility_id_fkey16")
-  scm_storage_position scm_storage_position[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_stock {
-  id              Int               @id @default(autoincrement())
-  stock_name      String            @db.VarChar(60)
-  serial_num      String?           @db.VarChar(60)
-  address         String?           @db.VarChar(60)
-  usetype         Int               @default(1) @db.SmallInt
-  status          Int               @default(1) @db.SmallInt
-  create_time     DateTime?         @default(now()) @db.Timestamp(6)
-  struc_type      Int?              @default(1) @db.SmallInt
-  sold_time       DateTime?         @default(dbgenerated("'15:00:00'::time without time zone")) @db.Time(6)
-  small_storage   String?           @db.VarChar
-  scm_goods       scm_goods[]
-  scm_order_stock scm_order_stock[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_storage {
-  id            Int             @id @default(autoincrement())
-  file_name     String          @db.VarChar(200)
-  suffix        String?         @db.VarChar(10)
-  file_size     Int?
-  file_path     String          @db.VarChar(200)
-  create_time   DateTime?       @db.Timestamp(6)
-  scm_goods_img scm_goods_img[]
-}
-
-model scm_storage_facility {
-  id                   String                 @id(map: "storage_facility_pkey") @db.VarChar
-  name                 String?                @db.VarChar
-  address              String?                @db.VarChar
-  scm_small_storage    scm_small_storage[]
-  scm_storage_position scm_storage_position[]
-}
-
-model scm_storage_goods_log {
-  id                  Int       @id @default(autoincrement())
-  good_id             Int
-  storage_position_id String    @db.VarChar
-  qty                 Decimal   @db.Decimal(10, 4)
-  date                DateTime? @db.Date
-  logtype             Int       @default(0) @db.SmallInt
-  create_time         DateTime? @default(now()) @db.Timestamp(6)
-  old_qty             Decimal?  @db.Decimal(10, 4)
-  new_qty             Decimal?  @db.Decimal(10, 4)
-  reason              String?   @db.VarChar
-}
-
-model scm_storage_position {
-  id                             String                           @id(map: "storage_position_pkey") @db.VarChar
-  storage_facility_id            String?                          @db.VarChar
-  small_storage_id               String?                          @db.VarChar
-  row_num                        Int?
-  column_num                     Int?
-  level_num                      Int?
-  last_audit                     DateTime?                        @db.Timestamp(6)
-  updated_at                     DateTime?                        @db.Timestamp(6)
-  created_at                     DateTime?                        @db.Timestamp(6)
-  scm_bulk_picking_routes        scm_bulk_picking_routes[]
-  scm_small_storage              scm_small_storage?               @relation(fields: [small_storage_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "storage_position_small_storage_id_fkey18")
-  scm_storage_facility           scm_storage_facility?            @relation(fields: [storage_facility_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "storage_position_storage_facility_id_fkey17")
-  scm_storage_position_scm_goods scm_storage_position_scm_goods[]
-}
-
-model scm_storage_position_scm_goods {
-  storage_position_id  String               @db.VarChar
-  good_id              Int
-  qty                  Decimal              @db.Decimal(10, 4)
-  is_ex                Int?                 @default(0) @db.SmallInt
-  scm_storage_position scm_storage_position @relation(fields: [storage_position_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "orage_position_scm_goods_storage_position_id_fkey20")
-  scm_goods            scm_goods            @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_storage_position_scm_goods_good_id_fkey19")
-
-  @@id([storage_position_id, good_id])
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_storage_position_scm_goods_copy {
-  storage_position_id String?  @db.VarChar
-  good_id             Int?
-  qty                 Decimal? @db.Decimal(10, 2)
-  is_ex               Int?     @db.SmallInt
-
-  @@ignore
-}
-
-model scm_store_picking_supplyitems {
-  id                String             @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  order_details_id  Int?
-  date              DateTime?          @db.Date
-  quantity_needed   Decimal?           @db.Decimal
-  quantity_picked   Decimal?           @default(0) @db.Decimal
-  created_at        DateTime?          @default(now()) @db.Timestamp(6)
-  stock_id          Int?               @db.SmallInt
-  no_deliver        Int?               @default(0) @db.SmallInt
-  status            Int?               @default(0) @db.SmallInt
-  automatic         Int?               @default(1) @db.SmallInt
-  scm_order_details scm_order_details? @relation(fields: [order_details_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "m_store_picking_supplyitems_order_details_id_fkey25")
-
-  @@index([date], map: "idx_scm_store_picking_supplyitems_date")
-  @@index([order_details_id], map: "idx_scm_store_picking_supplyitems_order_details_id")
-  @@index([date], map: "idx_scm_store_picking_supplyitemsdate")
-}
-
-model scm_store_picking_supplyitems_vege_routes {
-  id                           Int       @id @default(autoincrement())
-  store_picking_supplyitems_id String    @db.VarChar
-  storage_position_id          String    @db.VarChar
-  qty                          Decimal   @db.Decimal
-  create_time                  DateTime? @db.Timestamp(6)
-}
-
-model scm_storehouse {
-  mobile                  String                    @db.VarChar
-  password                String                    @db.VarChar
-  group_id                Int                       @db.SmallInt
-  nickname                String                    @db.VarChar
-  status                  Int                       @default(1) @db.SmallInt
-  create_time             DateTime?                 @default(now()) @db.Timestamp(6)
-  id                      Int                       @id @default(autoincrement())
-  scm_admin_token         scm_admin_token[]
-  scm_admin_group         scm_admin_group           @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_group_id118")
-  scm_storehouse_scm_shop scm_storehouse_scm_shop[]
-}
-
-model scm_storehouse_scm_shop {
-  id             Int            @id @default(autoincrement())
-  storehouse_id  Int
-  shop_id        Int
-  scm_storehouse scm_storehouse @relation(fields: [storehouse_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_storehouse")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_supplier {
-  id                        Int                         @id @default(autoincrement())
-  supplier_name             String                      @db.VarChar(60)
-  phone_number              String?                     @db.VarChar(60)
-  serial_num                String                      @db.VarChar(60)
-  settlement                Int                         @default(1) @db.SmallInt
-  create_time               DateTime?                   @default(now()) @db.Timestamp(6)
-  is_first                  Int?                        @default(1) @db.SmallInt
-  push_order                Int?                        @default(0) @db.SmallInt
-  mail                      String?                     @db.VarChar
-  scm_supplier_person       scm_supplier_person[]
-  scm_supplier_price_plan   scm_supplier_price_plan[]
-  scm_suppliers_goods_daily scm_suppliers_goods_daily[]
-}
-
-model scm_supplier_box {
-  id          Int     @id @default(autoincrement())
-  name        String  @db.VarChar(200)
-  description String? @db.VarChar(200)
-}
-
-model scm_supplier_box_scm_supplier {
-  id          Int @id @default(autoincrement())
-  supplier_id Int
-  box_id      Int
-}
-
-model scm_supplier_person {
-  id           Int          @id @default(autoincrement())
-  supplier_id  Int
-  name         String       @db.VarChar(60)
-  phone_number String       @db.VarChar(60)
-  password     String?      @db.VarChar
-  scm_supplier scm_supplier @relation(fields: [supplier_id], references: [id], onDelete: Cascade, map: "scm_supplier_person_supplier_id_fkey1")
-}
-
-model scm_supplier_price_plan {
-  id           Int          @id @default(autoincrement())
-  supplier_id  Int
-  goods_id     Int
-  spec_text    String?      @db.VarChar(60)
-  util_id      Int?
-  sale_price   Decimal?     @db.Decimal(10, 2)
-  small_price  Decimal?     @db.Decimal(12, 6)
-  supplierid   Int?
-  scm_goods    scm_goods    @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods51")
-  scm_supplier scm_supplier @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_supplier52")
-  supplier     supplier?    @relation(fields: [supplierid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_util     scm_util?    @relation(fields: [util_id], references: [id], onDelete: Cascade, map: "scm_supplier_price_plan_util_id_fkey53")
-
-  @@unique([goods_id, supplier_id], map: "unique_supplier_good")
-}
-
-model scm_suppliers_goods_daily {
-  id           Int           @id @default(autoincrement())
-  goods_id     Int?
-  suppliers_id Int?
-  date         DateTime?     @db.Date
-  qty          Decimal?      @db.Decimal
-  generate     Int?          @default(0) @db.SmallInt
-  supplier_id  Int?
-  scm_goods    scm_goods?    @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_suppliers_goods_daily_goods_id_fkey30")
-  supplier     supplier?     @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_supplier scm_supplier? @relation(fields: [suppliers_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_suppliers_goods_daily_suppliers_id_fkey31")
-
-  @@unique([goods_id, suppliers_id, date], map: "unique_goods_supplier_date")
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_supply_plan {
   id                        Int                         @id @default(autoincrement())
   name                      String?                     @db.VarChar(60)
   serial_num                String?                     @unique @db.VarChar
   organization_id           Int?
-  price_plan_id             Int?
   brand_id                  Int?
   city                      String?                     @db.VarChar
   scm_shop                  scm_shop[]
-  scm_price_plan            scm_price_plan?             @relation(fields: [price_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "price_plan_id_fk35")
   scm_shop_brand            scm_shop_brand?             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_supply_plan_brand_id_fkey29")
   scm_supply_plan_scm_goods scm_supply_plan_scm_goods[]
   st_ingredient             st_ingredient[]
-  st_ingredient_types       st_ingredient_types[]
+  st_sales_plan             st_sales_plan[]
 }
 
 model scm_supply_plan_scm_goods {
@@ -1122,13 +263,16 @@ model scm_supply_plan_scm_goods {
   good_id                  Int?
   id                       String                     @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
   price                    Decimal?                   @db.Decimal(12, 6)
-  stock_id                 Int?
   is_enabled               Boolean?                   @default(true)
-  status                   Int?                       @default(1) @db.SmallInt
-  good_unit_id             String?                    @db.VarChar
   is_predict               Boolean?                   @default(false)
-  scm_goods                scm_goods?                 @relation(fields: [good_id], references: [id], onDelete: Cascade, map: "scm_supply_plan_scm_goods_good_id_fkey12")
-  scm_good_units           scm_good_units?            @relation(fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_supply_plan_scm_goods_good_unit_id_fkey92")
+  order_unit               String?                    @db.VarChar(20)
+  order_unit_id            String?                    @db.VarChar
+  base_unit                String?                    @db.VarChar(20)
+  base_unit_id             String?                    @db.VarChar
+  order_to_base_ratio      Decimal?                   @db.Decimal(12, 2)
+  goods_name               String?                    @db.VarChar(100)
+  scm_good_units           scm_good_units[]
+  scm_goods                scm_goods?                 @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_fk")
   scm_supply_plan          scm_supply_plan?           @relation(fields: [supply_plan_id], references: [id], onDelete: Cascade, map: "scm_supply_plan_scm_goods_supply_plan_id_fkey11")
   st_daily_count_items     st_daily_count_items[]
   st_ingredient            st_ingredient[]
@@ -1137,69 +281,6 @@ model scm_supply_plan_scm_goods {
 
   @@unique([supply_plan_id, good_id], map: "constraint_name")
   @@unique([supply_plan_id, good_id], map: "unique_supply_plan_goods")
-}
-
-model scm_tc_shop {
-  id        Int     @id @default(autoincrement())
-  shop_id   Int
-  shop_name String? @db.VarChar(512)
-}
-
-model scm_transfer_stock {
-  id                   Int       @id @default(autoincrement())
-  good_id              Int
-  old_small_storage_id String    @db.VarChar
-  old_position_id      String    @db.VarChar
-  new_small_storage_id String    @db.VarChar
-  new_position_id      String    @db.VarChar
-  qty                  Decimal   @db.Decimal(10, 4)
-  create_time          DateTime? @db.Timestamp(6)
-}
-
-model scm_units_of_measure {
-  id   String @id(map: "units_of_measure_pkey") @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  name String @db.VarChar
-}
-
-model scm_user_update_position_log {
-  id              Int       @id @default(autoincrement())
-  goods_id        BigInt
-  user_id         BigInt
-  old_position_id String?   @db.VarChar
-  new_position_id String?   @db.VarChar
-  qty             Decimal?  @db.Decimal(10, 2)
-  create_time     DateTime? @db.Timestamp(6)
-}
-
-model scm_util {
-  id                      Int                       @id @default(autoincrement())
-  sale_unit               String                    @db.VarChar(10)
-  small_unit              String?                   @db.VarChar(10)
-  ratio                   Int?
-  main_unit_id            Int?
-  scm_goods               scm_goods[]
-  scm_goods_price         scm_goods_price[]
-  scm_supplier_price_plan scm_supplier_price_plan[]
-  com_main_unit           com_main_unit?            @relation(fields: [main_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_util_main_unit_id_fkey48")
-}
-
-model scm_version {
-  id             Int       @id @default(autoincrement())
-  version_number String    @db.VarChar(50)
-  app_type       String    @default("wms") @db.VarChar(10)
-  create_time    DateTime? @default(now()) @db.Timestamp(6)
-}
-
-model st_accounts {
-  id               Int                @id @default(autoincrement())
-  moniker          String?            @db.VarChar(60)
-  mobile           String?            @db.VarChar(60)
-  password         String?            @db.VarChar(60)
-  organization_id  Int?
-  serial_num       String?            @db.VarChar
-  role             Int?
-  st_org           st_org?            @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_accounts_organization_id_fkey34")
-  st_store_account st_store_account[]
 }
 
 model st_bill_list {
@@ -1413,75 +494,6 @@ model st_food_item {
   st_sales_plan_items            st_sales_plan_items[]
 }
 
-model st_food_item_copy {
-  item_id            String    @id @db.VarChar
-  item_name          String?   @db.VarChar(255)
-  unit_id            String?   @db.VarChar
-  unit_name          String?   @db.VarChar(50)
-  std_price          Decimal?  @db.Decimal(10, 4)
-  big_class_id       String?   @db.VarChar
-  big_class_name     String?   @db.VarChar(255)
-  small_class_id     String?   @db.VarChar
-  small_class_name   String?   @db.VarChar(255)
-  is_package         Boolean?
-  is_temp_item       Boolean?
-  is_enable          Boolean?
-  delflg             Int?      @db.SmallInt
-  center_code        String?   @db.VarChar(50)
-  center_name        String?   @db.VarChar(255)
-  brand_id           String?   @db.VarChar
-  brand_code         String?   @db.VarChar(50)
-  brand_name         String?   @db.VarChar(255)
-  shop_code          String?   @db.VarChar(50)
-  shop_name          String?   @db.VarChar(255)
-  create_time        DateTime? @db.Timestamp(6)
-  modify_time        DateTime? @db.Timestamp(6)
-  big_pic_url        String?
-  small_pic_url      String?
-  gif_pic_url        String?
-  video_url          String?
-  big_pic3_url       String?
-  barcode            String?   @db.VarChar(100)
-  english_name       String?   @db.VarChar(255)
-  intro              String?   @db.VarChar(255)
-  salesrevenuetypeid String?   @db.VarChar(50)
-  auxiliary_unit_id  String?   @db.VarChar
-  zxjtype            Int?      @db.SmallInt
-  pungencydegree     Int?      @db.SmallInt
-  brand_item_code    String?   @db.VarChar(50)
-  brand_item_name    String?   @db.VarChar(255)
-  aid_code           String?   @db.VarChar(50)
-  sku_code           String?   @db.VarChar(50)
-  standard_time      DateTime? @db.Timestamp(6)
-  warn_time          DateTime? @db.Timestamp(6)
-  other_name         String?   @db.VarChar(255)
-}
-
-model st_food_item_copy_on {
-  id                 String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  onlinesalesprice   Decimal?        @db.Decimal(10, 4)
-  brandid            Int?
-  shopid             Int?
-  sizeid             Int?
-  channelinfogroupid String?         @db.VarChar
-  plid               String?         @db.VarChar
-  unitname           String?         @db.VarChar(255)
-  memberprice        Decimal?        @db.Decimal(10, 4)
-  itemcode           String?         @db.VarChar(50)
-  costprice          Decimal?        @db.Decimal(10, 4)
-  itemid             String?         @db.VarChar
-  itemname           String?         @db.VarChar(255)
-  wuuordertakeout    Decimal?        @db.Decimal(10, 4)
-  sizename           String?         @db.VarChar(50)
-  price              Decimal?        @db.Decimal(10, 4)
-  unitid             String?         @db.VarChar
-  wuuorderdinner     Decimal?        @db.Decimal(10, 4)
-  stdprice           Decimal?        @db.Decimal(10, 4)
-  wuupickup          Decimal?        @db.Decimal(10, 4)
-  scm_shop_brand     scm_shop_brand? @relation(fields: [brandid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_food_item_copy_on_brandid_fkey5")
-  scm_shop           scm_shop?       @relation(fields: [shopid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_food_item_copy_on_shopid_fkey6")
-}
-
 model st_ingredient {
   id                        Int                       @id @default(autoincrement())
   food_item_id              String?                   @db.VarChar
@@ -1494,8 +506,10 @@ model st_ingredient {
   supply_plan_id            Int
   supply_plan_good_id       String                    @db.VarChar
   sales_plan_item_id        String                    @db.VarChar
+  good_unit_id              String?                   @db.VarChar
   scm_shop_brand            scm_shop_brand            @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_brand_id_fkey73")
   st_food_item              st_food_item?             @relation(fields: [food_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "st_ingredient_food_item_id_fkey61")
+  scm_good_units            scm_good_units?           @relation(fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_goods                 scm_goods?                @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_goods_id_fkey65")
   st_sales_plan             st_sales_plan             @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_sales_plan_id_fkey95")
   st_sales_plan_items       st_sales_plan_items       @relation(fields: [sales_plan_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -1505,59 +519,6 @@ model st_ingredient {
   @@unique([goods_id, food_item_id, sales_plan_id, supply_plan_id], map: "unique_food_goods_sales_plan")
   @@unique([sales_plan_item_id, supply_plan_good_id], map: "unique_sales_item_supply_item")
   @@index([food_item_id, sales_plan_id, supply_plan_id], map: "idx_st_ingredient_food_item_id_sales_plan_id_supply_plan_id")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model st_ingredient_copy {
-  id                  Int?
-  food_item_id        String?  @db.VarChar
-  qty                 Decimal? @db.Decimal
-  yield_pct           Decimal? @db.Decimal
-  goods_id            Int?
-  brand_id            Int?
-  order_column        Int?
-  sales_plan_id       String?  @db.VarChar
-  supply_plan_id      Int?
-  supply_plan_good_id String?  @db.VarChar
-  sales_plan_item_id  String?  @db.VarChar
-
-  @@ignore
-}
-
-model st_ingredient_types {
-  id              String           @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  name            String?          @db.VarChar
-  brand_id        Int?
-  supply_plan_id  Int?
-  scm_shop        scm_shop[]
-  scm_shop_brand  scm_shop_brand?  @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_types_brand_id_fkey70")
-  scm_supply_plan scm_supply_plan? @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_types_supply_plan_id_fkey28")
-}
-
-model st_inventory_allocation {
-  id                    String              @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  inventory_id          Int
-  order_details_id      Int
-  allocated_qty         Decimal             @db.Decimal(10, 4)
-  allocated_date        DateTime            @default(now()) @db.Timestamptz(6)
-  allocated_date_string String?             @db.VarChar(50)
-  st_inventory_single   st_inventory_single @relation(fields: [inventory_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_inventory_allocation_inventory_id_fkey111")
-  scm_order_details     scm_order_details   @relation(fields: [order_details_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_inventory_allocation_order_details_id_fkey112")
-}
-
-model st_inventory_count {
-  id                    String                 @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  qty                   Decimal?               @db.Decimal
-  inventory_item_id     String?                @db.VarChar
-  good_unit_id          String?                @db.VarChar
-  user_id               Int?
-  kitchen_department_id String?                @db.VarChar
-  scm_good_units        scm_good_units?        @relation(fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_inventory_count_good_unit_id_fkey76")
-  st_inventory_items    st_inventory_items?    @relation(fields: [inventory_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "st_inventory_count_inventory_item_id_fkey89")
-  st_kitchen_department st_kitchen_department? @relation(fields: [kitchen_department_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_inventory_count_kitchen_department_id_fkey88")
-  scm_shop_account      scm_shop_account?      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_inventory_count_user_id_fkey77")
-
-  @@unique([kitchen_department_id, inventory_item_id, good_unit_id], map: "unique_inventory_combination")
 }
 
 model st_inventory_detail {
@@ -1583,50 +544,22 @@ model st_inventory_detail {
   @@unique([single_id, goods_id], map: "unique_goods_single")
 }
 
-model st_inventory_items {
-  id                    String                  @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  good_id               Int?
-  orig_qty              Decimal?                @db.Decimal
-  order_qty             Decimal?                @db.Decimal
-  inventory_id          Int?
-  price                 Decimal?                @db.Decimal(12, 2)
-  orig_price            Decimal?                @db.Decimal
-  st_inventory_count    st_inventory_count[]
-  scm_goods             scm_goods?              @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_inventory_items_good_id_fkey46")
-  st_inventory_single   st_inventory_single?    @relation(fields: [inventory_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_inventory_items_inventory_id_fkey47")
-  st_inventory_miscount st_inventory_miscount[]
-
-  @@unique([good_id, inventory_id], map: "unique_good_inventory")
-  @@unique([good_id, inventory_id], map: "unique_goods_inventory")
-}
-
-model st_inventory_miscount {
-  id                 String              @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  inventory_item_id  String?             @db.VarChar
-  missed_qty         Decimal?            @db.Decimal(12, 4)
-  price              Decimal?            @db.Decimal(12, 4)
-  st_inventory_items st_inventory_items? @relation(fields: [inventory_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_inventory_miscount_inventory_item_id_fkey91")
-}
-
 model st_inventory_single {
-  id                      Int                       @id @default(autoincrement())
-  shop_id                 Int?
-  start_date              DateTime                  @db.Date
-  end_date                DateTime                  @db.Date
-  create_time             DateTime?                 @default(now()) @db.Timestamp(6)
-  status                  Int                       @default(0) @db.SmallInt
-  user_id                 Int?
-  last_amount             Decimal?                  @default(0) @db.Decimal(12, 6)
-  submit_time             DateTime?                 @db.Timestamp(6)
-  day_info_id             String?                   @db.VarChar
-  total_inventory_amount  Decimal?                  @db.Decimal(12, 2)
-  st_inventory_allocation st_inventory_allocation[]
-  st_inventory_detail     st_inventory_detail[]
-  st_inventory_items      st_inventory_items[]
-  scm_shop_account        scm_shop_account?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_id4")
-  scm_shop                scm_shop?                 @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_id_fk3")
-  day_info                day_info?                 @relation(fields: [day_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  temp_inventory_analysis temp_inventory_analysis[]
+  id                     Int                   @id @default(autoincrement())
+  shop_id                Int?
+  start_date             DateTime              @db.Date
+  end_date               DateTime              @db.Date
+  create_time            DateTime?             @default(now()) @db.Timestamp(6)
+  status                 Int                   @default(0) @db.SmallInt
+  user_id                Int?
+  last_amount            Decimal?              @default(0) @db.Decimal(12, 6)
+  submit_time            DateTime?             @db.Timestamp(6)
+  day_info_id            String?               @db.VarChar
+  total_inventory_amount Decimal?              @db.Decimal(12, 2)
+  st_inventory_detail    st_inventory_detail[]
+  scm_shop_account       scm_shop_account?     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_id4")
+  scm_shop               scm_shop?             @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_id_fk3")
+  day_info               day_info?             @relation(fields: [day_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([shop_id, start_date, end_date], map: "unique_shop_date_range")
 }
@@ -1636,7 +569,6 @@ model st_kitchen_department {
   name                        String?                       @db.VarChar
   brand_id                    Int?
   shop_id                     Int?
-  st_inventory_count          st_inventory_count[]
   scm_shop_brand              scm_shop_brand?               @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_kitchen_department_brand_id_fkey84")
   scm_shop                    scm_shop?                     @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_kitchen_department_shop_id_fkey87")
   st_kitchen_department_goods st_kitchen_department_goods[]
@@ -1652,71 +584,6 @@ model st_kitchen_department_goods {
   st_kitchen_department st_kitchen_department? @relation(fields: [kitchen_department_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "tchen_department_goods_kitchen_department_id_fkey86")
 
   @@unique([goods_id, kitchen_department_id], map: "unique_goods_kitchen")
-}
-
-model st_member_account {
-  account_type_id       String?   @db.VarChar(255)
-  account_type_name     String?   @db.VarChar(255)
-  account_type_url      String?
-  address               String?
-  all_relatives         Json?
-  birthday              DateTime? @db.Timestamptz(6)
-  birthday_type         String?   @db.VarChar(10)
-  by_invite_code        String?
-  by_invite_member_id   String?
-  by_invite_member_name String?
-  by_invite_photo       String?
-  by_invite_sex         String?
-  caller_name           String?
-  card_count            String?   @db.VarChar(100)
-  card_kind             String?
-  certificate_no        String?
-  company_id            String?   @db.VarChar(255)
-  create_time           DateTime? @db.Timestamptz(6)
-  email                 String?
-  english_name          String?
-  id                    String    @id @db.VarChar(255)
-  info_improved_flag    String?   @db.VarChar(10)
-  invite_ids            String?
-  invite_names          String?
-  invite_photos         String?
-  invite_sexs           String?
-  is_mobile_validated   String?
-  job                   String?
-  landline              String?
-  lunar_birthday        DateTime? @db.Timestamptz(6)
-  member_account        String?
-  mobile                String?   @db.VarChar(20)
-  mobile_area           String?   @db.VarChar(10)
-  my_invite_code        String?   @db.VarChar(50)
-  name                  String?
-  nation                String?
-  note                  String?
-  password              String?   @db.VarChar(255)
-  photo                 String?
-  post_code             String?
-  qq                    String?   @db.VarChar(50)
-  sex                   String?   @db.VarChar(10)
-  shop_id               String?   @db.VarChar(255)
-  shop_name             String?
-  status                String?   @db.VarChar(10)
-  update_time           DateTime? @db.Timestamptz(6)
-  version               String?
-  work_unit             String?
-}
-
-model st_menu {
-  id   Int     @id @default(autoincrement())
-  name String? @db.VarChar(60)
-  icon String? @db.VarChar(60)
-  url  String? @db.VarChar(60)
-  sort Int?
-}
-
-model st_org {
-  id          Int           @id @default(autoincrement())
-  name        String?       @db.VarChar(60)
-  st_accounts st_accounts[]
 }
 
 model st_predict_daily_sales {
@@ -1802,17 +669,6 @@ model st_safe_store_goods {
   @@unique([supply_plan_good_id, shop_id], map: "unique_safe_good")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model st_safe_store_goods_copy {
-  id                  String? @db.VarChar
-  supply_plan_good_id String? @db.VarChar
-  shop_id             Int?
-  min_qty             Int?
-  order_good_unit_id  String? @db.VarChar
-
-  @@ignore
-}
-
 model st_sales_plan {
   id                     String                @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
   priid                  String?               @db.VarChar
@@ -1846,9 +702,11 @@ model st_sales_plan {
   delflg                 Int?
   belongshopid           Int?
   belongshopname         String?               @db.VarChar
+  supply_plan_id         Int?
   scm_shop               scm_shop[]
   st_ingredient          st_ingredient[]
   scm_shop_brand         scm_shop_brand?       @relation(fields: [brandid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_sales_plan_brandid_fkey79")
+  scm_supply_plan        scm_supply_plan?      @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   st_sales_plan_items    st_sales_plan_items[]
 }
 
@@ -1887,231 +745,24 @@ model st_settle_details {
   st_daily_sales   st_daily_sales? @relation(fields: [daily_sales_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_settle_details_daily_sales_id_fkey78")
 }
 
-model st_shop_sales_details {
-  id               BigInt    @id @default(autoincrement())
-  bs_id            BigInt
-  last_qty         Decimal   @db.Decimal(10, 2)
-  small_class_name String?   @db.VarChar
-  item_id          BigInt
-  item_name        String?   @db.VarChar
-  last_total       Decimal?  @db.Decimal(10, 2)
-  delflg           Int       @default(0) @db.SmallInt
-  create_time      DateTime? @db.Timestamp(6)
-  date             DateTime? @db.Date
-  tc_shop_id       BigInt    @default(0)
-
-  @@index([date], map: "idx_date")
-  @@index([tc_shop_id], map: "idx_tc_shop_id")
-}
-
-model st_shop_section {
-  id            Int             @id @default(autoincrement())
-  name          String?         @db.VarChar(50)
-  shop_id       Int
-  scm_shop      scm_shop        @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  st_shop_table st_shop_table[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model st_shop_table {
-  id              Int              @id @default(autoincrement())
-  shop_id         Int
-  section_id      Int?
-  section_num     Int
-  capacity        Int
-  status          Int
-  st_shop_section st_shop_section? @relation(fields: [section_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_shop        scm_shop         @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model st_store_account {
-  id          Int          @id @default(autoincrement())
-  store_id    Int?
-  account_id  Int?
-  st_accounts st_accounts? @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_store_account_account_id_fkey36")
-}
-
-model temp_inventory_analysis {
-  id                  String               @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  brand_id            Int?
-  shop_id             Int?
-  inventory_id        Int?
-  inventory_status    Int?
-  total_waste_money   Decimal?             @db.Decimal(12, 2)
-  total_save_money    Decimal?             @db.Decimal(12, 2)
-  day_info_id         String?              @db.VarChar
-  scm_shop_brand      scm_shop_brand?      @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  day_info            day_info?            @relation(fields: [day_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  st_inventory_single st_inventory_single? @relation(fields: [inventory_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_shop            scm_shop?            @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model test_flyback {
-  id          Int       @id @default(autoincrement())
-  user_id     String    @db.Uuid
-  total_price Decimal   @db.Decimal(10, 2)
-  order_date  DateTime? @default(now()) @db.Timestamp(6)
-}
-
-model test_flyway {
-  id         Int       @id @default(autoincrement())
-  name       String    @db.VarChar(100)
-  created_at DateTime? @default(now()) @db.Timestamp(6)
-}
-
-model testproduct {
-  id        Int        @id @default(autoincrement())
-  name      String?    @db.VarChar
-  user_id   Int?
-  testtable testtable? @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "testproduct_user_id_fkey55")
-}
-
-model testtable {
-  id          Int           @id @default(autoincrement())
-  name        String?       @db.VarChar
-  phone       Decimal?      @db.Decimal
-  email       String?       @db.VarChar
-  testproduct testproduct[]
-}
-
-model testtable2 {
-  id   Int     @id(map: "must_be_different") @default(autoincrement())
-  name String? @db.VarChar
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model client_tier {
-  id         Int       @id @default(autoincrement())
-  tier_name  String?   @db.VarChar(50)
-  created_at DateTime? @default(now()) @db.Timestamp(6)
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model permissions {
-  id               Int                @id @default(autoincrement())
-  name             String             @unique @db.VarChar(100)
-  display_name     String?            @db.VarChar(255)
-  created_at       DateTime?          @default(now()) @db.Timestamp(6)
-  role_permissions role_permissions[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model picker_client_shop {
-  id       String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id  Int
-  shop_id  Int
-  scm_shop scm_shop @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users    users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([user_id, shop_id])
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model role_permissions {
-  id            String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  role_id       Int
-  permission_id Int
-  created_at    DateTime?   @default(now()) @db.Timestamp(6)
-  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  roles         roles       @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([role_id, permission_id])
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model role_types {
-  id              Int               @id @default(autoincrement())
-  type_name       String            @unique @db.VarChar(100)
-  roles           roles[]
-  user_role_types user_role_types[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model roles {
-  id               Int                @id @default(autoincrement())
-  role_name        String             @unique @db.VarChar(100)
-  role_type_id     Int
-  role_permissions role_permissions[]
-  role_types       role_types         @relation(fields: [role_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user_roles       user_roles[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model supplier {
-  id                        Int                         @id @default(autoincrement())
-  supplier_name             String                      @db.VarChar(100)
-  phone_number              String                      @db.VarChar(20)
-  serial_num                String?                     @db.VarChar(100)
-  supplier_type             Int?
-  settlement                Int?
-  push_order                Int?
-  is_first                  Int?
-  mail                      String?                     @db.VarChar(100)
-  created_at                DateTime?                   @default(now()) @db.Timestamp(6)
-  scm_order_stock           scm_order_stock[]
-  scm_supplier_price_plan   scm_supplier_price_plan[]
-  scm_suppliers_goods_daily scm_suppliers_goods_daily[]
-  user_supplier             user_supplier[]
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model user_client_shop {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id    Int
-  shop_id    Int
-  created_at DateTime? @default(now()) @db.Timestamp(6)
-  scm_shop   scm_shop  @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([user_id, shop_id])
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model user_role_types {
-  id           String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id      Int
-  role_type_id Int
-  role_types   role_types @relation(fields: [role_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users        users      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([user_id, role_type_id])
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model user_roles {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id    Int
-  role_id    Int
-  created_at DateTime? @default(now()) @db.Timestamp(6)
-  roles      roles     @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id               String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id          Int
+  role_id          Int
+  created_at       DateTime?        @default(now()) @db.Timestamp(6)
+  roles            roles            @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_shop_account scm_shop_account @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([user_id, role_id])
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model user_supplier {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id     Int
-  supplier_id Int
-  created_at  DateTime? @default(now()) @db.Timestamp(6)
-  supplier    supplier  @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users       users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model users_brands {
+  id               String            @id(map: "scm_brand_account_pkey") @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  brand_id         Int?
+  account_id       Int?
+  scm_shop_account scm_shop_account? @relation(fields: [account_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_brand_account_account_id_fkey60")
+  scm_shop_brand   scm_shop_brand?   @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_brand_account_brand_id_fkey59")
 
-  @@unique([user_id, supplier_id])
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model users {
-  id                 Int                  @id @default(autoincrement())
-  user_name          String               @db.VarChar(50)
-  mobile             String               @unique @db.VarChar(50)
-  password           String               @db.VarChar(255)
-  created_at         DateTime?            @default(now()) @db.Timestamp(6)
-  picker_client_shop picker_client_shop[]
-  user_client_shop   user_client_shop[]
-  user_role_types    user_role_types[]
-  user_roles         user_roles[]
-  user_supplier      user_supplier[]
+  @@unique([brand_id, account_id], map: "unique_brand_account")
 }
