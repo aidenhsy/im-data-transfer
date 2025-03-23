@@ -130,7 +130,6 @@ model scm_order_details {
   goods_name         String?    @db.VarChar(60)
   num                Decimal    @db.Decimal
   price              Decimal    @db.Decimal(12, 6)
-  spec_text          String?    @db.VarChar(60)
   ratio              Int?
   status             Int        @default(0) @db.SmallInt
   order_id           Int?
@@ -141,9 +140,6 @@ model scm_order_details {
   goods_id           Int?
   delivery_qty       Decimal?   @default(0) @db.Decimal(10, 2)
   letter_name        String?    @db.VarChar
-  hide_price         Decimal?   @default(0) @db.Decimal(12, 6)
-  yu_price           Decimal?   @default(0) @db.Decimal(12, 6)
-  item_total         Decimal?   @db.Decimal(12, 2)
   remaining_quantity Decimal?   @db.Decimal(10, 4)
   scm_goods          scm_goods? @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_goods_id_fkey44")
   scm_order          scm_order? @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_order_id_fkey43")
@@ -263,6 +259,7 @@ model scm_supply_plan_scm_goods {
   order_unit_id                                                          String?                    @db.VarChar
   base_unit_id                                                           String?                    @db.VarChar
   count_unit_id                                                          String?                    @db.VarChar
+  letter_name                                                            String?                    @db.VarChar
   scm_good_units                                                         scm_good_units[]
   scm_goods                                                              scm_goods?                 @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_fk")
   scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)

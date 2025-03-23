@@ -123,10 +123,15 @@ ALTER TABLE scm_goods drop column if exists base_good_unit_id;
 ALTER TABLE scm_goods drop column if exists order_good_unit_id;
 ALTER TABLE scm_goods drop column if exists count_good_unit_id;
 DELETE FROM st_safe_store_goods;
-ALTER TABLE st_daily_count_items drop column if exists good_unit_id;
 
 DELETE FROM scm_good_units where supply_plan_goods_id is null;
 ALTER TABLE scm_good_units DROP CONSTRAINT IF EXISTS unique_good_id_ratio_to_base;
+ALTER TABLE scm_order_details drop column  if exists spec_text;
+ALTER TABLE scm_order_details drop column  if exists hide_price;
+ALTER TABLE scm_order_details drop column  if exists yu_price;
+ALTER TABLE scm_order_details drop column  if exists item_total;
+ALTER TABLE scm_order_details drop column  if exists item_total;
+select * from scm_order_details;
 
 DROP TABLE IF EXISTS scm_order;
 DROP TABLE IF EXISTS scm_order_details;
