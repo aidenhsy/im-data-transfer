@@ -65,42 +65,50 @@ CREATE INDEX idx_scm_goods_category_id ON scm_goods (category_id);
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 1
 FROM scm_goods g
-where g.category_id in (1, 2, 3, 4, 5, 7, 8, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 26, 29, 30, 31, 33, 34, 37, 38, 42);
+WHERE sg.good_id = g.id
+  AND  g.category_id in (1, 2, 3, 4, 5,6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 26, 29, 30, 31, 33, 34, 37, 38, 42);
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 2
 FROM scm_goods g
-where g.name like '%员工%';
+WHERE sg.good_id = g.id
+  AND  g.name like '%员工%';
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 3
 FROM scm_goods g
-where g.category_id =5;
+WHERE sg.good_id = g.id
+  AND  g.category_id =5;
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 4
 FROM scm_goods g
-where g.category_id =12;
+WHERE sg.good_id = g.id
+  AND  g.category_id =12;
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 5
 FROM scm_goods g
-where g.name like '%打包%';
+WHERE sg.good_id = g.id
+  AND  g.name like '%打包%';
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 7
 FROM scm_goods g
-where g.category_id =27;
+WHERE sg.good_id = g.id
+  AND  g.category_id in (36, 27);
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 8
 FROM scm_goods g
-where g.category_id =24;
+WHERE sg.good_id = g.id
+  AND  g.category_id  in (24, 35);
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 9
 FROM scm_goods g
-where g.name like '%服%';
+WHERE sg.good_id = g.id
+  AND g.name LIKE '%服%';
 
 UPDATE scm_supply_plan_scm_goods
 SET is_enabled= false

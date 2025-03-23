@@ -105,6 +105,21 @@ DROP TABLE IF EXISTS test_flyback;
 DROP TABLE IF EXISTS testtable2;
 DROP TABLE IF EXISTS temp_inventory_analysis;
 
+DROP TABLE IF EXISTS backup_st_ingredient;
+DROP TABLE IF EXISTS private_client_goods;
+DROP TABLE IF EXISTS client_tier;
+ALTER TABLE scm_shop DROP COLUMN if exists client_organization_id;
+ALTER TABLE scm_shop DROP COLUMN if exists client_tier_id;
+ALTER TABLE scm_goods DROP COLUMN if exists purchase_good_unit_id;
+DROP TABLE IF EXISTS client_organizations;
+DROP TABLE IF EXISTS del_goods;
+DROP TABLE IF EXISTS scm_seller_account_backup;
+DROP TABLE IF EXISTS scm_seller_copy;
+DROP TABLE IF EXISTS scm_shop_account_backup;
+DROP TABLE IF EXISTS scm_supplier_person_backup;
+
+
+
 ALTER TABLE scm_goods drop column if exists util_id;
 DROP TABLE IF EXISTS scm_util;
 DROP TABLE IF EXISTS scm_version;
@@ -141,3 +156,11 @@ ALTER TABLE scm_supply_plan_scm_goods DROP COLUMN IF EXISTS status;
 
 ALTER TABLE scm_supply_plan_scm_goods
 ALTER COLUMN stock_category_id SET NOT NULL;
+
+ALTER TABLE st_inventory_detail drop constraint if exists goods_id_fk24;
+ALTER TABLE st_ingredient DROP CONSTRAINT if exists st_ingredient_goods_id_fkey65;
+ALTER TABLE scm_order_details DROP CONSTRAINT if exists scm_order_details_goods_id_fkey44;
+ALTER TABLE st_kitchen_department_goods DROP CONSTRAINT if exists st_kitchen_department_goods_goods_id_fkey85;
+ALTER TABLE st_daily_count_items DROP COLUMN IF EXISTS good_id;
+ALTER TABLE st_predict_order_details DROP COLUMN IF EXISTS goods_id;
+DROP TABLE IF EXISTS scm_goods;
