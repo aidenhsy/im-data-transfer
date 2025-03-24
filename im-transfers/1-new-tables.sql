@@ -113,10 +113,13 @@ WHERE sg.good_id = g.id
 UPDATE scm_supply_plan_scm_goods
 SET is_enabled= false
 where status = 0;
+
 UPDATE scm_supply_plan_scm_goods
 set is_enabled= true
 where status = 1;
 
+ALTER TABLE scm_supply_plan_scm_goods
+    ADD COLUMN IF NOT EXISTS photo_url varchar;
 ALTER TABLE scm_supply_plan_scm_goods
     ADD COLUMN IF NOT EXISTS order_unit_id varchar references scm_good_units (id);
 ALTER TABLE scm_supply_plan_scm_goods
@@ -125,16 +128,21 @@ ALTER TABLE scm_supply_plan_scm_goods
     ADD COLUMN IF NOT EXISTS count_unit_id varchar references scm_good_units (id);
 ALTER TABLE scm_supply_plan_scm_goods
     ADD COLUMN IF NOT EXISTS goods_name varchar(100);
+ALTER TABLE scm_supply_plan_scm_goods
+    ADD COLUMN IF NOT EXISTS letter_name varchar;
+ALTER TABLE scm_supply_plan_scm_goods
+    ADD COLUMN IF NOT EXISTS category_id int;
+ALTER TABLE scm_supply_plan_scm_goods
+    ADD COLUMN IF NOT EXISTS category_name varchar;
+ALTER TABLE scm_supply_plan_scm_goods
+    ADD COLUMN IF NOT EXISTS sold_time varchar(50);
+
 ALTER TABLE scm_good_units
     ADD COLUMN supply_plan_goods_id varchar references scm_supply_plan_scm_goods (id);
 ALTER TABLE scm_good_units
     ADD CONSTRAINT scm_good_ratio UNIQUE (supply_plan_goods_id, ratio_to_base);
 ALTER TABLE st_daily_count_items
     ADD COLUMN unit_id varchar references scm_good_units (id);
-ALTER TABLE scm_supply_plan_scm_goods
-    ADD COLUMN IF NOT EXISTS letter_name varchar;
-ALTER TABLE scm_supply_plan_scm_goods
-    ADD COLUMN IF NOT EXISTS category_name varchar;
 
 UPDATE scm_supply_plan_scm_goods sg
 SET goods_name = g.name

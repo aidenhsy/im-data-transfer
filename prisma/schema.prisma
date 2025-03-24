@@ -144,6 +144,8 @@ model scm_goods {
   st_inventory_items                                             st_inventory_items[]
   st_kitchen_department_goods                                    st_kitchen_department_goods[]
   st_predict_order_details                                       st_predict_order_details[]
+
+  @@index([category_id], map: "idx_scm_goods_category_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -343,12 +345,15 @@ model scm_supply_plan_scm_goods {
   good_unit_id                                                           String?                    @db.VarChar
   is_predict                                                             Boolean?                   @default(false)
   stock_category_id                                                      Int?
+  photo_url                                                              String?                    @db.VarChar
   order_unit_id                                                          String?                    @db.VarChar
   base_unit_id                                                           String?                    @db.VarChar
   count_unit_id                                                          String?                    @db.VarChar
   goods_name                                                             String?                    @db.VarChar(100)
   letter_name                                                            String?                    @db.VarChar
+  category_id                                                            Int?
   category_name                                                          String?                    @db.VarChar
+  sold_time                                                              String?                    @db.VarChar(50)
   scm_good_units                                                         scm_good_units[]
   scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_supply_plan_scm_goods_count_unit_idToscm_good_units scm_good_units?            @relation("scm_supply_plan_scm_goods_count_unit_idToscm_good_units", fields: [count_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -1165,7 +1170,6 @@ model scm_good_pricing {
   scm_good_units   scm_good_units        @relation(fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_goods        scm_goods             @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([client_tier_id, good_unit_id, goods_id, is_active], map: "scm_good_pricing_unique_constraint")
   @@unique([goods_id, good_unit_id, client_tier_id, pricing_strategy], map: "unique_pricing_configuration")
 }
 

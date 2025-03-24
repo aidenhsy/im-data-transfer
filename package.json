@@ -2,6 +2,7 @@
   "dependencies": {
     "@prisma/client": "^6.4.1",
     "@prisma/extension-accelerate": "^1.2.2",
+    "dayjs": "^1.11.13",
     "typescript": "^5.8.2"
   },
   "devDependencies": {

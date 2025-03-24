@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import dayjs from 'dayjs';
 
 const run = async () => {
   const prisma = new PrismaClient();
@@ -8,6 +9,7 @@ const run = async () => {
       scm_goods: {
         include: {
           scm_goods_category: true,
+          scm_stock: true,
         },
       },
     },
@@ -20,6 +22,11 @@ const run = async () => {
       },
       data: {
         category_name: item.scm_goods?.scm_goods_category?.name,
+        photo_url: item.scm_goods?.photo_url,
+        category_id: item.scm_goods?.category_id,
+        sold_time: dayjs(item.scm_goods?.scm_stock?.sold_time).format(
+          'HH:mm:ss'
+        ),
       },
     });
   }
