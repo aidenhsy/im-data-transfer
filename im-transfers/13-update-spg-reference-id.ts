@@ -3,11 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const run = async () => {
   const prisma = new PrismaClient();
 
-  const spgs = await prisma.scm_supply_plan_scm_goods.findMany({
-    where: {
-      reference_id: null,
-    },
-  });
+  const spgs = await prisma.scm_supply_plan_scm_goods.findMany({});
 
   const length = spgs.length;
   let count = 0;
