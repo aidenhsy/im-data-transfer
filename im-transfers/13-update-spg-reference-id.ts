@@ -22,6 +22,14 @@ const run = async () => {
 
     if (!pg) {
       console.log(spg.good_id);
+      await prisma.scm_supply_plan_scm_goods.update({
+        where: {
+          id: spg.id,
+        },
+        data: {
+          is_enabled: false,
+        },
+      });
       continue;
     }
 

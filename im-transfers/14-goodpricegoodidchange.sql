@@ -1,6 +1,8 @@
 alter table scm_supply_plan_scm_goods
     rename column good_id to good_price_id;
 
+select count(*) from scm_supply_plan_scm_goods where reference_id is null;
+
 
 alter table scm_supply_plan_scm_goods drop constraint if exists scm_supply_plan_scm_goods_good_id_fkey12;
 alter table scm_supply_plan_scm_goods drop  constraint  if exists unique_supply_plan_goods;
