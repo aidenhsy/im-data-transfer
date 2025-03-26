@@ -58,7 +58,7 @@ model scm_good_units {
   supply_plan_goods_id                                                              String?                     @db.VarChar
   scm_good_pricing                                                                  scm_good_pricing[]
   scm_goods_scm_good_units_goods_idToscm_goods                                      scm_goods?                  @relation("scm_good_units_goods_idToscm_goods", fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "goods_fk")
-  scm_supply_plan_scm_goods                                                         scm_supply_plan_scm_goods?  @relation(fields: [supply_plan_goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_supply_plan_scm_goods                                                         scm_supply_plan_scm_goods?  @relation(fields: [supply_plan_goods_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   scm_goods_scm_goods_base_good_unit_idToscm_good_units                             scm_goods[]                 @relation("scm_goods_base_good_unit_idToscm_good_units")
   scm_goods_scm_goods_count_good_unit_idToscm_good_units                            scm_goods[]                 @relation("scm_goods_count_good_unit_idToscm_good_units")
   scm_goods_scm_goods_order_good_unit_idToscm_good_units                            scm_goods[]                 @relation("scm_goods_order_good_unit_idToscm_good_units")
@@ -354,7 +354,7 @@ model scm_supply_plan_scm_goods {
   category_name                                                          String?                    @db.VarChar
   sold_time                                                              String?                    @db.VarChar(50)
   scm_good_units                                                         scm_good_units[]
-  scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   scm_good_units_scm_supply_plan_scm_goods_count_unit_idToscm_good_units scm_good_units?            @relation("scm_supply_plan_scm_goods_count_unit_idToscm_good_units", fields: [count_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_supply_plan_scm_goods_good_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_good_unit_idToscm_good_units", fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_supply_plan_scm_goods_good_unit_id_fkey92")
   scm_good_units_scm_supply_plan_scm_goods_order_unit_idToscm_good_units scm_good_units?            @relation("scm_supply_plan_scm_goods_order_unit_idToscm_good_units", fields: [order_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -598,7 +598,7 @@ model st_ingredient {
   scm_goods                 scm_goods?                @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_goods_id_fkey65")
   st_sales_plan             st_sales_plan             @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_sales_plan_id_fkey95")
   st_sales_plan_items       st_sales_plan_items       @relation(fields: [sales_plan_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  scm_supply_plan_scm_goods scm_supply_plan_scm_goods @relation(fields: [supply_plan_good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_supply_plan_good_id_fkey93")
+  scm_supply_plan_scm_goods scm_supply_plan_scm_goods @relation(fields: [supply_plan_good_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "st_ingredient_supply_plan_good_id_fkey93")
   scm_supply_plan           scm_supply_plan           @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_supply_plan_id_fkey94")
 
   @@unique([goods_id, food_item_id, sales_plan_id, supply_plan_id], map: "unique_food_goods_sales_plan")
