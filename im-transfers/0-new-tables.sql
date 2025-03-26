@@ -66,43 +66,44 @@ UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 1
 FROM scm_goods g
 WHERE sg.good_id = g.id
-  AND  g.category_id in (1, 2, 3, 4, 5,6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 26, 29, 30, 31, 33, 34, 37, 38, 42);
+  AND g.category_id in
+      (1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 26, 29, 30, 31, 33, 34, 37, 38, 42);
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 2
 FROM scm_goods g
 WHERE sg.good_id = g.id
-  AND  g.name like '%员工%';
+  AND g.name like '%员工%';
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 3
 FROM scm_goods g
 WHERE sg.good_id = g.id
-  AND  g.category_id =5;
+  AND g.category_id = 5;
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 4
 FROM scm_goods g
 WHERE sg.good_id = g.id
-  AND  g.category_id =12;
+  AND g.category_id = 12;
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 5
 FROM scm_goods g
 WHERE sg.good_id = g.id
-  AND  g.name like '%打包%';
+  AND g.name like '%打包%';
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 7
 FROM scm_goods g
 WHERE sg.good_id = g.id
-  AND  g.category_id in (36, 27);
+  AND g.category_id in (36, 27);
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 8
 FROM scm_goods g
 WHERE sg.good_id = g.id
-  AND  g.category_id  in (24, 35);
+  AND g.category_id in (24, 35);
 
 UPDATE scm_supply_plan_scm_goods sg
 SET stock_category_id = 9
@@ -174,3 +175,6 @@ SET big_org_id = 1
 FROM scm_shop_brand AS b
 WHERE s.brand_id = b.id
   AND b.big_org_id = 1;
+
+alter table scm_supply_plan_scm_goods
+    rename column good_id to good_price_id;

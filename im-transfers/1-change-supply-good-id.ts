@@ -1,0 +1,37 @@
+import { PrismaClient } from '@prisma/client';
+
+const run = async () => {
+  const prisma = new PrismaClient();
+
+  const supplyGoods = await prisma.scm_supply_plan_scm_goods.findMany();
+
+  for (const supplyGood of supplyGoods) {
+    const existGoodPrice = await prisma.scm_good_pricing.findFirst({
+      where: {
+        goods_id: supplyGood.good_price_id!,
+        client_tier_id: 2,
+        good_unit_id: supplyGood.good_unit_id!,
+      },
+    });
+
+    if (!existGoodPrice) {
+      await prisma.scm_supply_plan_scm_goods.delete({
+        where: {
+          id: supplyGood.id,
+        },
+      });
+      continue;
+    }
+
+    await prisma.scm_supply_plan_scm_goods.update({
+      where: {
+        id: supplyGood.id,
+      },
+      data: {
+        good_price_id: existGoodPrice.id,
+      },
+    });
+  }
+};
+
+run();
