@@ -19,9 +19,12 @@ const run = async () => {
     });
 
     if (!existGoodPrice) {
-      await prisma.scm_supply_plan_scm_goods.delete({
+      await prisma.scm_supply_plan_scm_goods.update({
         where: {
           id: supplyGood.id,
+        },
+        data: {
+          is_enabled: false,
         },
       });
       continue;
