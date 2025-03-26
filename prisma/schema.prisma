@@ -166,32 +166,34 @@ model scm_order {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_order_details {
-  id                            Int                             @id @default(autoincrement())
-  stock_order_no                String?                         @db.VarChar(60)
-  goods_name                    String?                         @db.VarChar(60)
-  num                           Decimal                         @db.Decimal
-  price                         Decimal                         @db.Decimal(12, 6)
-  spec_text                     String?                         @db.VarChar(60)
-  ratio                         Int?
-  status                        Int                             @default(0) @db.SmallInt
-  order_id                      Int?
-  create_time                   DateTime?                       @default(now()) @db.Timestamp(6)
-  total_price                   Decimal?                        @db.Decimal(12, 6)
-  small_unit                    String?                         @db.VarChar(10)
-  sale_unit                     String?                         @db.VarChar(10)
-  goods_id                      Int?
-  delivery_qty                  Decimal?                        @default(0) @db.Decimal(10, 2)
-  letter_name                   String?                         @db.VarChar
-  hide_price                    Decimal?                        @default(0) @db.Decimal(12, 6)
-  yu_price                      Decimal?                        @default(0) @db.Decimal(12, 6)
-  item_total                    Decimal?                        @db.Decimal(12, 2)
-  remaining_quantity            Decimal?                        @db.Decimal(10, 4)
-  scm_goods_outbound            scm_goods_outbound[]
-  scm_goods                     scm_goods?                      @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_goods_id_fkey44")
-  scm_order                     scm_order?                      @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_order_id_fkey43")
-  scm_order_stock               scm_order_stock?                @relation(fields: [stock_order_no], references: [stock_order_no], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_stock_order_no_fkey42")
-  scm_store_picking_supplyitems scm_store_picking_supplyitems[]
-  st_inventory_allocation       st_inventory_allocation[]
+  id                        Int                        @id @default(autoincrement())
+  stock_order_no            String?                    @db.VarChar(60)
+  goods_name                String?                    @db.VarChar(60)
+  num                       Decimal                    @db.Decimal
+  price                     Decimal                    @db.Decimal(12, 6)
+  spec_text                 String?                    @db.VarChar(60)
+  ratio                     Int?
+  status                    Int                        @default(0) @db.SmallInt
+  order_id                  Int?
+  create_time               DateTime?                  @default(now()) @db.Timestamp(6)
+  total_price               Decimal?                   @db.Decimal(12, 6)
+  small_unit                String?                    @db.VarChar(10)
+  sale_unit                 String?                    @db.VarChar(10)
+  goods_id                  Int?
+  delivery_qty              Decimal?                   @default(0) @db.Decimal(10, 2)
+  letter_name               String?                    @db.VarChar
+  hide_price                Decimal?                   @default(0) @db.Decimal(12, 6)
+  yu_price                  Decimal?                   @default(0) @db.Decimal(12, 6)
+  item_total                Decimal?                   @db.Decimal(12, 2)
+  remaining_quantity        Decimal?                   @db.Decimal(10, 4)
+  spg_id                    String?                    @db.VarChar
+  reference_id              Int?
+  scm_goods_outbound        scm_goods_outbound[]
+  scm_goods                 scm_goods?                 @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_goods_id_fkey44")
+  scm_order                 scm_order?                 @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_order_id_fkey43")
+  scm_supply_plan_scm_goods scm_supply_plan_scm_goods? @relation(fields: [spg_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_order_stock           scm_order_stock?           @relation(fields: [stock_order_no], references: [stock_order_no], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_stock_order_no_fkey42")
+  st_inventory_allocation   st_inventory_allocation[]
 
   @@index([order_id], map: "idx_scm_order_details_order_id")
   @@index([stock_order_no], map: "idx_scm_order_details_stock_order_no")
@@ -350,6 +352,7 @@ model scm_supply_plan_scm_goods {
   category_name                                                                 String?                    @db.VarChar
   sold_time                                                                     String?                    @db.VarChar(50)
   scm_good_units_scm_good_units_supply_plan_goods_idToscm_supply_plan_scm_goods scm_good_units[]           @relation("scm_good_units_supply_plan_goods_idToscm_supply_plan_scm_goods")
+  scm_order_details                                                             scm_order_details[]
   scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units         scm_good_units?            @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_supply_plan_scm_goods_count_unit_idToscm_good_units        scm_good_units?            @relation("scm_supply_plan_scm_goods_count_unit_idToscm_good_units", fields: [count_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_goods                                                                     scm_goods?                 @relation(fields: [good_id], references: [id], onDelete: Cascade, map: "scm_supply_plan_scm_goods_good_id_fkey12")
@@ -1644,24 +1647,6 @@ model scm_storage_position_scm_goods_copy {
   is_ex               Int?     @db.SmallInt
 
   @@ignore
-}
-
-model scm_store_picking_supplyitems {
-  id                String             @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  order_details_id  Int?
-  date              DateTime?          @db.Date
-  quantity_needed   Decimal?           @db.Decimal
-  quantity_picked   Decimal?           @default(0) @db.Decimal
-  created_at        DateTime?          @default(now()) @db.Timestamp(6)
-  stock_id          Int?               @db.SmallInt
-  no_deliver        Int?               @default(0) @db.SmallInt
-  status            Int?               @default(0) @db.SmallInt
-  automatic         Int?               @default(1) @db.SmallInt
-  scm_order_details scm_order_details? @relation(fields: [order_details_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "m_store_picking_supplyitems_order_details_id_fkey25")
-
-  @@index([date], map: "idx_scm_store_picking_supplyitems_date")
-  @@index([order_details_id], map: "idx_scm_store_picking_supplyitems_order_details_id")
-  @@index([date], map: "idx_scm_store_picking_supplyitemsdate")
 }
 
 model scm_store_picking_supplyitems_vege_routes {

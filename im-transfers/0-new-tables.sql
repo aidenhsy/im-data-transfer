@@ -202,3 +202,9 @@ where id = 1;
 INSERT INTO big_org (id, name, access_id, access_secret)
 values (4, 'SCM', 'org_p3H9kL6wZ8vY5qR2', 'm8Yv$T6g%4Kj#dL9fHs3@pN1bZx0wVqA');
 
+alter table scm_order_details add column spg_id varchar references scm_supply_plan_scm_goods(id);
+alter table scm_order_details add column reference_id int;
+
+drop table  if exists scm_store_picking_supplyitems;
+delete from scm_order_details where id=26288;
+
