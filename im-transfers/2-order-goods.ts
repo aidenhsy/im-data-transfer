@@ -8,6 +8,13 @@ const run = async () => {
     include: {
       scm_order: true,
     },
+    where: {
+      scm_order: {
+        delivery_time: {
+          gte: new Date('2025-01-01'),
+        },
+      },
+    },
   });
 
   for (const orderdetail of orderdetails) {
