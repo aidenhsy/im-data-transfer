@@ -2,7 +2,9 @@ import { PrismaClient } from '@prisma/client';
 
 const run = async () => {
   const prisma = new PrismaClient();
+
   const supplyGoods = await prisma.scm_supply_plan_scm_goods.findMany();
+
   const count = supplyGoods.length;
   let index = 1;
 
@@ -17,14 +19,6 @@ const run = async () => {
     });
 
     if (!existGoodPrice) {
-      // First delete any dependent records in scm_good_units
-      await prisma.scm_good_units.deleteMany({
-        where: {
-          supply_plan_goods_id: supplyGood.id,
-        },
-      });
-
-      // Then delete the supply good
       await prisma.scm_supply_plan_scm_goods.delete({
         where: {
           id: supplyGood.id,

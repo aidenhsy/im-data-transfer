@@ -218,3 +218,4 @@ alter table scm_supply_plan_scm_goods drop  constraint  if exists constraint_nam
 
 
 select * from scm_supply_plan_scm_goods where good_unit_id is null;
+select * from scm_good_units;
