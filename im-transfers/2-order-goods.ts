@@ -5,7 +5,6 @@ const run = async () => {
   const prisma = new PrismaClient();
 
   const orderdetails = await prisma.scm_order_details.findMany({
-    take: 10,
     include: {
       scm_order: true,
     },
