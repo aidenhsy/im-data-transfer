@@ -137,7 +137,6 @@ model scm_goods {
   scm_storage_position_scm_goods                                 scm_storage_position_scm_goods[]
   scm_supplier_price_plan                                        scm_supplier_price_plan[]
   scm_suppliers_goods_daily                                      scm_suppliers_goods_daily[]
-  scm_supply_plan_scm_goods                                      scm_supply_plan_scm_goods[]
   st_daily_count_items                                           st_daily_count_items[]
   st_ingredient                                                  st_ingredient[]
   st_inventory_detail                                            st_inventory_detail[]
@@ -357,7 +356,6 @@ model scm_supply_plan_scm_goods {
   scm_good_units                                                         scm_good_units[]
   scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_supply_plan_scm_goods_count_unit_idToscm_good_units scm_good_units?            @relation("scm_supply_plan_scm_goods_count_unit_idToscm_good_units", fields: [count_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_goods                                                              scm_goods?                 @relation(fields: [good_price_id], references: [id], onDelete: Cascade, map: "scm_supply_plan_scm_goods_good_id_fkey12")
   scm_good_units_scm_supply_plan_scm_goods_good_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_good_unit_idToscm_good_units", fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_supply_plan_scm_goods_good_unit_id_fkey92")
   scm_good_units_scm_supply_plan_scm_goods_order_unit_idToscm_good_units scm_good_units?            @relation("scm_supply_plan_scm_goods_order_unit_idToscm_good_units", fields: [order_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   stock_category                                                         stock_category?            @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -368,7 +366,6 @@ model scm_supply_plan_scm_goods {
   st_safe_store_goods                                                    st_safe_store_goods[]
 
   @@unique([supply_plan_id, good_price_id], map: "constraint_name")
-  @@unique([supply_plan_id, good_price_id], map: "unique_supply_plan_goods")
 }
 
 model st_bill_list {
