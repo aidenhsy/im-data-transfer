@@ -1,5 +1,3 @@
-alter table scm_good_units drop constraint scm_supply_plan_scm_goods_order_unit_id_fkey;
-alter table scm_good_units drop column goods_id;
 alter table scm_supply_plan_scm_goods drop constraint scm_supply_plan_scm_goods_good_unit_id_fkey92;
 
 alter table scm_goods drop column count_good_unit_id;

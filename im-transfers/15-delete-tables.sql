@@ -164,3 +164,6 @@ ALTER TABLE st_kitchen_department_goods DROP CONSTRAINT if exists st_kitchen_dep
 ALTER TABLE st_daily_count_items DROP COLUMN IF EXISTS good_id;
 ALTER TABLE st_predict_order_details DROP COLUMN IF EXISTS goods_id;
 DROP TABLE IF EXISTS scm_goods;
+
+delete from st_inventory_detail;
+delete from st_inventory_single;

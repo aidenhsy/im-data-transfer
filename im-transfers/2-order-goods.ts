@@ -51,7 +51,7 @@ const run = async () => {
       },
       data: {
         spg_id: spg?.id,
-        reference_id: goodPricing.id,
+        pg_id: goodPricing.id,
       },
     });
   }

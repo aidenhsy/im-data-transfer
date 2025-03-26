@@ -205,7 +205,8 @@ values (4, 'SCM', 'org_p3H9kL6wZ8vY5qR2', 'm8Yv$T6g%4Kj#dL9fHs3@pN1bZx0wVqA');
 alter table scm_order_details
     add column spg_id varchar references scm_supply_plan_scm_goods (id);
 alter table scm_order_details
-    add column reference_id int;
+    add column pg_id int;
+alter table scm_order_details add column reference_id varchar;
 
 drop table if exists scm_store_picking_supplyitems;
 drop table if exists st_inventory_allocation;
@@ -218,4 +219,32 @@ WHERE d.order_id = o.id
   AND o.delivery_time < '2025-03-01';
 
 DELETE FROM scm_order where delivery_time < '2025-03-01';
+
+update scm_order_details set reference_id = id;
+
+alter table scm_order_details drop column if exists stock_order_no;
+alter table  scm_order_details drop column if exists small_unit;
+alter table scm_order_details drop column if exists hide_price;
+alter table scm_order_details drop column if exists yu_price;
+alter table scm_order_details drop column if exists item_total;
+alter table scm_order_details drop column if exists remaining_quantity;
+
+alter table scm_order add column reference_id varchar;
+update scm_order set reference_id=id;
+alter table scm_order drop column if exists order_no;
+alter table scm_order drop column if exists admin_id;
+alter table scm_order drop column if exists locking;
+alter table scm_order drop column if exists automatic;
+
+alter table scm_order add supplier_org_id int references big_org(id);
+alter table scm_order_details add supplier_org_id int references big_org(id);
+
+update scm_order set supplier_org_id=4;
+update scm_order_details set supplier_org_id=4;
+
+alter table st_inventory_detail add column spg_id varchar references scm_supply_plan_scm_goods(id);
+
+alter table st_kitchen_department_goods add column spg_id varchar references scm_supply_plan_scm_goods(id);
+
+select count(*) from st_kitchen_department_goods;
 
