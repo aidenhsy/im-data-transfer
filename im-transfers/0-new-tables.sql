@@ -16,11 +16,11 @@ values (1, '系统管理员'),
 
 -- 角色表
 COMMENT
-ON TABLE roles IS '角色标- 店长，品牌负责人。。。';
+    ON TABLE roles IS '角色标- 店长，品牌负责人。。。';
 COMMENT
-ON COLUMN roles.id IS '角色表的主键。';
+    ON COLUMN roles.id IS '角色表的主键。';
 COMMENT
-ON COLUMN roles.role_name IS '具体角色的唯一名称（例如管理员、普通用户等）。';
+    ON COLUMN roles.role_name IS '具体角色的唯一名称（例如管理员、普通用户等）。';
 
 CREATE TABLE user_roles
 (
@@ -34,15 +34,15 @@ CREATE TABLE user_roles
 
 -- 用户角色关联表
 COMMENT
-ON TABLE user_roles IS '用于给用户分配具体角色的关联表。';
+    ON TABLE user_roles IS '用于给用户分配具体角色的关联表。';
 COMMENT
-ON COLUMN user_roles.id IS 'UUID主键，用于唯一标识用户与角色的关联。';
+    ON COLUMN user_roles.id IS 'UUID主键，用于唯一标识用户与角色的关联。';
 COMMENT
-ON COLUMN user_roles.user_id IS '分配角色的用户外键。';
+    ON COLUMN user_roles.user_id IS '分配角色的用户外键。';
 COMMENT
-ON COLUMN user_roles.role_id IS '分配给用户的角色外键。';
+    ON COLUMN user_roles.role_id IS '分配给用户的角色外键。';
 COMMENT
-ON COLUMN user_roles.created_at IS '角色分配给用户时的时间戳。';
+    ON COLUMN user_roles.created_at IS '角色分配给用户时的时间戳。';
 
 CREATE TABLE stock_category
 (
@@ -52,11 +52,11 @@ CREATE TABLE stock_category
 
 -- 入库分类表
 COMMENT
-ON TABLE stock_category IS '餐厅入库物品分类表';
+    ON TABLE stock_category IS '餐厅入库物品分类表';
 COMMENT
-ON COLUMN stock_category.id IS '分类ID，自增主键。';
+    ON COLUMN stock_category.id IS '分类ID，自增主键。';
 COMMENT
-ON COLUMN stock_category.name IS '分类名称，如"食品原材料"、"员工餐"、"易耗品"等。';
+    ON COLUMN stock_category.name IS '分类名称，如"食品原材料"、"员工餐"、"易耗品"等。';
 
 INSERT INTO stock_category (id, name)
 VALUES (1, '食材原材料'),
@@ -74,74 +74,51 @@ ALTER TABLE scm_supply_plan_scm_goods
 CREATE INDEX idx_scm_goods_category_id ON scm_goods (category_id);
 
 UPDATE scm_supply_plan_scm_goods sg
-SET stock_category_id = 1 FROM scm_goods g
+SET stock_category_id = 1
+FROM scm_goods g
 WHERE sg.good_id = g.id
   AND g.category_id in
-    (1
-    , 2
-    , 3
-    , 4
-    , 5
-    , 6
-    , 7
-    , 8
-    , 10
-    , 11
-    , 13
-    , 14
-    , 15
-    , 16
-    , 17
-    , 18
-    , 19
-    , 20
-    , 21
-    , 22
-    , 23
-    , 26
-    , 29
-    , 30
-    , 31
-    , 33
-    , 34
-    , 37
-    , 38
-    , 42);
+      (1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 26, 29, 30, 31, 33, 34, 37, 38, 42);
 
 UPDATE scm_supply_plan_scm_goods sg
-SET stock_category_id = 2 FROM scm_goods g
+SET stock_category_id = 2
+FROM scm_goods g
 WHERE sg.good_id = g.id
   AND g.name like '%员工%';
 
 UPDATE scm_supply_plan_scm_goods sg
-SET stock_category_id = 3 FROM scm_goods g
+SET stock_category_id = 3
+FROM scm_goods g
 WHERE sg.good_id = g.id
   AND g.category_id = 5;
 
 UPDATE scm_supply_plan_scm_goods sg
-SET stock_category_id = 4 FROM scm_goods g
+SET stock_category_id = 4
+FROM scm_goods g
 WHERE sg.good_id = g.id
   AND g.category_id = 12;
 
 UPDATE scm_supply_plan_scm_goods sg
-SET stock_category_id = 5 FROM scm_goods g
+SET stock_category_id = 5
+FROM scm_goods g
 WHERE sg.good_id = g.id
   AND g.name like '%打包%';
 
 UPDATE scm_supply_plan_scm_goods sg
-SET stock_category_id = 7 FROM scm_goods g
+SET stock_category_id = 7
+FROM scm_goods g
 WHERE sg.good_id = g.id
-  AND g.category_id in (36
-    , 27);
+  AND g.category_id in (36, 27);
 
 UPDATE scm_supply_plan_scm_goods sg
-SET stock_category_id = 8 FROM scm_goods g
+SET stock_category_id = 8
+FROM scm_goods g
 WHERE sg.good_id = g.id
-  AND g.category_id in (24
-    , 35);
+  AND g.category_id in (24, 35);
 
 UPDATE scm_supply_plan_scm_goods sg
-SET stock_category_id = 9 FROM scm_goods g
+SET stock_category_id = 9
+FROM scm_goods g
 WHERE sg.good_id = g.id
   AND g.name LIKE '%服%';
 
@@ -162,7 +139,7 @@ ALTER TABLE scm_supply_plan_scm_goods
 ALTER TABLE scm_supply_plan_scm_goods
     ADD COLUMN IF NOT EXISTS count_unit_id varchar references scm_good_units (id);
 ALTER TABLE scm_supply_plan_scm_goods
-    ADD COLUMN IF NOT EXISTS goods_name varchar (100);
+    ADD COLUMN IF NOT EXISTS goods_name varchar(100);
 ALTER TABLE scm_supply_plan_scm_goods
     ADD COLUMN IF NOT EXISTS letter_name varchar;
 ALTER TABLE scm_supply_plan_scm_goods
@@ -170,17 +147,20 @@ ALTER TABLE scm_supply_plan_scm_goods
 ALTER TABLE scm_supply_plan_scm_goods
     ADD COLUMN IF NOT EXISTS category_name varchar;
 ALTER TABLE scm_supply_plan_scm_goods
-    ADD COLUMN IF NOT EXISTS sold_time varchar (50);
+    ADD COLUMN IF NOT EXISTS sold_time varchar(50);
 
 ALTER TABLE scm_good_units
-    ADD COLUMN supply_plan_goods_id varchar references scm_supply_plan_scm_goods (id);
+    ADD COLUMN supply_plan_goods_id varchar REFERENCES scm_supply_plan_scm_goods (id) ON DELETE CASCADE;
+
 ALTER TABLE scm_good_units
     ADD CONSTRAINT scm_good_ratio UNIQUE (supply_plan_goods_id, ratio_to_base);
+
 ALTER TABLE st_daily_count_items
     ADD COLUMN unit_id varchar references scm_good_units (id);
 
 UPDATE scm_supply_plan_scm_goods sg
-SET goods_name = g.name FROM scm_goods g
+SET goods_name = g.name
+FROM scm_goods g
 WHERE sg.good_id = g.id;
 
 ALTER TABLE st_ingredient
@@ -204,18 +184,20 @@ update scm_shop_account
 set big_org_id=1;
 
 UPDATE scm_shop AS s
-SET big_org_id = 1 FROM scm_shop_brand AS b
+SET big_org_id = 1
+FROM scm_shop_brand AS b
 WHERE s.brand_id = b.id
   AND b.big_org_id = 1;
 
-alter table scm_supply_plan_scm_goods
-    rename column good_id to good_price_id;
+ALTER TABLE big_org
+    ADD COLUMN access_id varchar;
+ALTER TABLE big_org
+    ADD COLUMN access_secret varchar;
 
+UPDATE big_org
+set access_id='org_6xF4g8V2T9s1N2hP',
+    access_secret='s9Gk3#tB@5fV!2Lr9PqY7cWxR1z0aDjE'
+where id = 1;
 
-alter table scm_supply_plan_scm_goods drop constraint if exists scm_supply_plan_scm_goods_good_id_fkey12;
-alter table scm_supply_plan_scm_goods drop  constraint  if exists unique_supply_plan_goods;
-alter table scm_supply_plan_scm_goods drop  constraint  if exists constraint_name;
-
-
-select * from scm_supply_plan_scm_goods where good_unit_id is null;
-select * from scm_good_units;
+INSERT INTO big_org (id, name, access_id, access_secret)
+values (4, 'SCM', 'org_p3H9kL6wZ8vY5qR2', 'm8Yv$T6g%4Kj#dL9fHs3@pN1bZx0wVqA');

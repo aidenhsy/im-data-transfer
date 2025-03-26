@@ -104,6 +104,12 @@ const run = async () => {
       },
     });
   }
+
+  await prisma.scm_good_units.deleteMany({
+    where: {
+      supply_plan_goods_id: null,
+    },
+  });
 };
 
 run();

@@ -10,6 +10,8 @@ datasource db {
 model big_org {
   id               Int                @id @default(autoincrement())
   name             String?            @db.VarChar
+  access_id        String?            @db.VarChar
+  access_secret    String?            @db.VarChar
   scm_shop         scm_shop[]
   scm_shop_account scm_shop_account[]
   scm_shop_brand   scm_shop_brand[]
@@ -134,9 +136,11 @@ model scm_goods {
   scm_inventory_detail                                           scm_inventory_detail[]
   scm_order_details                                              scm_order_details[]
   scm_price_plan_scm_goods                                       scm_price_plan_scm_goods[]
+  scm_return_goods                                               scm_return_goods[]
   scm_storage_position_scm_goods                                 scm_storage_position_scm_goods[]
   scm_supplier_price_plan                                        scm_supplier_price_plan[]
   scm_suppliers_goods_daily                                      scm_suppliers_goods_daily[]
+  scm_supply_plan_scm_goods                                      scm_supply_plan_scm_goods[]
   st_daily_count_items                                           st_daily_count_items[]
   st_ingredient                                                  st_ingredient[]
   st_inventory_detail                                            st_inventory_detail[]
@@ -335,7 +339,7 @@ model scm_supply_plan {
 
 model scm_supply_plan_scm_goods {
   supply_plan_id                                                         Int?
-  good_price_id                                                          Int?
+  good_id                                                                Int?
   id                                                                     String                     @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
   price                                                                  Decimal?                   @db.Decimal(12, 6)
   stock_id                                                               Int?
@@ -354,8 +358,9 @@ model scm_supply_plan_scm_goods {
   category_name                                                          String?                    @db.VarChar
   sold_time                                                              String?                    @db.VarChar(50)
   scm_good_units                                                         scm_good_units[]
-  scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_supply_plan_scm_goods_count_unit_idToscm_good_units scm_good_units?            @relation("scm_supply_plan_scm_goods_count_unit_idToscm_good_units", fields: [count_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_goods                                                              scm_goods?                 @relation(fields: [good_id], references: [id], onDelete: Cascade, map: "scm_supply_plan_scm_goods_good_id_fkey12")
   scm_good_units_scm_supply_plan_scm_goods_good_unit_idToscm_good_units  scm_good_units?            @relation("scm_supply_plan_scm_goods_good_unit_idToscm_good_units", fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_supply_plan_scm_goods_good_unit_id_fkey92")
   scm_good_units_scm_supply_plan_scm_goods_order_unit_idToscm_good_units scm_good_units?            @relation("scm_supply_plan_scm_goods_order_unit_idToscm_good_units", fields: [order_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   stock_category                                                         stock_category?            @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -364,6 +369,9 @@ model scm_supply_plan_scm_goods {
   st_ingredient                                                          st_ingredient[]
   st_predict_order_details                                               st_predict_order_details[]
   st_safe_store_goods                                                    st_safe_store_goods[]
+
+  @@unique([supply_plan_id, good_id], map: "constraint_name")
+  @@unique([supply_plan_id, good_id], map: "unique_supply_plan_goods")
 }
 
 model st_bill_list {
@@ -598,7 +606,7 @@ model st_ingredient {
   scm_goods                 scm_goods?                @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_goods_id_fkey65")
   st_sales_plan             st_sales_plan             @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_sales_plan_id_fkey95")
   st_sales_plan_items       st_sales_plan_items       @relation(fields: [sales_plan_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  scm_supply_plan_scm_goods scm_supply_plan_scm_goods @relation(fields: [supply_plan_good_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "st_ingredient_supply_plan_good_id_fkey93")
+  scm_supply_plan_scm_goods scm_supply_plan_scm_goods @relation(fields: [supply_plan_good_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_supply_plan_good_id_fkey93")
   scm_supply_plan           scm_supply_plan           @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_supply_plan_id_fkey94")
 
   @@unique([goods_id, food_item_id, sales_plan_id, supply_plan_id], map: "unique_food_goods_sales_plan")
@@ -1436,17 +1444,18 @@ model scm_price_plan_scm_goods {
 }
 
 model scm_return_goods {
-  id              Int       @id @default(autoincrement())
+  id              Int        @id @default(autoincrement())
   supplier_id     Int?
   goods_id        Int?
-  date            DateTime? @db.Date
-  qty             Decimal?  @db.Decimal(12, 6)
-  price           Decimal?  @db.Decimal(12, 6)
-  status          Int?      @default(0) @db.SmallInt
+  date            DateTime?  @db.Date
+  qty             Decimal?   @db.Decimal(12, 6)
+  price           Decimal?   @db.Decimal(12, 6)
+  status          Int?       @default(0) @db.SmallInt
   order_detail_id Int?
-  reason          Int?      @default(0) @db.SmallInt
-  create_time     DateTime? @default(now()) @db.Timestamp(6)
-  remark          String?   @db.VarChar
+  reason          Int?       @default(0) @db.SmallInt
+  create_time     DateTime?  @default(now()) @db.Timestamp(6)
+  remark          String?    @db.VarChar
+  scm_goods       scm_goods? @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_scm_return_goods_scm_goods")
 }
 
 model scm_return_goods_month {
