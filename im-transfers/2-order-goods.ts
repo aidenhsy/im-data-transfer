@@ -11,7 +11,7 @@ const run = async () => {
     where: {
       scm_order: {
         delivery_time: {
-          gte: new Date('2025-01-01'),
+          gte: new Date('2025-03-01'),
         },
       },
     },
