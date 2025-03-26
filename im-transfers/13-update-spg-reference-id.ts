@@ -34,6 +34,7 @@ const run = async () => {
       },
       data: {
         reference_id: pg.id.toString(),
+        price: pg.sale_price,
       },
     });
   }
