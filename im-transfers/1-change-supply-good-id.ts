@@ -5,7 +5,11 @@ const run = async () => {
 
   const supplyGoods = await prisma.scm_supply_plan_scm_goods.findMany();
 
+  const count = supplyGoods.length;
+  let index = 1;
+
   for (const supplyGood of supplyGoods) {
+    console.log(`${index++}/${count}`);
     const existGoodPrice = await prisma.scm_good_pricing.findFirst({
       where: {
         goods_id: supplyGood.good_price_id!,
