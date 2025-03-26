@@ -364,8 +364,6 @@ model scm_supply_plan_scm_goods {
   st_ingredient                                                          st_ingredient[]
   st_predict_order_details                                               st_predict_order_details[]
   st_safe_store_goods                                                    st_safe_store_goods[]
-
-  @@unique([supply_plan_id, good_price_id], map: "constraint_name")
 }
 
 model st_bill_list {
