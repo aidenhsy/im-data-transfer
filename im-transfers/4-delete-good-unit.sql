@@ -10,3 +10,5 @@ alter table scm_goods drop column order_good_unit_id;
 drop table scm_good_pricing;
 
 delete from scm_good_units where scm_good_units.supply_plan_goods_id is null;
+
+select * from scm_goods;
