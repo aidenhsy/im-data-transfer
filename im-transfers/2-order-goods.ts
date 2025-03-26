@@ -5,15 +5,9 @@ const run = async () => {
   const prisma = new PrismaClient();
 
   const orderdetails = await prisma.scm_order_details.findMany({
+    take: 10,
     include: {
       scm_order: true,
-    },
-    where: {
-      scm_order: {
-        delivery_time: {
-          gte: new Date('2025-03-01'),
-        },
-      },
     },
   });
 
@@ -42,12 +36,23 @@ const run = async () => {
       });
       continue;
     }
+    const goodPricing = await prisma.scm_good_pricing.findFirst({
+      where: {
+        goods_id: orderdetail.goods_id!,
+        client_tier_id: 2,
+      },
+    });
+    if (!goodPricing) {
+      console.log(orderdetail.goods_id);
+      continue;
+    }
     await prisma.scm_order_details.update({
       where: {
         id: orderdetail.id,
       },
       data: {
         spg_id: spg?.id,
+        reference_id: goodPricing.id,
       },
     });
   }

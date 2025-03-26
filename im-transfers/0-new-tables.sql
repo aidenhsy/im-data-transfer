@@ -202,11 +202,20 @@ where id = 1;
 INSERT INTO big_org (id, name, access_id, access_secret)
 values (4, 'SCM', 'org_p3H9kL6wZ8vY5qR2', 'm8Yv$T6g%4Kj#dL9fHs3@pN1bZx0wVqA');
 
-alter table scm_order_details add column spg_id varchar references scm_supply_plan_scm_goods(id);
-alter table scm_order_details add column reference_id int;
+alter table scm_order_details
+    add column spg_id varchar references scm_supply_plan_scm_goods (id);
+alter table scm_order_details
+    add column reference_id int;
 
-drop table  if exists scm_store_picking_supplyitems;
-delete from scm_order_details where id=26288;
+drop table if exists scm_store_picking_supplyitems;
+drop table if exists st_inventory_allocation;
+drop table if exists scm_ent_fifo_allocation;
+drop table if exists scm_goods_outbound;
 
-select count(*) from scm_order_details where spg_id is null;
+DELETE FROM scm_order_details d
+USING scm_order o
+WHERE d.order_id = o.id
+  AND o.delivery_time < '2025-03-01';
+
+DELETE FROM scm_order where delivery_time < '2025-03-01';
 
