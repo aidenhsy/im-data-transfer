@@ -17,7 +17,11 @@ const run = async () => {
     },
   });
 
+  const length = orderdetails.length;
+  let index = 0;
+
   for (const orderdetail of orderdetails) {
+    console.log(`${index++}/${length}`);
     const shop = await prisma.scm_shop.findFirst({
       where: {
         id: orderdetail.scm_order?.shop_id,
@@ -36,12 +40,16 @@ const run = async () => {
           id: orderdetail.id,
         },
       });
+      continue;
     }
-    console.log(
-      spg?.id,
-      orderdetail.id,
-      orderdetail.scm_order?.delivery_day_info_id
-    );
+    await prisma.scm_order_details.update({
+      where: {
+        id: orderdetail.id,
+      },
+      data: {
+        spg_id: spg?.id,
+      },
+    });
   }
 };
 

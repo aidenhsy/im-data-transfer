@@ -208,3 +208,5 @@ alter table scm_order_details add column reference_id int;
 drop table  if exists scm_store_picking_supplyitems;
 delete from scm_order_details where id=26288;
 
+select count(*) from scm_order_details where spg_id is null;
+
