@@ -246,5 +246,7 @@ alter table st_inventory_detail add column spg_id varchar references scm_supply_
 
 alter table st_kitchen_department_goods add column spg_id varchar references scm_supply_plan_scm_goods(id);
 
-select count(*) from st_kitchen_department_goods;
+select count(*) from st_kitchen_department_goods where spg_id is null;
+
+alter table scm_supply_plan_scm_goods add column reference_id varchar;
 

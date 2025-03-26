@@ -343,6 +343,7 @@ model scm_supply_plan_scm_goods {
   category_id                                                                   Int?
   category_name                                                                 String?                       @db.VarChar
   sold_time                                                                     String?                       @db.VarChar(50)
+  reference_id                                                                  String?                       @db.VarChar
   scm_good_units_scm_good_units_supply_plan_goods_idToscm_supply_plan_scm_goods scm_good_units[]              @relation("scm_good_units_supply_plan_goods_idToscm_supply_plan_scm_goods")
   scm_order_details                                                             scm_order_details[]
   scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units         scm_good_units?               @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)

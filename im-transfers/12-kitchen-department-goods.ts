@@ -10,7 +10,10 @@ const run = async () => {
       },
     });
 
+  const length = kitchenDepartmentGoods.length;
+  let count = 0;
   for (const kitchenDepartmentGood of kitchenDepartmentGoods) {
+    console.log(`${count++}/${length}`);
     const shop = await prisma.scm_shop.findFirst({
       where: {
         id: kitchenDepartmentGood.st_kitchen_department?.shop_id!,
