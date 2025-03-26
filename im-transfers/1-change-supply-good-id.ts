@@ -14,7 +14,7 @@ const run = async () => {
       where: {
         goods_id: supplyGood.good_price_id!,
         client_tier_id: 2,
-        good_unit_id: supplyGood.good_unit_id!,
+        good_unit_id: supplyGood.order_unit_id!,
       },
     });
 

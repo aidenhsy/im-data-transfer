@@ -216,16 +216,5 @@ alter table scm_supply_plan_scm_goods drop constraint if exists scm_supply_plan_
 alter table scm_supply_plan_scm_goods drop  constraint  if exists unique_supply_plan_goods;
 alter table scm_supply_plan_scm_goods drop  constraint  if exists constraint_name;
 
-SELECT
-    tc.constraint_name,
-    tc.constraint_type,
-    kcu.column_name
-FROM
-    information_schema.table_constraints tc
-JOIN
-    information_schema.key_column_usage kcu
-ON
-    tc.constraint_name = kcu.constraint_name
-WHERE
-    tc.table_name = 'scm_supply_plan_scm_goods'
-    AND tc.constraint_type = 'UNIQUE';
+
+select * from scm_supply_plan_scm_goods where good_unit_id is null;
