@@ -105,12 +105,6 @@ const run = async () => {
     });
   }
 
-  console.log('delete goods start');
-  await prisma.scm_good_units.deleteMany({
-    where: {
-      supply_plan_goods_id: null,
-    },
-  });
   process.exit(0);
 };
 
