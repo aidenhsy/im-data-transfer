@@ -1,10 +1,11 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "./clients/im"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("IM_DATABASE_URL")
 }
 
 model big_org {
