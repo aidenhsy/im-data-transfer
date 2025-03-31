@@ -222,6 +222,8 @@ DELETE FROM scm_order where delivery_time < '2025-03-01';
 
 update scm_order_details set reference_id = id;
 
+select * from scm_supply_plan_scm_goods;
+
 alter table scm_order_details drop column if exists stock_order_no;
 alter table  scm_order_details drop column if exists small_unit;
 alter table scm_order_details drop column if exists hide_price;

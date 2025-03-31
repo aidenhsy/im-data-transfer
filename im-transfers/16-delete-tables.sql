@@ -107,6 +107,7 @@ DROP TABLE IF EXISTS temp_inventory_analysis;
 
 DROP TABLE IF EXISTS backup_st_ingredient;
 DROP TABLE IF EXISTS private_client_goods;
+ALTER TABLE scm_good_pricing drop constraint if exists scm_good_pricing_client_tier_id_fkey;
 DROP TABLE IF EXISTS client_tier;
 ALTER TABLE scm_shop DROP COLUMN if exists client_organization_id;
 ALTER TABLE scm_shop DROP COLUMN if exists client_tier_id;
@@ -117,8 +118,6 @@ DROP TABLE IF EXISTS scm_seller_account_backup;
 DROP TABLE IF EXISTS scm_seller_copy;
 DROP TABLE IF EXISTS scm_shop_account_backup;
 DROP TABLE IF EXISTS scm_supplier_person_backup;
-
-
 
 ALTER TABLE scm_goods drop column if exists util_id;
 DROP TABLE IF EXISTS scm_util;
@@ -144,16 +143,16 @@ DROP TABLE IF EXISTS scm_good_pricing;
 ALTER TABLE st_daily_count_items drop column if exists good_unit_id;
 DELETE FROM scm_good_units where supply_plan_goods_id is null;
 ALTER TABLE scm_good_units DROP CONSTRAINT IF EXISTS unique_good_id_ratio_to_base;
-ALTER TABLE scm_order_details drop column  if exists spec_text;
+
 ALTER TABLE scm_order_details drop column  if exists hide_price;
 ALTER TABLE scm_order_details drop column  if exists yu_price;
-ALTER TABLE scm_order_details drop column  if exists item_total;
 ALTER TABLE scm_order_details drop column  if exists item_total;
 
 DROP EXTENSION IF EXISTS pg_stat_statements;
 
 ALTER TABLE scm_supply_plan_scm_goods DROP COLUMN IF EXISTS status;
 
+update scm_supply_plan_scm_goods set stock_category_id = 9 where stock_category_id is null;
 ALTER TABLE scm_supply_plan_scm_goods
 ALTER COLUMN stock_category_id SET NOT NULL;
 
@@ -163,7 +162,8 @@ ALTER TABLE scm_order_details DROP CONSTRAINT if exists scm_order_details_goods_
 ALTER TABLE st_kitchen_department_goods DROP CONSTRAINT if exists st_kitchen_department_goods_goods_id_fkey85;
 ALTER TABLE st_daily_count_items DROP COLUMN IF EXISTS good_id;
 ALTER TABLE st_predict_order_details DROP COLUMN IF EXISTS goods_id;
-DROP TABLE IF EXISTS scm_goods;
 
-delete from st_inventory_detail;
-delete from st_inventory_single;
+DROP TABLE IF EXISTS scm_goods;
+alter table scm_supply_plan_scm_goods drop column if exists good_id;
+alter table scm_supply_plan_scm_goods drop column if exists good_unit_id;
+select * from scm_supply_plan_scm_goods;
