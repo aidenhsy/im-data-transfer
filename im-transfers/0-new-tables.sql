@@ -250,5 +250,5 @@ alter table st_kitchen_department_goods add column spg_id varchar references scm
 
 select count(*) from st_kitchen_department_goods where spg_id is null;
 
-alter table scm_supply_plan_scm_goods add column reference_id varchar;
-alter table scm_supply_plan_scm_goods add column weighing smallint;
+alter table scm_supply_plan_scm_goods add column IF NOT EXISTS reference_id varchar;
+alter table scm_supply_plan_scm_goods add column IF NOT EXISTS weighing smallint;
