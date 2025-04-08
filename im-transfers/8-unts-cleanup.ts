@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient  as ImClient } from '../prisma/clients/im';
 
 const run = async () => {
-  const prisma = new PrismaClient();
+  const prisma = new ImClient();
 
   const ingredients = await prisma.st_ingredient.findMany({
     include: {

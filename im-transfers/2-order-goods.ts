@@ -1,8 +1,8 @@
 // translate goodid into supplygood id
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient  as ImClient } from '../prisma/clients/im';
 
 const run = async () => {
-  const prisma = new PrismaClient();
+  const prisma = new ImClient();
 
   const orderdetails = await prisma.scm_order_details.findMany({
     include: {
