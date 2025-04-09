@@ -32,6 +32,14 @@ const run = async () => {
   // });
 
   for (const item of scmGoods) {
+
+    const exists = await im.scm_supply_plan_scm_goods.findUnique({
+      where: { id: item.id }
+    });
+    if (!exists) {
+      console.error(`记录不存在: ID=${item.id}`);
+      continue;
+    }
     await im.scm_supply_plan_scm_goods.update({
       where: {
         id: item.id,
