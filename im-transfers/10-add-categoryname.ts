@@ -1,10 +1,12 @@
 import { PrismaClient  as ImClient } from '../prisma/clients/im';
+import { PrismaClient as SaihuClient } from '../prisma/clients/saihu';
 import dayjs from 'dayjs';
 
 const run = async () => {
-  const prisma = new ImClient();
+  const im = new ImClient();
+  const saihu = new SaihuClient();
 
-  const scmGoods = await prisma.scm_supply_plan_scm_goods.findMany({
+  const scmGoods = await saihu.scm_supply_plan_scm_goods.findMany({
     include: {
       scm_goods: {
         include: {
@@ -16,7 +18,7 @@ const run = async () => {
   });
 
   for (const item of scmGoods) {
-    await prisma.scm_supply_plan_scm_goods.update({
+    await im.scm_supply_plan_scm_goods.update({
       where: {
         id: item.id,
       },
@@ -24,7 +26,7 @@ const run = async () => {
         category_name: item.scm_goods?.scm_goods_category?.name,
         photo_url: item.scm_goods?.photo_url,
         category_id: item.scm_goods?.category_id,
-        sold_time: dayjs(item.scm_goods?.scm_stock?.sold_time).format(
+        sold_time: dayjs(item.scm_goods?.scm_stock?.sold_time).tz('Asia/Shanghai').format(
           'HH:mm:ss'
         ),
       },
