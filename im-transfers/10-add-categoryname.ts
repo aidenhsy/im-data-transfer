@@ -1,21 +1,35 @@
 import { PrismaClient  as ImClient } from '../prisma/clients/im';
 import { PrismaClient as SaihuClient } from '../prisma/clients/saihu';
-import dayjs from 'dayjs';
 
 const run = async () => {
   const im = new ImClient();
   const saihu = new SaihuClient();
 
-  const scmGoods = await saihu.scm_supply_plan_scm_goods.findMany({
-    include: {
-      scm_goods: {
-        include: {
-          scm_goods_category: true,
-          scm_stock: true,
-        },
-      },
-    },
-  });
+
+  const scmGoods: Array<{
+    id : string;
+    category_name: string;
+    category_id: number;
+    photo_url: string
+    sold_time: string;
+  }> =await saihu.$queryRawUnsafe(`
+      select ssp.id, sgc.name category_name, sg.photo_url ,sg.category_id, COALESCE(ss.sold_time,'21:00:00') sold_time
+      from scm_supply_plan_scm_goods ssp
+      left join scm_goods sg on sg.id = ssp.good_id
+      left join scm_goods_category sgc on sgc.id = sg.category_id
+      left join scm_stock ss on ss.id = sg.stock_id
+  `);
+
+  // const scmGoods = await saihu.scm_supply_plan_scm_goods.findMany({
+  //   include: {
+  //     scm_goods: {
+  //       include: {
+  //         scm_goods_category: true,
+  //         scm_stock: true,
+  //       },
+  //     },
+  //   },
+  // });
 
   for (const item of scmGoods) {
     await im.scm_supply_plan_scm_goods.update({
@@ -23,10 +37,10 @@ const run = async () => {
         id: item.id,
       },
       data: {
-        category_name: item.scm_goods?.scm_goods_category?.name,
-        photo_url: item.scm_goods?.photo_url,
-        category_id: item.scm_goods?.category_id,
-        sold_time: item.scm_goods?.scm_stock?.sold_time ? item.scm_goods?.scm_stock?.sold_time : '21:00:00'
+        category_name: item.category_name,
+        photo_url: item.photo_url,
+        category_id: item.category_id,
+        sold_time: item.sold_time
       },
     });
   }
