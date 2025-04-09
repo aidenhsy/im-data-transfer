@@ -26,7 +26,7 @@ const run = async () => {
         category_name: item.scm_goods?.scm_goods_category?.name,
         photo_url: item.scm_goods?.photo_url,
         category_id: item.scm_goods?.category_id,
-        sold_time: dayjs(item.scm_goods?.scm_stock?.sold_time).tz('Asia/Shanghai').format(
+        sold_time: dayjs.utc(item.scm_goods?.scm_stock?.sold_time).tz('Asia/Shanghai').format(
           'HH:mm:ss'
         ),
       },
