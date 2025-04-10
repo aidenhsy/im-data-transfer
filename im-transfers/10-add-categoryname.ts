@@ -11,7 +11,7 @@ const run = async () => {
     category_id: number;
     photo_url: string
     sold_time: string;
-  }> =await saihu.$queryRawUnsafe(`
+  }> =await im.$queryRawUnsafe(`
       select ssp.id, sgc.name category_name, sg.photo_url ,sg.category_id, COALESCE(TO_CHAR(ss.sold_time,'HH24:MI:SS'),'21:00:00') sold_time
       from scm_supply_plan_scm_goods ssp
       left join scm_goods sg on sg.id = ssp.good_id
