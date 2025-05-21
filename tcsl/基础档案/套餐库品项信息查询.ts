@@ -1,0 +1,21 @@
+import { axiosInstance } from '../../lib/axiosInstance';
+import { accessToken } from '../授权获取/授权令牌获取';
+import dotenv from 'dotenv';
+
+export const getpackagelibraryitems = async () => {
+  dotenv.config();
+  const token = await accessToken();
+  const res = await axiosInstance.post(
+    'https://cysms.wuuxiang.com/api/datatransfer/getpackagelibraryitems',
+    {},
+    {
+      headers: {
+        accessid: process.env.ACCESS_ID,
+        granttype: 'client',
+        access_token: token,
+      },
+      params: {},
+    }
+  );
+  return res.data.data;
+};

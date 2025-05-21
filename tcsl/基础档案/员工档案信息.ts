@@ -1,0 +1,27 @@
+import { accessToken } from '../授权获取/授权令牌获取';
+import dotenv from 'dotenv';
+import { axiosInstance } from '../../lib/axiosInstance';
+
+export const getEmpArchives = async (pageNo: number, shopId: number) => {
+  dotenv.config();
+  const token = await accessToken();
+
+  const res = await axiosInstance.post(
+    'https://cysms.wuuxiang.com/api/datatransfer/getEmpArchives',
+    {},
+    {
+      headers: {
+        accessid: process.env.ACCESS_ID,
+        granttype: 'client',
+        access_token: token,
+      },
+      params: {
+        centerId: process.env.CENTER_ID,
+        pageSize: 50,
+        pageNo: pageNo,
+        shopId: shopId,
+      },
+    }
+  );
+  return res.data.data;
+};
