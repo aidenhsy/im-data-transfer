@@ -1,42 +1,28 @@
-import { PrismaClient } from './prisma/clients/im';
-import { getitemcategoryinfo } from './tcsl/基础档案/品项类别信息';
+import { PrismaClient as SCMClient } from './prisma/clients/scm';
+import { PrismaClient as IMClient } from './prisma/clients/im';
 
 const run = async () => {
-  const prisma = new PrismaClient();
+  const scmClient = new SCMClient();
+  const imClient = new IMClient();
 
-  let hasMore = true;
-  let pageNo = 1;
+  const goods = await imClient.scm_supply_plan_scm_goods.findMany();
 
-  while (hasMore) {
-    console.log(`正在获取第${pageNo}页数据`);
-    const categories = await getitemcategoryinfo(pageNo);
-    for (const category of categories.category) {
-      await prisma.st_food_category.upsert({
+  for (const good of goods) {
+    const scmGoodPrice = await scmClient.scm_good_pricing.findFirst({
+      where: {
+        id: good.reference_id || '',
+      },
+    });
+    if (scmGoodPrice) {
+      await imClient.scm_supply_plan_scm_goods.update({
         where: {
-          id: category.class_id,
+          id: good.id,
         },
-        update: {
-          name: category.class_name,
-          parent_id: category.parent_id.toString(),
-          level: category.level,
-          brand_name: category.brand_name,
-          delflg: category.delflg,
-        },
-        create: {
-          id: category.class_id,
-          name: category.class_name,
-          parent_id: category.parent_id.toString(),
-          level: category.level,
-          delflg: category.delflg,
-          brand_name: category.brand_name,
+        data: {
+          new_reference_id: scmGoodPrice.external_reference_id,
         },
       });
     }
-
-    if (categories.pageInfo.pageTotal === pageNo) {
-      hasMore = false;
-    }
-    pageNo++;
   }
 };
 
