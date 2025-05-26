@@ -5,21 +5,25 @@ const run = async () => {
   const scmClient = new SCMClient();
   const imClient = new IMClient();
 
-  const goods = await imClient.scm_supply_plan_scm_goods.findMany();
-
+  const goods = await imClient.supplier_items.findMany({
+    take: 100,
+  });
   for (const good of goods) {
     const scmGoodPrice = await scmClient.scm_good_pricing.findFirst({
       where: {
-        id: good.reference_id || '',
+        version: '20250526',
+        goods_id: good.id,
+        client_tier_id: 2,
       },
     });
     if (scmGoodPrice) {
-      await imClient.scm_supply_plan_scm_goods.update({
+      console.log('update', good.id);
+      await imClient.supplier_items.update({
         where: {
           id: good.id,
         },
         data: {
-          new_reference_id: scmGoodPrice.external_reference_id,
+          supplier_reference_id: scmGoodPrice.external_reference_id,
         },
       });
     }

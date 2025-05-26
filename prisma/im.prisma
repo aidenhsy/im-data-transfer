@@ -58,7 +58,7 @@ model big_org {
 }
 
 model cities {
-  id       String     @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  id       Int        @id
   name     String?    @unique(map: "unique_city_name") @db.VarChar
   scm_shop scm_shop[]
 }
@@ -179,37 +179,6 @@ model scm_brand_account {
   @@unique([brand_id, account_id], map: "unique_brand_account")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_good_pricing {
-  id               Int       @default(autoincrement())
-  goods_id         Int
-  good_unit_id     String    @db.VarChar
-  client_tier_id   Int?
-  pricing_strategy String    @db.VarChar
-  profit_margin    Decimal?  @db.Decimal(8, 2)
-  sale_price       Decimal?  @db.Decimal(12, 2)
-  is_active        Boolean   @default(true)
-  created_at       DateTime? @default(now()) @db.Timestamp(6)
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_good_pricing_scm {
-  id               Int?
-  goods_id         Int?
-  good_unit_id     String?   @db.VarChar
-  client_tier_id   Int?
-  pricing_strategy String?   @db.VarChar
-  profit_margin    Decimal?  @db.Decimal(8, 2)
-  sale_price       Decimal?  @db.Decimal(12, 2)
-  is_active        Boolean?
-  created_at       DateTime? @db.Timestamp(6)
-
-  @@ignore
-}
-
 model scm_good_units {
   id                                                                                       String                      @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
   ratio_to_base                                                                            Decimal                     @db.Decimal
@@ -224,76 +193,6 @@ model scm_good_units {
   st_safe_store_goods                                                                      st_safe_store_goods[]
 
   @@unique([supply_plan_goods_id, ratio_to_base], map: "scm_good_ratio")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_good_units_scm {
-  id            String?  @db.VarChar
-  goods_id      Int?
-  ratio_to_base Decimal? @db.Decimal
-  is_base_unit  Boolean?
-  is_order_unit Boolean?
-  name          String?  @db.VarChar
-  is_count_unit Boolean?
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_goods_category_scm {
-  id         Int?
-  parent_id  Int?
-  name       String? @db.VarChar(16)
-  phonetic   String? @db.VarChar(8)
-  storage_id Int?
-  sort       Int?    @db.SmallInt
-  status     Int?    @db.SmallInt
-  level      Int?    @db.SmallInt
-  serial_num String? @db.VarChar
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_goods_scm {
-  id                    Int?
-  name                  String?   @db.VarChar(60)
-  category_id           Int?
-  serial_num            String?   @db.VarChar(60)
-  details               String?
-  sort                  Int?      @db.SmallInt
-  status                Int?      @db.SmallInt
-  create_time           DateTime? @db.Timestamp(6)
-  update_time           DateTime? @db.Timestamp(6)
-  stock_id              Int?      @db.SmallInt
-  sort_cate_id          Int?      @db.SmallInt
-  tt_code               String?   @db.VarChar
-  organization_id       Int?
-  letter_name           String?   @db.VarChar
-  weighing              Int?      @db.SmallInt
-  supplier_id           Int?
-  goods_price_id        Int?
-  remarks               String?   @db.VarChar
-  direct                Int?      @db.SmallInt
-  seller_id             Int?
-  supplier_sorting      Int?      @db.SmallInt
-  s_day                 Int?      @db.SmallInt
-  e_day                 Int?      @db.SmallInt
-  sorting               Int?
-  photo_url             String?   @db.VarChar
-  is_count              Boolean?
-  base_good_unit_id     String?   @db.VarChar
-  order_good_unit_id    String?   @db.VarChar
-  spec_text             String?   @db.VarChar
-  price                 Decimal?  @db.Decimal(12, 6)
-  storage_unit          String?   @db.VarChar
-  storage_sale_ratio    Int?
-  count_good_unit_id    String?   @db.VarChar
-  purchase_good_unit_id String?   @db.VarChar
-  is_public             Boolean?
-  averag_cost_price     Decimal?  @db.Decimal(12, 6)
-
-  @@ignore
 }
 
 model scm_goods_stock_cities {
@@ -320,24 +219,6 @@ model scm_inventory_detail {
   scm_inventory_single scm_inventory_single? @relation(fields: [single_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "single_id_fk")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_inventory_detail_copy {
-  id            Int?
-  single_id     Int?
-  goods_id      Int?
-  goods_name    String?  @db.VarChar(60)
-  qty           Decimal? @db.Decimal(10, 2)
-  inventory_qty Decimal? @db.Decimal(10, 2)
-  user_id       Int?
-  price         Decimal? @db.Decimal(12, 6)
-  sale_unit     String?  @db.VarChar(10)
-  letter_name   String?  @db.VarChar
-  balance_qty   Decimal? @db.Decimal(10, 2)
-  balance_price Decimal? @db.Decimal(12, 6)
-
-  @@ignore
-}
-
 model scm_inventory_single {
   id                   Int                    @id @default(autoincrement())
   shop_id              Int?
@@ -349,22 +230,6 @@ model scm_inventory_single {
   last_amount          Decimal                @default(0) @db.Decimal(12, 6)
   submit_time          DateTime?              @db.Timestamp(6)
   scm_inventory_detail scm_inventory_detail[]
-  scm_shop_account     scm_shop_account?      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_inventory_user_shop_account")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_inventory_single_copy {
-  id          Int?
-  shop_id     Int?
-  start_date  DateTime? @db.Date
-  end_date    DateTime? @db.Date
-  create_time DateTime? @db.Timestamp(6)
-  status      Int?      @db.SmallInt
-  user_id     Int?
-  last_amount Decimal?  @db.Decimal(12, 6)
-  submit_time DateTime? @db.Timestamp(6)
-
-  @@ignore
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -381,30 +246,10 @@ model scm_order {
   delivery_day_info_id String?             @db.VarChar
   reference_id         String?             @db.VarChar
   supplier_org_id      Int?
-  automatic            Int                 @default(1)
   day_info             day_info?           @relation(fields: [delivery_day_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop             scm_shop            @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_shop_id_fkey2")
   big_org              big_org?            @relation(fields: [supplier_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_order_details    scm_order_details[]
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_order_507 {
-  id                   Int?
-  shop_id              Int?
-  delivery_time        DateTime? @db.Timestamp(6)
-  address              String?   @db.VarChar(200)
-  status               Int?      @db.SmallInt
-  create_time          DateTime? @db.Timestamp(6)
-  update_time          DateTime? @db.Timestamp(6)
-  remarks              String?   @db.VarChar
-  receival_time        DateTime? @db.Timestamp(6)
-  delivery_day_info_id String?   @db.VarChar
-  reference_id         String?   @db.VarChar
-  supplier_org_id      Int?
-  automatic            Int?
-
-  @@ignore
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -427,103 +272,11 @@ model scm_order_details {
   pg_id                     Int?
   reference_id              String?                    @db.VarChar
   supplier_org_id           Int?
-  pd_goods_id               Int?
   scm_order                 scm_order?                 @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_order_id_fkey43")
   scm_supply_plan_scm_goods scm_supply_plan_scm_goods? @relation(fields: [spg_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   big_org                   big_org?                   @relation(fields: [supplier_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([order_id], map: "idx_scm_order_details_order_id")
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_order_details_507 {
-  id              Int?
-  goods_name      String?   @db.VarChar(60)
-  num             Decimal?  @db.Decimal
-  price           Decimal?  @db.Decimal(12, 6)
-  spec_text       String?   @db.VarChar(60)
-  ratio           Int?
-  status          Int?      @db.SmallInt
-  order_id        Int?
-  create_time     DateTime? @db.Timestamp(6)
-  total_price     Decimal?  @db.Decimal(12, 6)
-  sale_unit       String?   @db.VarChar(10)
-  goods_id        Int?
-  delivery_qty    Decimal?  @db.Decimal(10, 2)
-  letter_name     String?   @db.VarChar
-  spg_id          String?   @db.VarChar
-  pg_id           Int?
-  reference_id    String?   @db.VarChar
-  supplier_org_id Int?
-  pd_goods_id     Int?
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_order_details_scm {
-  id                 Int?
-  stock_order_no     String?   @db.VarChar(60)
-  goods_name         String?   @db.VarChar(60)
-  num                Decimal?  @db.Decimal
-  price              Decimal?  @db.Decimal(12, 6)
-  spec_text          String?   @db.VarChar(60)
-  ratio              Int?
-  status             Int?      @db.SmallInt
-  order_id           Int?
-  create_time        DateTime? @db.Timestamp(6)
-  total_price        Decimal?  @db.Decimal(12, 6)
-  small_unit         String?   @db.VarChar(10)
-  sale_unit          String?   @db.VarChar(10)
-  goods_id           Int?
-  delivery_qty       Decimal?  @db.Decimal(10, 2)
-  letter_name        String?   @db.VarChar
-  hide_price         Decimal?  @db.Decimal(12, 6)
-  yu_price           Decimal?  @db.Decimal(12, 6)
-  item_total         Decimal?  @db.Decimal(12, 2)
-  remaining_quantity Decimal?  @db.Decimal(10, 4)
-  good_price_id      Int?
-  delivery_time      DateTime? @db.Timestamp(6)
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_order_scm {
-  id                   Int?
-  order_no             String?   @db.VarChar(200)
-  shop_id              Int?
-  delivery_time        DateTime? @db.Timestamp(6)
-  address              String?   @db.VarChar(200)
-  status               Int?      @db.SmallInt
-  create_time          DateTime? @db.Timestamp(6)
-  update_time          DateTime? @db.Timestamp(6)
-  automatic            Int?      @db.SmallInt
-  remarks              String?   @db.VarChar
-  admin_id             Int?
-  receival_time        DateTime? @db.Timestamp(6)
-  locking              Int?      @db.SmallInt
-  delivery_day_info_id String?   @db.VarChar
-  reference_id         Int?
-  client_org_id        Int?
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_order_stock_scm {
-  id             Int?
-  order_id       Int?
-  stock_id       Int?      @db.SmallInt
-  direct         Int?      @db.SmallInt
-  create_time    DateTime? @db.Timestamp(6)
-  stock_order_no String?   @db.VarChar(600)
-  status         Int?      @db.SmallInt
-  receival_time  DateTime? @db.Timestamp(6)
-  locking        Int?      @db.SmallInt
-  supplier_id    Int?
-
-  @@ignore
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -544,12 +297,14 @@ model scm_shop {
   field_order                    Int?                             @default(0) @db.SmallInt
   is_join                        Int?                             @default(0) @db.SmallInt
   tc_shop_id                     Int?                             @default(0)
-  city_id                        String?                          @db.VarChar
+  city_id                        Int?
   model_url                      String?                          @db.VarChar
   automatic_receiving            Int                              @default(1) @db.SmallInt
   is_enabled                     Boolean?                         @default(true)
   sales_plan_id                  String?                          @db.VarChar
   big_org_id                     Int?
+  shop_pic_url                   String?                          @db.VarChar
+  open_hours                     Json
   scm_order                      scm_order[]
   scm_shop_brand                 scm_shop_brand                   @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_brand_id38")
   big_org                        big_org?                         @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -557,6 +312,7 @@ model scm_shop {
   st_sales_plan                  st_sales_plan?                   @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_sales_plan_id_fkey83")
   scm_supply_plan                scm_supply_plan?                 @relation(fields: [supply_plan_id], references: [id], onDelete: Cascade, map: "scm_shop_supply_plan_id_fkey13")
   scm_shop_scm_shop_account      scm_shop_scm_shop_account[]
+  shop_equipment                 shop_equipment[]
   st_daily_count                 st_daily_count[]
   st_daily_sales                 st_daily_sales[]
   st_inventory_single            st_inventory_single[]
@@ -579,9 +335,9 @@ model scm_shop_account {
   created_at                DateTime?                   @default(now()) @db.Timestamp(6)
   big_org_id                Int?
   scm_brand_account         scm_brand_account[]
-  scm_inventory_single      scm_inventory_single[]
   big_org                   big_org?                    @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop_scm_shop_account scm_shop_scm_shop_account[]
+  shop_equipment            shop_equipment[]
   st_inventory_single       st_inventory_single[]
   user_roles                user_roles[]
 }
@@ -594,6 +350,7 @@ model scm_shop_brand {
   tcsl_id               String?                 @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
   big_org_id            Int?                    @default(3)
   is_enabled            Boolean?                @default(false)
+  brand_goods           brand_goods[]
   scm_brand_account     scm_brand_account[]
   scm_shop              scm_shop[]
   big_org               big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
@@ -625,8 +382,6 @@ model scm_shop_scm_shop_account {
   id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   scm_shop_account scm_shop_account @relation(fields: [shop_account_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_scm_shop_account_shop_account_id_fkey8")
   scm_shop         scm_shop         @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_scm_shop_account_shop_id_fkey26")
-
-  @@unique([shop_account_id, shop_id], map: "uniq_shop_account_id_shop_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -662,13 +417,14 @@ model scm_supply_plan_scm_goods {
   sold_time                                                                     String?                       @db.VarChar(50)
   reference_id                                                                  String?                       @db.VarChar
   weighing                                                                      Int?                          @db.SmallInt
-  new_reference_id                                                              String?                       @db.VarChar
+  supplier_item_id                                                              Int?
   scm_good_units_scm_good_units_supply_plan_goods_idToscm_supply_plan_scm_goods scm_good_units[]              @relation("scm_good_units_supply_plan_goods_idToscm_supply_plan_scm_goods")
   scm_order_details                                                             scm_order_details[]
   scm_good_units_scm_supply_plan_scm_goods_base_unit_idToscm_good_units         scm_good_units?               @relation("scm_supply_plan_scm_goods_base_unit_idToscm_good_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_supply_plan_scm_goods_count_unit_idToscm_good_units        scm_good_units?               @relation("scm_supply_plan_scm_goods_count_unit_idToscm_good_units", fields: [count_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_supply_plan_scm_goods_order_unit_idToscm_good_units        scm_good_units?               @relation("scm_supply_plan_scm_goods_order_unit_idToscm_good_units", fields: [order_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   stock_category                                                                stock_category                @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supplier_items                                                                supplier_items?               @relation(fields: [supplier_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_supply_plan                                                               scm_supply_plan?              @relation(fields: [supply_plan_id], references: [id], onDelete: Cascade, map: "scm_supply_plan_scm_goods_supply_plan_id_fkey11")
   st_daily_count_items                                                          st_daily_count_items[]
   st_ingredient                                                                 st_ingredient[]
@@ -678,37 +434,13 @@ model scm_supply_plan_scm_goods {
   st_safe_store_goods                                                           st_safe_store_goods[]
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_supply_plan_scm_goods_im {
-  supply_plan_id    Int?
-  id                String?  @db.VarChar
-  price             Decimal? @db.Decimal(12, 6)
-  is_enabled        Boolean?
-  is_predict        Boolean?
-  stock_category_id Int?
-  photo_url         String?  @db.VarChar
-  order_unit_id     String?  @db.VarChar
-  base_unit_id      String?  @db.VarChar
-  count_unit_id     String?  @db.VarChar
-  goods_name        String?  @db.VarChar(100)
-  letter_name       String?  @db.VarChar
-  category_id       Int?
-  category_name     String?  @db.VarChar
-  sold_time         String?  @db.VarChar(50)
-  reference_id      String?  @db.VarChar
-  weighing          Int?     @db.SmallInt
-  goods_id          Int?
-
-  @@ignore
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model shop_procurement_plan {
   id                Int       @id(map: "shop_procurement_plan_pk") @default(autoincrement())
-  plan_name         Int
+  plan_name         String    @db.VarChar
   is_enable         Boolean?
   enable_time       DateTime? @db.Timestamp(6)
-  plan_type         Boolean?
+  plan_type         Int?
   is_auto           Boolean?
   remark            String?   @db.VarChar
   brand_id          Int?
@@ -719,9 +451,9 @@ model shop_procurement_plan {
   create_dept_id    Int?
   create_dept_name  String?   @db.VarChar
   create_time       DateTime? @db.Timestamp(6)
-  create_id         String?   @db.Uuid
+  create_id         String?   @db.VarChar
   modify_time       DateTime? @db.Timestamp(6)
-  modify_id         String?   @db.Uuid
+  modify_id         String?   @db.VarChar
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -737,7 +469,7 @@ model shop_procurement_plan_bind {
 model shop_procurement_plan_ingredients_goods {
   procurement_plan_id    Int
   ingredients_goods_id   Int
-  ingredients_goods_name Int?
+  ingredients_goods_name String? @db.VarChar
   dimension_id           Int
 
   @@id([procurement_plan_id, ingredients_goods_id], map: "shop_procurement_plan_ingredients_goods_pk")
@@ -924,11 +656,18 @@ model st_daily_sales_detail {
 }
 
 model st_food_category {
-  id           String         @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  name         String?        @db.VarChar(60)
-  brand_id     Int?
-  is_enabled   Boolean?
-  st_food_item st_food_item[]
+  id                  String         @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  name                String?        @db.VarChar(60)
+  brand_id            Int?
+  is_enabled          Boolean?
+  brand_code          String?        @db.VarChar(50)
+  level               Int?
+  brand_name          String?        @db.VarChar(50)
+  is_create_temp_item Boolean?
+  delflg              Int?
+  parent_id           String?        @db.VarChar
+  class_code          String?        @db.VarChar(20)
+  st_food_item        st_food_item[]
 }
 
 model st_food_item {
@@ -940,9 +679,9 @@ model st_food_item {
   brand_id                       Int?
   is_enabled                     Boolean?                         @default(true)
   big_pic_url                    String?                          @db.VarChar
+  ml_index                       Int?
   create_date                    DateTime?                        @default(now()) @db.Date
   is_package                     Boolean                          @default(false)
-  ml_index                       Int?
   st_daily_sales_detail          st_daily_sales_detail[]
   st_food_category               st_food_category?                @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_food_item_category_id_fkey62")
   st_ingredient                  st_ingredient[]
@@ -1203,6 +942,7 @@ model st_settle_details {
 model stock_category {
   id                        Int                         @id @default(autoincrement())
   name                      String?                     @db.VarChar(50)
+  generic_items             generic_items[]
   scm_supply_plan_scm_goods scm_supply_plan_scm_goods[]
 }
 
@@ -1229,6 +969,10 @@ model supplier {
   create_id          String?   @db.Uuid
   modify_time        DateTime? @db.Timestamp(6)
   modify_id          String?   @db.Uuid
+  refresh_items_url  String?   @db.VarChar
+  get_items_url      String?   @db.VarChar
+  place_order_url    String?   @db.VarChar
+  auth_url           String?   @db.VarChar
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1241,6 +985,319 @@ model user_roles {
   scm_shop_account scm_shop_account @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([user_id, role_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model brand {
+  id               Int       @id(map: "brand_pk") @default(autoincrement())
+  code             String?   @db.VarChar
+  name             String    @db.VarChar
+  short_name       String?   @db.VarChar
+  logo_icon        String?   @db.VarChar
+  remark           String?   @db.VarChar
+  delflg           Int       @default(0)
+  create_dept_id   Int?
+  create_dept_name String?   @db.VarChar
+  create_time      DateTime? @db.Timestamp(6)
+  create_id        String?   @db.Uuid
+  modify_time      DateTime? @db.Timestamp(6)
+  modify_id        String?   @db.Uuid
+}
+
+model brand_goods {
+  id             String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  brand_id       Int?
+  goods_id       Int?
+  scm_shop_brand scm_shop_brand? @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  generic_items  generic_items?  @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([brand_id, goods_id], map: "unique_brand_goods")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model equipment_category {
+  id             String           @id @db.VarChar(50)
+  name           String           @db.VarChar(255)
+  is_enable      Boolean          @default(true)
+  shop_equipment shop_equipment[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model equipment_manufacturer {
+  id             String           @id @db.VarChar(50)
+  name           String           @db.VarChar(255)
+  is_enable      Boolean          @default(true)
+  shop_equipment shop_equipment[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model generic_items {
+  id                 Int                @id(map: "scm_goods_pkey") @default(autoincrement())
+  name               String             @db.VarChar(60)
+  category_id        Int
+  status             Int                @default(1) @db.SmallInt
+  create_time        DateTime?          @default(now()) @db.Timestamp(6)
+  update_time        DateTime?          @db.Timestamp(6)
+  letter_name        String?            @db.VarChar
+  photo_url          String?            @db.VarChar
+  stock_category_id  Int?
+  base_unit_id       Int?
+  brand_goods        brand_goods[]
+  scm_goods_category scm_goods_category @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_category0")
+  standard_units     standard_units?    @relation(fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stock_category     stock_category?    @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_goods_stock_category_id_fkey")
+  supplier_items     supplier_items[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model group_organization {
+  id               Int       @id(map: "group_organization_pk")
+  code             String?   @db.VarChar
+  name             String    @db.VarChar
+  short_name       String?   @db.VarChar
+  head_dept_id     Int
+  remark           String?   @db.VarChar
+  url              String?   @db.VarChar
+  delflg           Int       @default(0)
+  create_dept_id   Int?
+  create_dept_name String?   @db.VarChar
+  create_time      DateTime? @db.Timestamp(6)
+  create_id        String?   @db.Uuid
+  modify_time      DateTime? @db.Timestamp(6)
+  modify_id        String?   @db.Uuid
+}
+
+model outbox_events {
+  id             String    @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  aggregate_type String    @db.VarChar(255)
+  aggregate_id   String    @db.VarChar(255)
+  event_type     String    @db.VarChar(255)
+  payload        Json
+  created_at     DateTime  @default(now()) @db.Timestamp(6)
+  processed_at   DateTime? @db.Timestamp(6)
+  published_at   DateTime? @db.Timestamp(6)
+  retry_count    Int       @default(0)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model scm_goods_category {
+  id            Int             @id @default(autoincrement())
+  parent_id     Int             @default(0)
+  name          String          @db.VarChar(16)
+  phonetic      String          @db.VarChar(8)
+  storage_id    Int?
+  sort          Int             @default(0) @db.SmallInt
+  status        Int             @default(1) @db.SmallInt
+  level         Int?            @db.SmallInt
+  serial_num    String?         @unique @db.VarChar
+  generic_items generic_items[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shop_area {
+  id                 String       @id(map: "shop_area_pk") @default(dbgenerated("uuid_generate_v4()")) @db.VarChar
+  code               String?      @db.VarChar
+  name               String?      @db.VarChar
+  pinyin             String?      @db.VarChar
+  shop_id            Int?
+  process_price_flag Int?
+  delflg             Int?
+  shop_point         shop_point[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shop_equipment {
+  id                     String                 @id @db.VarChar(50)
+  name                   String                 @db.VarChar(100)
+  manufacturer_id        String                 @db.VarChar(50)
+  category_id            String                 @db.VarChar(50)
+  size                   String?                @db.VarChar(100)
+  purchase_date          DateTime?              @db.Timestamp(6)
+  warranty_period        String?                @db.VarChar(500)
+  after_service_phone    String?                @db.VarChar(100)
+  purchase_money         Decimal?               @db.Decimal(10, 2)
+  picture_url            String?                @db.VarChar(255)
+  belong_shop_id         Int?
+  create_user_id         Int?
+  create_time            DateTime?              @default(now()) @db.Timestamp(6)
+  status                 Int?                   @default(1) @db.SmallInt
+  remark                 String?                @db.VarChar(300)
+  qrcode_url             String?                @db.VarChar(200)
+  equipment_category     equipment_category     @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_equipment_category_fk")
+  equipment_manufacturer equipment_manufacturer @relation(fields: [manufacturer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_equipment_manufacturer_fk")
+  scm_shop_account       scm_shop_account?      @relation(fields: [create_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_scm_shop_account_fk")
+  scm_shop               scm_shop?              @relation(fields: [belong_shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_scm_shop_fk")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shop_info {
+  id                Int       @id(map: "shop_info_pk") @default(autoincrement())
+  code              String?   @db.VarChar
+  name              String    @db.VarChar
+  dept_shop_id      Int
+  region_id         String?   @db.VarChar
+  region_name       String?   @db.VarChar
+  province_id       String?   @db.VarChar
+  province_name     String?   @db.VarChar
+  city_id           String?   @db.VarChar
+  city_name         String?   @db.VarChar
+  county_id         String?   @db.VarChar
+  county_name       String?   @db.VarChar
+  manage_type_name  String?   @db.VarChar
+  shop_brand_id     Int?
+  shop_brand_code   String?   @db.VarChar
+  shop_brand_name   String?   @db.VarChar
+  open_time         DateTime? @db.Timestamp(6)
+  gc_x              Decimal?  @db.Decimal(12, 6)
+  gc_y              Decimal?  @db.Decimal(12, 6)
+  address           String?   @db.VarChar
+  contact_tel       String?   @db.VarChar
+  remark            String?   @db.VarChar
+  area              String?   @db.VarChar
+  legal_person_name String?   @db.VarChar
+  legal_person_code String?   @db.VarChar
+  shop_label_id     Int?
+  shop_label_name   String?   @db.VarChar
+  shop_label_code   String?   @db.VarChar
+  is_open           Int?
+  group_id          Int?
+  external_shop_id  String?   @db.VarChar
+  delflg            Int       @default(0)
+  create_time       DateTime? @db.Timestamp(6)
+  create_id         String?   @db.Uuid
+  modify_time       DateTime? @db.Timestamp(6)
+  modify_id         String?   @db.Uuid
+  organization_id   Int
+  organization_name String?   @db.VarChar
+  legal_person_id   String?   @db.Uuid
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shop_info_supplier {
+  supplier_id      Int
+  supplier_shop_id String @db.VarChar
+  shop_id          Int
+
+  @@id([supplier_id, supplier_shop_id, shop_id], map: "shop_info_supplier_pk")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shop_point {
+  id           String    @id(map: "shop_point_pk") @default(dbgenerated("uuid_generate_v4()")) @db.VarChar
+  code         String    @db.VarChar
+  name         String    @db.VarChar
+  pinyin       String?   @db.VarChar
+  area_id      String    @db.VarChar
+  display_name String?   @db.VarChar
+  type_id      String?   @db.VarChar
+  type_name    String?   @db.VarChar
+  is_enable    Boolean   @default(true)
+  sort_order   Int       @default(0)
+  is_reserve   Boolean   @default(true)
+  def_capacity Int       @default(1)
+  min_capacity Int       @default(1)
+  max_capacity Int       @default(1)
+  delflg       Int?
+  shop_area    shop_area @relation(fields: [area_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_point_shop_area_id_fk")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shop_procurement_cart {
+  shop_id           Int?
+  goods_id          Int?
+  num               Decimal?  @db.Decimal(6, 6)
+  price             Decimal?  @db.Decimal(12, 6)
+  supplier_id       Int?
+  supplier_goods_id String?   @db.VarChar
+  goods_class_id    Int?
+  create_id         String?   @db.Uuid
+  create_time       DateTime? @db.Timestamp(6)
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shop_procurement_order {
+  id                String    @id(map: "shop_procurement_order_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  code              String    @unique(map: "shop_procurement_order_pk2") @db.VarChar
+  status            Int
+  shop_id           Int
+  shop_name         String?   @db.VarChar
+  shop_address      String?   @db.VarChar
+  remark            Int?
+  delivery_time     DateTime? @db.Timestamp(6)
+  receive_time      DateTime? @db.Timestamp(6)
+  brand_id          Int?
+  brand_name        String?   @db.VarChar
+  organization_id   Int?
+  organization_name String?   @db.VarChar
+  delflg            Int?
+  create_dept_id    Int?
+  create_dept_name  String?   @db.VarChar
+  create_time       DateTime? @db.Timestamp(6)
+  create_id         String?   @db.Uuid
+  modify_time       DateTime? @db.Timestamp(6)
+  modify_id         String?   @db.Uuid
+  reference_id      String?   @db.VarChar
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shop_procurement_order_details {
+  id                            String    @id(map: "shop_procurement_order_details_pk") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  status                        Int?
+  procurement_order_id          String    @db.Uuid
+  ingredients_goods_id          Int
+  ingredients_goods_name        String?   @db.VarChar
+  ingredients_goods_letter_name Int?
+  num                           Decimal?  @db.Decimal(12, 6)
+  price                         Decimal?  @db.Decimal(12, 6)
+  spec_text                     String?   @db.VarChar
+  dimension_id                  Int
+  total_price                   Int?
+  receive_num                   Decimal?  @db.Decimal(12, 6)
+  reference_id                  String?   @db.VarChar
+  brand_id                      Int?
+  brand_name                    String?   @db.VarChar
+  organization_id               Int?
+  organization_name             String?   @db.VarChar
+  delflg                        Int?
+  create_dept_id                Int?
+  create_dept_name              String?   @db.VarChar
+  create_time                   DateTime? @db.Timestamp(6)
+  create_id                     String?   @db.Uuid
+  modify_time                   DateTime? @db.Timestamp(6)
+  modify_id                     String?   @db.Uuid
+}
+
+model standard_units {
+  id                   Int              @id @default(autoincrement())
+  name                 String?          @db.VarChar(50)
+  base_unit_id         Int?
+  conversion_factor    Decimal?         @db.Decimal(12, 5)
+  generic_items        generic_items[]
+  standard_units       standard_units?  @relation("standard_unitsTostandard_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_standard_units standard_units[] @relation("standard_unitsTostandard_units")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model supplier_items {
+  id                        Int                         @id @default(autoincrement())
+  name                      String                      @db.VarChar(60)
+  category_id               Int
+  status                    Int                         @default(1) @db.SmallInt
+  create_time               DateTime?                   @default(now()) @db.Timestamp(6)
+  update_time               DateTime?                   @db.Timestamp(6)
+  letter_name               String?                     @db.VarChar
+  supplier_id               Int?
+  photo_url                 String?                     @db.VarChar
+  base_good_unit_id         String?                     @db.VarChar
+  order_good_unit_id        String?                     @db.VarChar
+  price                     Decimal?                    @db.Decimal(12, 6)
+  supplier_reference_id     String?                     @db.VarChar
+  generic_item_id           Int?
+  scm_supply_plan_scm_goods scm_supply_plan_scm_goods[]
+  generic_items             generic_items?              @relation(fields: [generic_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum pricing_strategy_type {
