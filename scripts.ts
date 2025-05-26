@@ -5,9 +5,7 @@ const run = async () => {
   const scmClient = new SCMClient();
   const imClient = new IMClient();
 
-  const goods = await imClient.supplier_items.findMany({
-    take: 100,
-  });
+  const goods = await imClient.supplier_items.findMany();
   for (const good of goods) {
     const scmGoodPrice = await scmClient.scm_good_pricing.findFirst({
       where: {
@@ -17,7 +15,6 @@ const run = async () => {
       },
     });
     if (scmGoodPrice) {
-      console.log('update', good.id);
       await imClient.supplier_items.update({
         where: {
           id: good.id,
