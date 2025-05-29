@@ -62,6 +62,7 @@ model cities {
   brand_cities            brand_cities[]
   plan_item_supplier_good plan_item_supplier_good[]
   scm_shop                scm_shop[]
+  supplier_items          supplier_items[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -987,8 +988,10 @@ model supplier_items {
   package_unit_to_base_ratio Int?
   package_unit_name          String?                   @db.VarChar(50)
   base_unit_id               Int?
+  city_id                    Int?
   plan_item_supplier_good    plan_item_supplier_good[]
   standard_units             standard_units?           @relation(fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cities                     cities?                   @relation(fields: [city_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model brand_cities {

@@ -57,6 +57,7 @@ const run = async () => {
           price: good.sale_price,
           cut_off_time: good.scm_goods.scm_stock?.sold_time?.toString(),
           base_unit_id: baseUnitId,
+          city_id: good.city_id,
         },
       });
     }
