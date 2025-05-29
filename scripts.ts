@@ -13,7 +13,6 @@ const run = async () => {
         status: 1,
       },
     },
-    take: 10,
     include: {
       scm_good_units: true,
       scm_goods: {
