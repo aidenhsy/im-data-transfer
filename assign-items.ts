@@ -72,7 +72,19 @@ const run = async () => {
          OR si.status = 0              -- Or assigned but supplier item is disabled
       ORDER BY bcl.brand_id, i.name, bcl.city_name
     `;
-  console.log(results);
+  for (const item of results) {
+    const planItem = await pClient.supply_plan_items.findFirst({
+      where: {
+        id: item.supply_plan_item_id.toString(),
+      },
+      include: {
+        generic_items: true,
+      },
+    });
+
+    console.log(planItem);
+    break;
+  }
 };
 
 run();
