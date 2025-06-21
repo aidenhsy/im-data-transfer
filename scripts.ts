@@ -38,6 +38,9 @@ const run = async () => {
         where: {
           id: item.reference_id,
         },
+        include: {
+          scm_good_units: true,
+        },
       });
 
       if (!goodPrice) {
@@ -48,6 +51,26 @@ const run = async () => {
       let clientierId = 2;
       if (shop.is_join === 1) {
         clientierId = 3;
+      }
+
+      const goodUnit = await scmPricing.scm_good_units.findFirst({
+        where: {
+          id: goodPrice.good_unit_id,
+        },
+      });
+
+      if (!goodUnit) {
+        await scmPricing.scm_good_units.create({
+          data: {
+            id: goodPrice.good_unit_id,
+            goods_id: goodPrice.scm_good_units.goods_id,
+            ratio_to_base: goodPrice.scm_good_units.ratio_to_base,
+            is_base_unit: goodPrice.scm_good_units.is_base_unit,
+            is_order_unit: goodPrice.scm_good_units.is_order_unit,
+            name: goodPrice.scm_good_units.name,
+            is_count_unit: goodPrice.scm_good_units.is_count_unit,
+          },
+        });
       }
 
       await scmPricing.scm_good_pricing.upsert({
