@@ -29,9 +29,14 @@ const run = async () => {
     });
 
     for (const item of items) {
+      if (!item.reference_id) {
+        console.log(`Item ${item.id} has no reference_id`);
+        continue;
+      }
+
       const goodPrice = await scm.scm_good_pricing.findFirst({
         where: {
-          id: item.reference_id!,
+          id: item.reference_id,
         },
       });
 
