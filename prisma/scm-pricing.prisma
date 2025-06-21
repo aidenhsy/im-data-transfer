@@ -462,8 +462,6 @@ model scm_goods {
   scm_good_pricing                                               scm_good_pricing[]
   scm_good_units_scm_good_units_goods_idToscm_goods              scm_good_units[]                 @relation("scm_good_units_goods_idToscm_goods")
   scm_goods_category                                             scm_goods_category               @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_category0")
-  supplier_scm_goods_seller_idTosupplier                         supplier?                        @relation("scm_goods_seller_idTosupplier", fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_seller_id")
-  supplier_scm_goods_supplier_idTosupplier                       supplier?                        @relation("scm_goods_supplier_idTosupplier", fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_supplier_id")
   scm_stock                                                      scm_stock?                       @relation(fields: [stock_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_scm_goods_scm_stock124")
   scm_good_units_scm_goods_purchase_good_unit_idToscm_good_units scm_good_units?                  @relation("scm_goods_purchase_good_unit_idToscm_good_units", fields: [purchase_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   standard_units                                                 standard_units?                  @relation(fields: [standard_base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -1154,8 +1152,6 @@ model supplier {
   organization_id                                       Int
   created_at                                            DateTime?                       @default(now()) @db.Timestamp(6)
   scm_ent_stock                                         scm_ent_stock[]
-  scm_goods_scm_goods_seller_idTosupplier               scm_goods[]                     @relation("scm_goods_seller_idTosupplier")
-  scm_goods_scm_goods_supplier_idTosupplier             scm_goods[]                     @relation("scm_goods_supplier_idTosupplier")
   scm_goods_copy1_scm_goods_copy1_seller_idTosupplier   scm_goods_copy1[]               @relation("scm_goods_copy1_seller_idTosupplier")
   scm_goods_copy1_scm_goods_copy1_supplier_idTosupplier scm_goods_copy1[]               @relation("scm_goods_copy1_supplier_idTosupplier")
   scm_order_stock                                       scm_order_stock[]
