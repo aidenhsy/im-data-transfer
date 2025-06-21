@@ -60,6 +60,72 @@ const run = async () => {
       });
 
       if (!goodUnit) {
+        // First, check if the goods exists in scm-pricing database
+        const existingGood = await scmPricing.scm_goods.findFirst({
+          where: {
+            id: goodPrice.scm_good_units.goods_id,
+          },
+        });
+
+        if (!existingGood) {
+          // Get the goods information from the source database
+          const sourceGood = await scm.scm_goods.findFirst({
+            where: {
+              id: goodPrice.scm_good_units.goods_id,
+            },
+          });
+
+          if (sourceGood) {
+            // Create the goods record with actual data from source
+            await scmPricing.scm_goods.create({
+              data: {
+                id: sourceGood.id,
+                name: sourceGood.name,
+                category_id: sourceGood.category_id,
+                serial_num: sourceGood.serial_num,
+                details: sourceGood.details,
+                sort: sourceGood.sort,
+                status: sourceGood.status,
+                create_time: sourceGood.create_time,
+                update_time: sourceGood.update_time,
+                stock_id: sourceGood.stock_id,
+                sort_cate_id: sourceGood.sort_cate_id,
+                tt_code: sourceGood.tt_code,
+                organization_id: sourceGood.organization_id,
+                letter_name: sourceGood.letter_name,
+                weighing: sourceGood.weighing,
+                supplier_id: sourceGood.supplier_id,
+                goods_price_id: sourceGood.goods_price_id,
+                remarks: sourceGood.remarks,
+                direct: sourceGood.direct,
+                seller_id: sourceGood.seller_id,
+                supplier_sorting: sourceGood.supplier_sorting,
+                s_day: sourceGood.s_day,
+                e_day: sourceGood.e_day,
+                sorting: sourceGood.sorting,
+                photo_url: sourceGood.photo_url,
+                is_count: sourceGood.is_count,
+                base_good_unit_id: sourceGood.base_good_unit_id,
+                order_good_unit_id: sourceGood.order_good_unit_id,
+                spec_text: sourceGood.spec_text,
+                price: sourceGood.price,
+                storage_unit: sourceGood.storage_unit,
+                storage_sale_ratio: sourceGood.storage_sale_ratio,
+                count_good_unit_id: sourceGood.count_good_unit_id,
+                purchase_good_unit_id: sourceGood.purchase_good_unit_id,
+                is_public: sourceGood.is_public,
+                averag_cost_price: sourceGood.averag_cost_price,
+                standard_base_unit_id: sourceGood.standard_base_unit,
+              },
+            });
+          } else {
+            console.log(
+              `Source goods not found for id ${goodPrice.scm_good_units.goods_id}, skipping...`
+            );
+            continue;
+          }
+        }
+
         await scmPricing.scm_good_units.create({
           data: {
             id: goodPrice.good_unit_id,
