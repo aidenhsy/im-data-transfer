@@ -404,8 +404,6 @@ model scm_good_units {
   scm_goods_copy1_scm_goods_copy1_count_good_unit_idToscm_good_units    scm_goods_copy1[]      @relation("scm_goods_copy1_count_good_unit_idToscm_good_units")
   scm_goods_copy1_scm_goods_copy1_order_good_unit_idToscm_good_units    scm_goods_copy1[]      @relation("scm_goods_copy1_order_good_unit_idToscm_good_units")
   scm_goods_copy1_scm_goods_copy1_purchase_good_unit_idToscm_good_units scm_goods_copy1[]      @relation("scm_goods_copy1_purchase_good_unit_idToscm_good_units")
-
-  @@unique([goods_id, ratio_to_base], map: "unique_good_id_ratio_to_base")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
