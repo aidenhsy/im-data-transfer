@@ -82,8 +82,25 @@ const run = async () => {
       },
     });
 
-    console.log(planItem);
-    break;
+    const supplierItem = await pClient.supplier_items.findFirst({
+      where: {
+        name: {
+          contains: planItem?.generic_items?.name,
+        },
+      },
+    });
+
+    if (supplierItem) {
+      await pClient.plan_item_supplier_good.create({
+        data: {
+          plan_item_id: item.supply_plan_item_id.toString(),
+          supplier_item_id: supplierItem.id,
+          city_id: item.city_id,
+        },
+      });
+    } else {
+      console.log('nothing found');
+    }
   }
 };
 

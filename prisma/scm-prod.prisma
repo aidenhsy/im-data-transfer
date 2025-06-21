@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./clients/scm-pricing"
+  output   = "./clients/scm-prod"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("SCM_PRICING_URL")
+  url      = env("SCM_PROD_URL")
 }
 
 model cities {
@@ -366,8 +366,6 @@ model scm_good_pricing {
   client_tier           client_tier?   @relation(fields: [client_tier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units        scm_good_units @relation(fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_goods             scm_goods      @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([goods_id, good_unit_id, client_tier_id, version, city_id], map: "unique_client_tier_goods_unit_version")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
