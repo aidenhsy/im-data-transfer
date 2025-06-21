@@ -9,10 +9,11 @@ datasource db {
 }
 
 model cities {
-  id               Int                @id @default(autoincrement())
-  name             String?            @unique(map: "unique_city_name") @db.VarChar
-  is_active        Boolean?           @default(true)
-  scm_good_pricing scm_good_pricing[]
+  id        Int        @id @default(autoincrement())
+  name      String?    @unique(map: "unique_city_name") @db.VarChar
+  is_active Boolean?   @default(true)
+  scm_shop  scm_shop[]
+  supplier  supplier[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -69,12 +70,6 @@ model picker_client_shop {
   users    users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([user_id, shop_id])
-}
-
-model pricing_versions {
-  id          String    @id @db.VarChar(50)
-  created_at  DateTime? @default(now()) @db.Timestamp(6)
-  valid_until DateTime? @default(dbgenerated("(now() + '1 day'::interval)")) @db.Timestamp(6)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -135,6 +130,7 @@ model scm_bulk_picking {
   goods_id                Int?
   order_id                Int?
   scm_goods               scm_goods?                @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_bulk_picking_good_id")
+  scm_order               scm_order?                @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_order_id")
   scm_bulk_picking_routes scm_bulk_picking_routes[]
 
   @@index([date], map: "idx_scm_bulk_picking_date")
@@ -214,6 +210,7 @@ model scm_ent_details {
   storage_price           Decimal?                  @db.Decimal(12, 6)
   just_amount             Decimal?                  @db.Decimal(12, 6)
   remaining_qty           Decimal?                  @db.Decimal(12, 4)
+  operator                Int?
   scm_ent_stock           scm_ent_stock             @relation(fields: [ent_no], references: [ent_no], onDelete: NoAction, onUpdate: NoAction, map: "ent_no_key27")
   scm_goods               scm_goods?                @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_scm_goods")
   scm_ent_fifo_allocation scm_ent_fifo_allocation[]
@@ -357,28 +354,33 @@ model scm_good_pricing {
   created_at            DateTime?      @default(now()) @db.Timestamp(6)
   locked_after          DateTime?      @db.Timestamp(6)
   version               String?        @db.VarChar(50)
-  updated_at            DateTime?      @default(now()) @db.Timestamp(6)
+  updated_at            DateTime?      @db.Timestamp(6)
+  external_reference_id String?        @default(dbgenerated("(((((version)::text || '-'::text) || (client_tier_id)::text) || '-'::text) || (goods_id)::text)"))
   id                    String         @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  city_id               Int?
-  external_reference_id String?        @default(dbgenerated("(((((((((version)::text || '-'::text) || client_tier_id) || '-'::text) || goods_id) || '-'::text) || city_id) || '-'::text) || (good_unit_id)::text)"))
   cut_off_time          String?        @db.VarChar(50)
-  cities                cities?        @relation(fields: [city_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   client_tier           client_tier?   @relation(fields: [client_tier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units        scm_good_units @relation(fields: [good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_goods             scm_goods      @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([client_tier_id, good_unit_id, goods_id, version], map: "unique_client_tier_goods_unit_version")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model scm_good_pricing_scm {
-  id               Int?
-  goods_id         Int?
-  good_unit_id     String?   @db.VarChar
-  client_tier_id   Int?
-  pricing_strategy String?   @db.VarChar
-  profit_margin    Decimal?  @db.Decimal(8, 2)
-  sale_price       Decimal?  @db.Decimal(12, 2)
-  is_active        Boolean?
-  created_at       DateTime? @db.Timestamp(6)
+  goods_id              Int?
+  good_unit_id          String?   @db.VarChar
+  client_tier_id        Int?
+  pricing_strategy      String?   @db.VarChar
+  profit_margin         Decimal?  @db.Decimal(8, 2)
+  sale_price            Decimal?  @db.Decimal(12, 2)
+  is_active             Boolean?
+  created_at            DateTime? @db.Timestamp(6)
+  locked_after          DateTime? @db.Timestamp(6)
+  version               String?   @db.VarChar(50)
+  updated_at            DateTime? @db.Timestamp(6)
+  external_reference_id String?
+  id                    String?   @db.VarChar
+  cut_off_time          String?   @db.VarChar(50)
 
   @@ignore
 }
@@ -402,8 +404,6 @@ model scm_good_units {
   scm_goods_copy1_scm_goods_copy1_count_good_unit_idToscm_good_units    scm_goods_copy1[]      @relation("scm_goods_copy1_count_good_unit_idToscm_good_units")
   scm_goods_copy1_scm_goods_copy1_order_good_unit_idToscm_good_units    scm_goods_copy1[]      @relation("scm_goods_copy1_order_good_unit_idToscm_good_units")
   scm_goods_copy1_scm_goods_copy1_purchase_good_unit_idToscm_good_units scm_goods_copy1[]      @relation("scm_goods_copy1_purchase_good_unit_idToscm_good_units")
-
-  @@unique([goods_id, ratio_to_base], map: "unique_good_id_ratio_to_base")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -457,7 +457,9 @@ model scm_goods {
   purchase_good_unit_id                                          String?                          @db.VarChar
   is_public                                                      Boolean                          @default(true)
   averag_cost_price                                              Decimal?                         @db.Decimal(12, 6)
-  standard_base_unit_id                                          Int?
+  instore                                                        Int?                             @default(1) @db.SmallInt
+  standard_base_unit                                             Int?
+  last_ware_price                                                Decimal?                         @db.Decimal(12, 6)
   private_client_goods                                           private_client_goods[]
   scm_bulk_picking                                               scm_bulk_picking[]
   scm_bulk_picking_routes                                        scm_bulk_picking_routes[]
@@ -472,7 +474,7 @@ model scm_goods {
   supplier_scm_goods_supplier_idTosupplier                       supplier?                        @relation("scm_goods_supplier_idTosupplier", fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_supplier_id")
   scm_stock                                                      scm_stock?                       @relation(fields: [stock_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_scm_goods_scm_stock124")
   scm_good_units_scm_goods_purchase_good_unit_idToscm_good_units scm_good_units?                  @relation("scm_goods_purchase_good_unit_idToscm_good_units", fields: [purchase_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  standard_units                                                 standard_units?                  @relation(fields: [standard_base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  standard_units                                                 standard_units?                  @relation(fields: [standard_base_unit], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_goods_outbound                                             scm_goods_outbound[]
   scm_goods_price_history                                        scm_goods_price_history[]
   scm_order_details                                              scm_order_details[]
@@ -518,9 +520,9 @@ model scm_goods_category_scm {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_goods_copy1 {
   id                                                                   Int                @id @default(autoincrement())
-  name                                                                 String             @db.VarChar
+  name                                                                 String             @db.VarChar(60)
   category_id                                                          Int
-  serial_num                                                           String?            @db.VarChar
+  serial_num                                                           String?            @db.VarChar(60)
   details                                                              String?
   sort                                                                 Int                @default(0) @db.SmallInt
   status                                                               Int                @default(1) @db.SmallInt
@@ -546,18 +548,23 @@ model scm_goods_copy1 {
   base_good_unit_id                                                    String?            @db.VarChar
   order_good_unit_id                                                   String?            @db.VarChar
   spec_text                                                            String?            @db.VarChar
-  price                                                                Decimal?           @db.Decimal
+  price                                                                Decimal?           @db.Decimal(12, 6)
   storage_unit                                                         String?            @db.VarChar
   storage_sale_ratio                                                   Int?
   count_good_unit_id                                                   String?            @db.VarChar
   purchase_good_unit_id                                                String?            @db.VarChar
   is_public                                                            Boolean            @default(true)
+  averag_cost_price                                                    Decimal?           @db.Decimal(12, 6)
+  instore                                                              Int?               @default(1) @db.SmallInt
+  standard_base_unit                                                   Int?
+  last_ware_price                                                      Decimal?           @db.Decimal(12, 6)
   scm_good_units_scm_goods_copy1_base_good_unit_idToscm_good_units     scm_good_units?    @relation("scm_goods_copy1_base_good_unit_idToscm_good_units", fields: [base_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_goods_category                                                   scm_goods_category @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_goods_copy1_count_good_unit_idToscm_good_units    scm_good_units?    @relation("scm_goods_copy1_count_good_unit_idToscm_good_units", fields: [count_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_goods_copy1_order_good_unit_idToscm_good_units    scm_good_units?    @relation("scm_goods_copy1_order_good_unit_idToscm_good_units", fields: [order_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_good_units_scm_goods_copy1_purchase_good_unit_idToscm_good_units scm_good_units?    @relation("scm_goods_copy1_purchase_good_unit_idToscm_good_units", fields: [purchase_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_scm_goods_copy1_seller_idTosupplier                         supplier?          @relation("scm_goods_copy1_seller_idTosupplier", fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  standard_units                                                       standard_units?    @relation(fields: [standard_base_unit], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_stock                                                            scm_stock?         @relation(fields: [stock_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_scm_goods_copy1_supplier_idTosupplier                       supplier?          @relation("scm_goods_copy1_supplier_idTosupplier", fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -628,6 +635,9 @@ model scm_goods_scm {
   purchase_good_unit_id String?   @db.VarChar
   is_public             Boolean?
   averag_cost_price     Decimal?  @db.Decimal(12, 6)
+  instore               Int?      @db.SmallInt
+  standard_base_unit    Int?
+  last_ware_price       Decimal?  @db.Decimal(12, 6)
 
   @@ignore
 }
@@ -636,7 +646,7 @@ model scm_goods_stock_cities {
   id        String @id @default(dbgenerated("uuid_generate_v4()")) @db.VarChar
   good_id   Int
   stock_id  Int
-  cities_id String @db.VarChar
+  cities_id Int
 
   @@unique([good_id, stock_id], map: "scm_goods_stock_cities_uniqueness_index")
 }
@@ -683,6 +693,7 @@ model scm_order {
   delivery_day_info_id String?               @db.VarChar
   reference_id         Int?
   client_org_id        Int?
+  scm_bulk_picking     scm_bulk_picking[]
   client_organizations client_organizations? @relation(fields: [client_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   day_info             day_info?             @relation(fields: [delivery_day_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop             scm_shop              @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_shop_id_fkey2")
@@ -711,7 +722,7 @@ model scm_order_details {
   yu_price                      Decimal?                        @default(0) @db.Decimal(12, 6)
   item_total                    Decimal?                        @db.Decimal(12, 2)
   remaining_quantity            Decimal?                        @db.Decimal(10, 4)
-  good_price_id                 Int?
+  good_price_id                 String?                         @db.VarChar(50)
   delivery_time                 DateTime?                       @db.Timestamp(6)
   scm_goods_outbound            scm_goods_outbound[]
   scm_goods                     scm_goods?                      @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_details_goods_id_fkey44")
@@ -755,7 +766,7 @@ model scm_order_details_scm {
   yu_price           Decimal?  @db.Decimal(12, 6)
   item_total         Decimal?  @db.Decimal(12, 2)
   remaining_quantity Decimal?  @db.Decimal(10, 4)
-  good_price_id      Int?
+  good_price_id      String?   @db.VarChar(50)
   delivery_time      DateTime? @db.Timestamp(6)
 
   @@ignore
@@ -904,6 +915,7 @@ model scm_shop {
   scm_order                                                                  scm_order[]
   scm_shop_brand                                                             scm_shop_brand         @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_brand_id38")
   scm_business_district                                                      scm_business_district? @relation(fields: [business_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_shop_business_id")
+  cities                                                                     cities?                @relation(fields: [city_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_cities_id_fk")
   client_organizations_scm_shop_client_organization_idToclient_organizations client_organizations?  @relation("scm_shop_client_organization_idToclient_organizations", fields: [client_organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop                                                                   scm_shop?              @relation("scm_shopToscm_shop", fields: [client_tier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   other_scm_shop                                                             scm_shop[]             @relation("scm_shopToscm_shop")
@@ -976,7 +988,7 @@ model scm_stock {
   struc_type      Int?              @default(1) @db.SmallInt
   sold_time       DateTime?         @default(dbgenerated("'15:00:00'::time without time zone")) @db.Time(6)
   small_storage   String?           @db.VarChar
-  city_id         String?           @db.VarChar
+  city_id         Int?
   scm_goods       scm_goods[]
   scm_goods_copy1 scm_goods_copy1[]
   scm_order_stock scm_order_stock[]
@@ -1001,6 +1013,8 @@ model scm_storage_goods_log {
   old_qty             Decimal?  @db.Decimal(10, 4)
   new_qty             Decimal?  @db.Decimal(10, 4)
   reason              String?   @db.VarChar
+  ent_no              String?   @db.VarChar(60)
+  cost_price          Decimal?  @db.Decimal(12, 6)
   scm_goods           scm_goods @relation(fields: [good_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -1137,13 +1151,14 @@ model scm_version {
 }
 
 model standard_units {
-  id                   Int              @id @default(autoincrement())
-  name                 String?          @db.VarChar(50)
+  id                   Int               @id @default(autoincrement())
+  name                 String?           @db.VarChar(50)
   base_unit_id         Int?
-  conversion_factor    Decimal?         @db.Decimal(12, 5)
+  conversion_factor    Decimal?          @db.Decimal(12, 5)
   scm_goods            scm_goods[]
-  standard_units       standard_units?  @relation("standard_unitsTostandard_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  other_standard_units standard_units[] @relation("standard_unitsTostandard_units")
+  scm_goods_copy1      scm_goods_copy1[]
+  standard_units       standard_units?   @relation("standard_unitsTostandard_units", fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_standard_units standard_units[]  @relation("standard_unitsTostandard_units")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1159,6 +1174,7 @@ model supplier {
   mail                                                  String?                         @db.VarChar(100)
   organization_id                                       Int
   created_at                                            DateTime?                       @default(now()) @db.Timestamp(6)
+  city_id                                               Int?
   scm_ent_stock                                         scm_ent_stock[]
   scm_goods_scm_goods_seller_idTosupplier               scm_goods[]                     @relation("scm_goods_seller_idTosupplier")
   scm_goods_scm_goods_supplier_idTosupplier             scm_goods[]                     @relation("scm_goods_supplier_idTosupplier")
@@ -1168,6 +1184,7 @@ model supplier {
   scm_supplier_box_scm_supplier                         scm_supplier_box_scm_supplier[]
   scm_supplier_price_plan                               scm_supplier_price_plan[]
   scm_suppliers_goods_daily                             scm_suppliers_goods_daily[]
+  cities                                                cities?                         @relation(fields: [city_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "city_id_customers")
   client_organizations                                  client_organizations            @relation(fields: [organization_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   user_supplier                                         user_supplier[]
 }
