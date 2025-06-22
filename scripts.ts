@@ -2,6 +2,10 @@ import { PrismaClient as IMProd } from './prisma/clients/im-prod';
 import { PrismaClient as SCMProd } from './prisma/clients/scm-prod';
 import { PrismaClient as SCMPricing } from './prisma/clients/scm-pricing';
 
+// Configuration
+const VERSION = '20250623';
+const LOCKED_AFTER_DATE = new Date('2025-06-23T03:30:00.000Z');
+
 interface Shop {
   city_id: number;
   brand_id: number;
@@ -145,12 +149,12 @@ const run = async () => {
             goods_id: goodPrice?.goods_id!,
             good_unit_id: goodPrice?.good_unit_id!,
             client_tier_id: clientierId,
-            version: '20250622',
+            version: VERSION,
             city_id: shop.city_id,
           },
         },
         update: {
-          version: '20250622',
+          version: VERSION,
         },
         create: {
           goods_id: goodPrice?.goods_id!,
@@ -160,12 +164,12 @@ const run = async () => {
           profit_margin: goodPrice?.profit_margin,
           sale_price: goodPrice?.sale_price,
           is_active: goodPrice?.is_active,
-          locked_after: new Date('2025-06-22T03:30:00.000Z'),
+          locked_after: LOCKED_AFTER_DATE,
           city_id: shop.city_id,
           cut_off_time: goodPrice?.cut_off_time
             ? goodPrice.cut_off_time
             : '15:00:00',
-          version: '20250622',
+          version: VERSION,
         },
       });
     }
