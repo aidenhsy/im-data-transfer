@@ -45,6 +45,11 @@ const run = async () => {
 
   console.log('brandItems', brandItems.length);
 
+  let processedCount = 0;
+  let noPriceCount = 0;
+  let noGenericItemCount = 0;
+  let noSupplierGoodCount = 0;
+
   for (const item of brandItems) {
     const scmProdPrice = await scm.scm_good_pricing.findFirst({
       where: {
@@ -61,7 +66,10 @@ const run = async () => {
     });
 
     if (!scmPrice) {
-      console.log(`No price found for ${item.goods_name}`);
+      console.log(
+        `No price found for ${item.goods_name} (item.id: ${item.id})`
+      );
+      noPriceCount++;
       continue;
     }
 
@@ -73,8 +81,9 @@ const run = async () => {
 
     if (!genericItem) {
       console.log(
-        `No generic item found for item.id: ${item.id} ${item.goods_name}`
+        `No generic item found for item.id: ${item.id} ${item.goods_name} (goods_id: ${scmPrice.goods_id})`
       );
+      noGenericItemCount++;
       continue;
     }
 
@@ -94,6 +103,7 @@ const run = async () => {
       },
     });
 
+    let cityProcessedCount = 0;
     for (const city of brandCities) {
       const supplierGood = await imProcurement.supplier_items.findFirst({
         where: {
@@ -105,6 +115,7 @@ const run = async () => {
 
       if (!supplierGood) {
         // console.log(`No supplier good found for ${item.goods_name}`);
+        noSupplierGoodCount++;
         continue;
       }
 
@@ -124,8 +135,24 @@ const run = async () => {
           city_id: city.city_id!,
         },
       });
+      cityProcessedCount++;
     }
+
+    processedCount++;
+    console.log(
+      `Processed item ${item.id} (${item.goods_name}) - ${cityProcessedCount} cities processed`
+    );
   }
+
+  console.log('\n=== SUMMARY ===');
+  console.log(`Total brandItems: ${brandItems.length}`);
+  console.log(`Successfully processed: ${processedCount}`);
+  console.log(`No price found: ${noPriceCount}`);
+  console.log(`No generic item found: ${noGenericItemCount}`);
+  console.log(`No supplier good found: ${noSupplierGoodCount}`);
+  console.log(
+    `Expected total: ${processedCount + noPriceCount + noGenericItemCount}`
+  );
   // }
 };
 
