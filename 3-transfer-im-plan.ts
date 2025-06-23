@@ -59,17 +59,9 @@ const run = async () => {
       },
     });
 
-    const scmPrice = await scmPricing.scm_good_pricing.findFirst({
-      where: {
-        external_reference_id: {
-          startsWith: `20250623-2-${scmProdPrice?.goods_id}`,
-        },
-      },
-    });
-
-    if (!scmPrice) {
+    if (!scmProdPrice) {
       console.log(
-        `No price found for ${item.goods_name} (item.id: ${item.id})`
+        `No scmProdPrice found for ${item.goods_name} (item.id: ${item.id})`
       );
       noPriceCount++;
       continue;
@@ -77,13 +69,13 @@ const run = async () => {
 
     const genericItem = await imProcurement.generic_items.findFirst({
       where: {
-        id: scmPrice.goods_id,
+        id: scmProdPrice.goods_id,
       },
     });
 
     if (!genericItem) {
       console.log(
-        `No generic item found for item.id: ${item.id} ${item.goods_name} (goods_id: ${scmPrice.goods_id})`
+        `No generic item found for item.id: ${item.id} ${item.goods_name} (goods_id: ${scmProdPrice.goods_id})`
       );
       noGenericItemCount++;
       continue;
@@ -117,6 +109,23 @@ const run = async () => {
 
     let cityProcessedCount = 0;
     for (const city of brandCities) {
+      // Look for city-specific pricing
+      const scmPrice = await scmPricing.scm_good_pricing.findFirst({
+        where: {
+          external_reference_id: {
+            startsWith: `20250623-2-${scmProdPrice.goods_id}-${city.city_id}`,
+          },
+        },
+      });
+
+      if (!scmPrice) {
+        console.log(
+          `No city-specific price found for ${item.goods_name} in city ${city.city_id}`
+        );
+        noPriceCount++;
+        continue;
+      }
+
       const supplierGood = await imProcurement.supplier_items.findFirst({
         where: {
           supplier_reference_id: {
