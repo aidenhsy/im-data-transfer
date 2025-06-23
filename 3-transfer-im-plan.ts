@@ -180,6 +180,47 @@ const run = async () => {
 
   console.log('total', total);
 
+  // Investigate what records exist in the database
+  const allRecords = await imProcurement.supply_plan_items.findMany({
+    where: {
+      supply_plan_id: brand.supply_plan_id,
+    },
+    include: {
+      generic_items: true, // Include the generic_items details
+    },
+  });
+
+  console.log(`\n=== DATABASE INVESTIGATION ===`);
+  console.log(
+    `Total records in DB for supply_plan_id ${brand.supply_plan_id}: ${allRecords.length}`
+  );
+
+  // Check if any records have item_ids that weren't in our processed set
+  const dbItemIds = new Set(allRecords.map((record) => record.item_id));
+  const processedItemIds = uniqueItemIds;
+  const extraItemIds = new Set(
+    [...dbItemIds].filter((id) => !processedItemIds.has(id))
+  );
+
+  if (extraItemIds.size > 0) {
+    console.log(
+      `\nExtra item_ids in DB (not processed this run): ${extraItemIds.size}`
+    );
+    console.log('Extra item_ids:', Array.from(extraItemIds).slice(0, 10)); // Show first 10
+
+    const extraRecords = allRecords.filter((record) =>
+      extraItemIds.has(record.item_id)
+    );
+    console.log('\nSample extra records:');
+    extraRecords.slice(0, 5).forEach((record) => {
+      console.log(
+        `  - item_id: ${record.item_id}, item_name: ${
+          record.generic_items?.name || 'N/A'
+        }`
+      );
+    });
+  }
+
   console.log('\n=== SUMMARY ===');
   console.log(`Total brandItems: ${brandItems.length}`);
   console.log(`Successfully processed: ${processedCount}`);
