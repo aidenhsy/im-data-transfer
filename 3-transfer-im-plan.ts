@@ -100,11 +100,20 @@ const run = async () => {
           continue;
         }
 
-        await imProcurement.plan_item_supplier_good.create({
-          data: {
+        await imProcurement.plan_item_supplier_good.upsert({
+          where: {
+            plan_item_id_city_id: {
+              plan_item_id: planItem.id,
+              city_id: city.city_id!,
+            },
+          },
+          update: {
+            supplier_item_id: supplierGood.id,
+          },
+          create: {
             plan_item_id: planItem.id,
             supplier_item_id: supplierGood.id,
-            city_id: city.city_id,
+            city_id: city.city_id!,
           },
         });
       }
