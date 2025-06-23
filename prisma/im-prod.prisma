@@ -600,20 +600,22 @@ model scm_shop_account {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_shop_brand {
-  id                    Int                     @id @default(autoincrement())
-  brand_name            String                  @db.VarChar(60)
-  create_time           DateTime?               @default(now()) @db.Timestamp(6)
-  tcsl_id               String?                 @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  big_org_id            Int?                    @default(3)
-  is_enabled            Boolean?                @default(false)
-  scm_brand_account     scm_brand_account[]
-  scm_shop              scm_shop[]
-  big_org               big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
-  scm_supply_plan       scm_supply_plan[]
-  st_daily_sales        st_daily_sales[]
-  st_ingredient         st_ingredient[]
-  st_kitchen_department st_kitchen_department[]
-  st_sales_plan         st_sales_plan[]
+  id                                                             Int                     @id @default(autoincrement())
+  brand_name                                                     String                  @db.VarChar(60)
+  create_time                                                    DateTime?               @default(now()) @db.Timestamp(6)
+  tcsl_id                                                        String?                 @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  big_org_id                                                     Int?                    @default(3)
+  is_enabled                                                     Boolean?                @default(false)
+  supply_plan_id                                                 Int?
+  scm_brand_account                                              scm_brand_account[]
+  scm_shop                                                       scm_shop[]
+  big_org                                                        big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
+  scm_supply_plan_scm_shop_brand_supply_plan_idToscm_supply_plan scm_supply_plan?        @relation("scm_shop_brand_supply_plan_idToscm_supply_plan", fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_supply_plan                                                scm_supply_plan[]
+  st_daily_sales                                                 st_daily_sales[]
+  st_ingredient                                                  st_ingredient[]
+  st_kitchen_department                                          st_kitchen_department[]
+  st_sales_plan                                                  st_sales_plan[]
 
   @@index([tcsl_id], map: "idx_sc_shop_brand_tcsl_id")
 }
@@ -643,20 +645,21 @@ model scm_shop_scm_shop_account {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_supply_plan {
-  id                        Int                         @id @default(autoincrement())
-  name                      String?                     @db.VarChar(60)
-  serial_num                String?                     @unique @db.VarChar
-  organization_id           Int?
-  brand_id                  Int?
-  city                      String?                     @db.VarChar
-  client_tier_id            Int?
-  status                    Int?                        @default(1) @db.SmallInt
-  scm_shop                  scm_shop[]
-  client_tier               client_tier?                @relation(fields: [client_tier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_client_tier")
-  scm_shop_brand            scm_shop_brand?             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_supply_plan_brand_id_fkey29")
-  scm_supply_plan_scm_goods scm_supply_plan_scm_goods[]
-  st_ingredient             st_ingredient[]
-  st_sales_plan             st_sales_plan[]
+  id                                                            Int                         @id @default(autoincrement())
+  name                                                          String?                     @db.VarChar(60)
+  serial_num                                                    String?                     @unique @db.VarChar
+  organization_id                                               Int?
+  brand_id                                                      Int?
+  city                                                          String?                     @db.VarChar
+  client_tier_id                                                Int?
+  status                                                        Int?                        @default(1) @db.SmallInt
+  scm_shop                                                      scm_shop[]
+  scm_shop_brand_scm_shop_brand_supply_plan_idToscm_supply_plan scm_shop_brand[]            @relation("scm_shop_brand_supply_plan_idToscm_supply_plan")
+  client_tier                                                   client_tier?                @relation(fields: [client_tier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_client_tier")
+  scm_shop_brand                                                scm_shop_brand?             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_supply_plan_brand_id_fkey29")
+  scm_supply_plan_scm_goods                                     scm_supply_plan_scm_goods[]
+  st_ingredient                                                 st_ingredient[]
+  st_sales_plan                                                 st_sales_plan[]
 }
 
 model scm_supply_plan_scm_goods {
