@@ -139,10 +139,19 @@ const run = async () => {
     }
 
     processedCount++;
-    console.log(
-      `Processed item ${item.id} (${item.goods_name}) - ${cityProcessedCount} cities processed`
-    );
+    console
+      .log
+      // `Processed item ${item.id} (${item.goods_name}) - ${cityProcessedCount} cities processed`
+      ();
   }
+
+  const total = await imProcurement.supply_plan_items.count({
+    where: {
+      supply_plan_id: brand.supply_plan_id,
+    },
+  });
+
+  console.log('total', total);
 
   console.log('\n=== SUMMARY ===');
   console.log(`Total brandItems: ${brandItems.length}`);
