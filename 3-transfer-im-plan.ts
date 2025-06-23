@@ -17,108 +17,114 @@ const run = async () => {
     },
   });
 
-  for (const brand of brands) {
-    await imProcurement.scm_shop_brand.update({
+  // for (const brand of brands) {
+  const brand = {
+    id: 3,
+    supply_plan_id: 78,
+  };
+  await imProcurement.scm_shop_brand.update({
+    where: {
+      id: brand.id,
+    },
+    data: {
+      supply_plan_id: brand.supply_plan_id,
+    },
+  });
+
+  const brandCities = await imProcurement.brand_cities.findMany({
+    where: {
+      brand_id: brand.id,
+    },
+  });
+
+  const brandItems = await im.scm_supply_plan_scm_goods.findMany({
+    where: {
+      supply_plan_id: brand.supply_plan_id,
+    },
+  });
+
+  console.log('brandItems', brandItems.length);
+
+  for (const item of brandItems) {
+    const scmProdPrice = await scm.scm_good_pricing.findFirst({
       where: {
-        id: brand.id,
-      },
-      data: {
-        supply_plan_id: brand.supply_plan_id,
+        id: item.reference_id!,
       },
     });
 
-    const brandCities = await imProcurement.brand_cities.findMany({
+    const scmPrice = await scmPricing.scm_good_pricing.findFirst({
       where: {
-        brand_id: brand.id,
-      },
-    });
-
-    const brandItems = await im.scm_supply_plan_scm_goods.findMany({
-      where: {
-        supply_plan_id: brand.supply_plan_id,
-      },
-    });
-
-    for (const item of brandItems) {
-      const scmProdPrice = await scm.scm_good_pricing.findFirst({
-        where: {
-          id: item.reference_id!,
+        external_reference_id: {
+          startsWith: `20250623-2-${scmProdPrice?.goods_id}`,
         },
-      });
+      },
+    });
 
-      const scmPrice = await scmPricing.scm_good_pricing.findFirst({
+    if (!scmPrice) {
+      console.log(`No price found for ${item.goods_name}`);
+      continue;
+    }
+
+    const genericItem = await imProcurement.generic_items.findFirst({
+      where: {
+        id: scmPrice.goods_id,
+      },
+    });
+
+    if (!genericItem) {
+      console.log(`No generic item found for ${item.goods_name}`);
+      continue;
+    }
+
+    const planItem = await imProcurement.supply_plan_items.upsert({
+      where: {
+        supply_plan_id_item_id: {
+          supply_plan_id: brand.supply_plan_id!,
+          item_id: genericItem.id,
+        },
+      },
+      update: {
+        item_id: genericItem.id,
+      },
+      create: {
+        supply_plan_id: brand.supply_plan_id,
+        item_id: genericItem.id,
+      },
+    });
+
+    for (const city of brandCities) {
+      const supplierGood = await imProcurement.supplier_items.findFirst({
         where: {
-          external_reference_id: {
-            startsWith: `20250623-2-${scmProdPrice?.goods_id}`,
+          supplier_reference_id: {
+            startsWith: `20250623-2-${genericItem.id}-${city.city_id}`,
           },
         },
       });
 
-      if (!scmPrice) {
-        console.log(`No price found for ${item.goods_name}`);
+      if (!supplierGood) {
+        console.log(`No supplier good found for ${item.goods_name}`);
         continue;
       }
 
-      const genericItem = await imProcurement.generic_items.findFirst({
+      await imProcurement.plan_item_supplier_good.upsert({
         where: {
-          id: scmPrice.goods_id,
-        },
-      });
-
-      if (!genericItem) {
-        console.log(`No generic item found for ${item.goods_name}`);
-        continue;
-      }
-
-      const planItem = await imProcurement.supply_plan_items.upsert({
-        where: {
-          supply_plan_id_item_id: {
-            supply_plan_id: brand.supply_plan_id!,
-            item_id: genericItem.id,
+          plan_item_id_city_id: {
+            plan_item_id: planItem.id,
+            city_id: city.city_id!,
           },
         },
         update: {
-          item_id: genericItem.id,
+          supplier_item_id: supplierGood.id,
         },
         create: {
-          supply_plan_id: brand.supply_plan_id,
-          item_id: genericItem.id,
+          plan_item_id: planItem.id,
+          supplier_item_id: supplierGood.id,
+          city_id: city.city_id!,
         },
       });
-
-      for (const city of brandCities) {
-        const supplierGood = await imProcurement.supplier_items.findFirst({
-          where: {
-            supplier_reference_id: {
-              startsWith: `20250623-2-${genericItem.id}-${city.city_id}`,
-            },
-          },
-        });
-
-        if (!supplierGood) {
-          console.log(`No supplier good found for ${item.goods_name}`);
-          continue;
-        }
-
-        await imProcurement.plan_item_supplier_good.upsert({
-          where: {
-            plan_item_id_city_id: {
-              plan_item_id: planItem.id,
-              city_id: city.city_id!,
-            },
-          },
-          update: {
-            supplier_item_id: supplierGood.id,
-          },
-          create: {
-            plan_item_id: planItem.id,
-            supplier_item_id: supplierGood.id,
-            city_id: city.city_id!,
-          },
-        });
-      }
     }
   }
+  // }
 };
 
 run();
