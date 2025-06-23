@@ -51,6 +51,8 @@ const run = async () => {
   let noSupplierGoodCount = 0;
   let uniqueItemIds = new Set();
   let duplicateItemIds = new Set();
+  let itemsWithNoPriceForAnyCity = 0;
+  let totalCityPriceFailures = 0;
 
   for (const item of brandItems) {
     const scmProdPrice = await scm.scm_good_pricing.findFirst({
@@ -108,6 +110,8 @@ const run = async () => {
     });
 
     let cityProcessedCount = 0;
+    let itemHasPriceForAnyCity = false;
+
     for (const city of brandCities) {
       // Look for city-specific pricing
       const scmPrice = await scmPricing.scm_good_pricing.findFirst({
@@ -122,9 +126,11 @@ const run = async () => {
         console.log(
           `No city-specific price found for ${item.goods_name} in city ${city.city_id}`
         );
-        noPriceCount++;
+        totalCityPriceFailures++;
         continue;
       }
+
+      itemHasPriceForAnyCity = true;
 
       const supplierGood = await imProcurement.supplier_items.findFirst({
         where: {
@@ -159,6 +165,10 @@ const run = async () => {
       cityProcessedCount++;
     }
 
+    if (!itemHasPriceForAnyCity) {
+      itemsWithNoPriceForAnyCity++;
+    }
+
     processedCount++;
   }
 
@@ -173,17 +183,24 @@ const run = async () => {
   console.log('\n=== SUMMARY ===');
   console.log(`Total brandItems: ${brandItems.length}`);
   console.log(`Successfully processed: ${processedCount}`);
-  console.log(`No price found: ${noPriceCount}`);
+  console.log(
+    `Items with no price for ANY city: ${itemsWithNoPriceForAnyCity}`
+  );
+  console.log(`Total city price failures: ${totalCityPriceFailures}`);
   console.log(`No generic item found: ${noGenericItemCount}`);
   console.log(`No supplier good found: ${noSupplierGoodCount}`);
   console.log(`Unique item_ids: ${uniqueItemIds.size}`);
   console.log(`Duplicate item_ids: ${duplicateItemIds.size}`);
   console.log(
-    `Expected total: ${processedCount + noPriceCount + noGenericItemCount}`
+    `Expected total: ${
+      processedCount + itemsWithNoPriceForAnyCity + noGenericItemCount
+    }`
   );
   console.log(`Actual total in DB: ${total}`);
   console.log(
-    `Difference: ${processedCount + noPriceCount + noGenericItemCount - total}`
+    `Difference: ${
+      processedCount + itemsWithNoPriceForAnyCity + noGenericItemCount - total
+    }`
   );
   // }
 };
