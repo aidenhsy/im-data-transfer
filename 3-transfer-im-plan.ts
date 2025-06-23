@@ -72,7 +72,9 @@ const run = async () => {
     });
 
     if (!genericItem) {
-      console.log(`No generic item found for ${item.goods_name}`);
+      console.log(
+        `No generic item found for item.id: ${item.id} ${item.goods_name}`
+      );
       continue;
     }
 
@@ -102,7 +104,7 @@ const run = async () => {
       });
 
       if (!supplierGood) {
-        console.log(`No supplier good found for ${item.goods_name}`);
+        // console.log(`No supplier good found for ${item.goods_name}`);
         continue;
       }
 

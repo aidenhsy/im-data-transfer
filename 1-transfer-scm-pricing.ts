@@ -3,8 +3,8 @@ import { PrismaClient as SCMProd } from './prisma/clients/scm-prod';
 import { PrismaClient as SCMPricing } from './prisma/clients/scm-pricing';
 
 // Configuration
-const VERSION = '20250623';
-const LOCKED_AFTER_DATE = new Date('2025-06-23T03:30:00.000Z');
+const VERSION = '20250624';
+const LOCKED_AFTER_DATE = new Date('2025-06-24T03:30:00.000Z');
 
 interface Shop {
   city_id: number;
