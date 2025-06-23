@@ -49,6 +49,8 @@ const run = async () => {
   let noPriceCount = 0;
   let noGenericItemCount = 0;
   let noSupplierGoodCount = 0;
+  let uniqueItemIds = new Set();
+  let duplicateItemIds = new Set();
 
   for (const item of brandItems) {
     const scmProdPrice = await scm.scm_good_pricing.findFirst({
@@ -85,6 +87,16 @@ const run = async () => {
       );
       noGenericItemCount++;
       continue;
+    }
+
+    // Track duplicates
+    if (uniqueItemIds.has(genericItem.id)) {
+      duplicateItemIds.add(genericItem.id);
+      console.log(
+        `Duplicate item_id found: ${genericItem.id} (${item.goods_name}) - this will be updated, not created`
+      );
+    } else {
+      uniqueItemIds.add(genericItem.id);
     }
 
     const planItem = await imProcurement.supply_plan_items.upsert({
@@ -139,10 +151,6 @@ const run = async () => {
     }
 
     processedCount++;
-    console
-      .log
-      // `Processed item ${item.id} (${item.goods_name}) - ${cityProcessedCount} cities processed`
-      ();
   }
 
   const total = await imProcurement.supply_plan_items.count({
@@ -159,8 +167,14 @@ const run = async () => {
   console.log(`No price found: ${noPriceCount}`);
   console.log(`No generic item found: ${noGenericItemCount}`);
   console.log(`No supplier good found: ${noSupplierGoodCount}`);
+  console.log(`Unique item_ids: ${uniqueItemIds.size}`);
+  console.log(`Duplicate item_ids: ${duplicateItemIds.size}`);
   console.log(
     `Expected total: ${processedCount + noPriceCount + noGenericItemCount}`
+  );
+  console.log(`Actual total in DB: ${total}`);
+  console.log(
+    `Difference: ${processedCount + noPriceCount + noGenericItemCount - total}`
   );
   // }
 };
