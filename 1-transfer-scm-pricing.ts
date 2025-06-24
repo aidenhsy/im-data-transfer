@@ -119,7 +119,7 @@ const run = async () => {
                 purchase_good_unit_id: sourceGood.purchase_good_unit_id,
                 is_public: sourceGood.is_public,
                 averag_cost_price: sourceGood.averag_cost_price,
-                standard_base_unit_id: sourceGood.standard_base_unit,
+                standard_base_unit: sourceGood.standard_base_unit,
               },
             });
           } else {
@@ -145,12 +145,13 @@ const run = async () => {
 
       await scmPricing.scm_good_pricing.upsert({
         where: {
-          goods_id_good_unit_id_client_tier_id_version_city_id: {
+          goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
             goods_id: goodPrice?.goods_id!,
             good_unit_id: goodPrice?.good_unit_id!,
             client_tier_id: clientierId,
             version: VERSION,
             city_id: shop.city_id,
+            is_active: goodPrice?.is_active,
           },
         },
         update: {

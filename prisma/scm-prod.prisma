@@ -458,7 +458,7 @@ model scm_goods {
   is_public                                                      Boolean                          @default(true)
   averag_cost_price                                              Decimal?                         @db.Decimal(12, 6)
   instore                                                        Int?                             @default(1) @db.SmallInt
-  standard_base_unit_id                                          Int
+  standard_base_unit                                             Int
   last_ware_price                                                Decimal?                         @db.Decimal(12, 6)
   private_client_goods                                           private_client_goods[]
   scm_bulk_picking                                               scm_bulk_picking[]
@@ -474,7 +474,7 @@ model scm_goods {
   supplier_scm_goods_supplier_idTosupplier                       supplier?                        @relation("scm_goods_supplier_idTosupplier", fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_supplier_id")
   scm_stock                                                      scm_stock?                       @relation(fields: [stock_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_scm_goods_scm_stock124")
   scm_good_units_scm_goods_purchase_good_unit_idToscm_good_units scm_good_units?                  @relation("scm_goods_purchase_good_unit_idToscm_good_units", fields: [purchase_good_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  standard_units                                                 standard_units                   @relation(fields: [standard_base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_goods_standard_base_unit_fkey")
+  standard_units                                                 standard_units                   @relation(fields: [standard_base_unit], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_goods_outbound                                             scm_goods_outbound[]
   scm_goods_price_history                                        scm_goods_price_history[]
   scm_order_details                                              scm_order_details[]
