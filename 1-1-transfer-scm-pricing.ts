@@ -25,8 +25,12 @@ const run = async () => {
       },
     });
     if (!existGoods) {
+      const {
+        scm_goods: { instore, ...create_fields },
+        ...rest
+      } = prod;
       await scmPricing.scm_goods.create({
-        data: prod.scm_goods,
+        data: create_fields,
       });
     }
     const existUnit = await scmPricing.scm_good_units.findFirst({
