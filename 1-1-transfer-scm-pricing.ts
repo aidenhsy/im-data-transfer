@@ -12,11 +12,23 @@ const run = async () => {
   const scmGoodPricings = await scm.scm_good_pricing.findMany({
     include: {
       scm_good_units: true,
+      scm_goods: true,
     },
   });
+
   console.log('Total scmGoodPricings', scmGoodPricings.length);
 
   for (const prod of scmGoodPricings) {
+    const existGoods = await scmPricing.scm_goods.findFirst({
+      where: {
+        id: prod.goods_id,
+      },
+    });
+    if (!existGoods) {
+      await scmPricing.scm_goods.create({
+        data: prod.scm_goods,
+      });
+    }
     const existUnit = await scmPricing.scm_good_units.findFirst({
       where: {
         id: prod.good_unit_id,
@@ -24,15 +36,7 @@ const run = async () => {
     });
     if (!existUnit) {
       await scmPricing.scm_good_units.create({
-        data: {
-          id: prod.good_unit_id,
-          ratio_to_base: prod.scm_good_units.ratio_to_base,
-          goods_id: prod.goods_id,
-          is_base_unit: false,
-          is_order_unit: true,
-          is_count_unit: false,
-          name: prod.scm_good_units.name,
-        },
+        data: prod.scm_good_units,
       });
     }
 
