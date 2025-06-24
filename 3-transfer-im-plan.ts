@@ -36,6 +36,7 @@ const run = async () => {
     const brandItems = await im.scm_supply_plan_scm_goods.findMany({
       where: {
         supply_plan_id: brand.supply_plan_id,
+        is_enabled: true,
       },
     });
 
