@@ -4,6 +4,8 @@ import { PrismaClient as SCMPricing } from './prisma/clients/scm-pricing';
 import { PrismaClient as ImProcurement } from './prisma/clients/im-procurement';
 
 const run = async () => {
+  const VERSION = '20250624';
+
   const im = new IMProd();
   const scm = new SCMProd();
   const scmPricing = new SCMPricing();
@@ -114,7 +116,7 @@ const run = async () => {
         const scmPrice = await scmPricing.scm_good_pricing.findFirst({
           where: {
             external_reference_id: {
-              startsWith: `20250624-2-${scmProdPrice.goods_id}-${city.city_id}`,
+              startsWith: `${VERSION}-2-${scmProdPrice.goods_id}-${city.city_id}`,
             },
           },
         });
@@ -132,7 +134,7 @@ const run = async () => {
         const supplierGood = await imProcurement.supplier_items.findFirst({
           where: {
             supplier_reference_id: {
-              startsWith: `20250624-2-${genericItem.id}-${city.city_id}`,
+              startsWith: `${VERSION}-2-${genericItem.id}-${city.city_id}`,
             },
           },
         });
