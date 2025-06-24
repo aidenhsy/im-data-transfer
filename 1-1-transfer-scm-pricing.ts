@@ -51,7 +51,7 @@ const run = async () => {
         sale_price: prod.sale_price,
         is_active: prod.is_active,
         city_id: 1,
-        cut_off_time: prod.cut_off_time,
+        cut_off_time: prod?.cut_off_time ? prod.cut_off_time : '15:00:00',
         goods_id: prod.goods_id,
         good_unit_id: prod.good_unit_id,
         pricing_strategy: prod.pricing_strategy,
