@@ -9,10 +9,33 @@ const run = async () => {
   const VERSION = '20250624';
   const LOCKED_AFTER_DATE = new Date('2025-06-24T03:30:00.000Z');
 
-  const scmGoodPricings = await scm.scm_good_pricing.findMany();
+  const scmGoodPricings = await scm.scm_good_pricing.findMany({
+    include: {
+      scm_good_units: true,
+    },
+  });
   console.log('Total scmGoodPricings', scmGoodPricings.length);
 
   for (const prod of scmGoodPricings) {
+    const existUnit = await scmPricing.scm_good_units.findFirst({
+      where: {
+        id: prod.good_unit_id,
+      },
+    });
+    if (!existUnit) {
+      await scmPricing.scm_good_units.create({
+        data: {
+          id: prod.good_unit_id,
+          ratio_to_base: prod.scm_good_units.ratio_to_base,
+          goods_id: prod.goods_id,
+          is_base_unit: false,
+          is_order_unit: true,
+          is_count_unit: false,
+          name: prod.scm_good_units.name,
+        },
+      });
+    }
+
     await scmPricing.scm_good_pricing.create({
       data: {
         client_tier_id: prod.client_tier_id,
