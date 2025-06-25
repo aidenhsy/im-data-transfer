@@ -6,13 +6,7 @@ const run = async () => {
   const scm = new SCMProd();
   const imProcurement = new ImProcurement();
 
-  const goods = await scm.scm_goods.findMany({
-    where: {
-      standard_base_unit: {
-        not: null,
-      },
-    },
-  });
+  const goods = await scm.scm_goods.findMany();
 
   for (const g of goods) {
     await imProcurement.generic_items.upsert({
