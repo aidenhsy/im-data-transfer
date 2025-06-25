@@ -455,6 +455,7 @@ model scm_goods {
   is_public                                                      Boolean                          @default(true)
   averag_cost_price                                              Decimal?                         @db.Decimal(12, 6)
   standard_base_unit                                             Int?
+  instore                                                        Int?                             @default(1) @db.SmallInt
   private_client_goods                                           private_client_goods[]
   scm_bulk_picking                                               scm_bulk_picking[]
   scm_bulk_picking_routes                                        scm_bulk_picking_routes[]

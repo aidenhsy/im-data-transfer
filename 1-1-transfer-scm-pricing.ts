@@ -7,8 +7,8 @@ const run = async () => {
   const im = new IMProd();
   const scmPricing = new SCMPricing();
 
-  const VERSION = '20250624';
-  const LOCKED_AFTER_DATE = new Date('2025-06-24T03:30:00.000Z');
+  const VERSION = '20250625';
+  const LOCKED_AFTER_DATE = new Date('2025-06-25T03:30:00.000Z');
 
   const scmGoodPricings = await scm.scm_good_pricing.findMany({
     include: {
@@ -27,7 +27,7 @@ const run = async () => {
     });
     if (!existGoods) {
       const {
-        scm_goods: { instore, last_ware_price, ...create_fields },
+        scm_goods: { last_ware_price, ...create_fields },
         ...rest
       } = prod;
       await scmPricing.scm_goods.create({
