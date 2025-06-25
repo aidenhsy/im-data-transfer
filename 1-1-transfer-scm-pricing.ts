@@ -60,6 +60,7 @@ const run = async () => {
           in: planIds.map((i) => i.supply_plan_id).filter((i) => i !== null),
         },
       },
+      distinct: ['city_id'],
       select: {
         city_id: true,
       },
