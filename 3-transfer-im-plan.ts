@@ -163,7 +163,6 @@ const run = async () => {
               city_id: city.city_id!,
             },
           });
-        console.log(planItemSupplierGood);
         cityProcessedCount++;
       }
 
