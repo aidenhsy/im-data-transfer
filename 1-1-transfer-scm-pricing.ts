@@ -7,8 +7,8 @@ const run = async () => {
   const im = new IMProd();
   const scmPricing = new SCMPricing();
 
-  const VERSION = '20250626';
-  const LOCKED_AFTER_DATE = new Date('2025-06-26T03:30:00.000Z');
+  const VERSION = '20250627';
+  const LOCKED_AFTER_DATE = new Date('2025-06-27T03:30:00.000Z');
 
   const scmGoodPricings = await scm.scm_good_pricing.findMany({
     include: {
