@@ -79,6 +79,8 @@ model brand_cities {
   brand_id       Int?
   scm_shop_brand scm_shop_brand? @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   cities         cities?         @relation(fields: [city_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([brand_id, city_id])
 }
 
 model brand_goods {
@@ -394,7 +396,6 @@ model scm_shop {
   sales_plan_id                  String?                          @db.VarChar
   big_org_id                     Int?
   shop_pic_url                   String?                          @db.VarChar
-  open_hours                     Json
   scm_order                      scm_order[]
   scm_shop_brand                 scm_shop_brand                   @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_brand_id38")
   big_org                        big_org?                         @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -1076,10 +1077,9 @@ model supplier_orders {
   status                 Int                      @default(0)
   order_date             String                   @db.VarChar(50)
   delivery_date          String                   @db.VarChar(50)
+  type                   Int
   supplier_order_details supplier_order_details[]
   supplier               supplier?                @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([order_date, shop_id])
 }
 
 enum pricing_strategy_type {
