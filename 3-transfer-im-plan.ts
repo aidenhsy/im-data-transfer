@@ -122,7 +122,7 @@ const run = async () => {
         });
 
         if (!scmPrice) {
-          console.log(`${VERSION}-2-${scmProdPrice.goods_id}-${city.city_id}`);
+          // console.log(`${VERSION}-2-${scmProdPrice.goods_id}-${city.city_id}`);
           // console.log(
           //   `No city-specific price found for ${item.goods_name} in city ${city.city_id}`
           // );
@@ -146,22 +146,24 @@ const run = async () => {
           continue;
         }
 
-        await imProcurement.plan_item_supplier_good.upsert({
-          where: {
-            plan_item_id_city_id: {
+        const planItemSupplierGood =
+          await imProcurement.plan_item_supplier_good.upsert({
+            where: {
+              plan_item_id_city_id: {
+                plan_item_id: planItem.id,
+                city_id: city.city_id!,
+              },
+            },
+            update: {
+              supplier_item_id: supplierGood.id,
+            },
+            create: {
               plan_item_id: planItem.id,
+              supplier_item_id: supplierGood.id,
               city_id: city.city_id!,
             },
-          },
-          update: {
-            supplier_item_id: supplierGood.id,
-          },
-          create: {
-            plan_item_id: planItem.id,
-            supplier_item_id: supplierGood.id,
-            city_id: city.city_id!,
-          },
-        });
+          });
+        console.log(planItemSupplierGood);
         cityProcessedCount++;
       }
 

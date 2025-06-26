@@ -26,9 +26,17 @@ const run = async () => {
 
   const brand_cities = await imProcurement.scm_shop.findMany({
     distinct: ['brand_id', 'city_id'],
+    where: {
+      is_enabled: true,
+    },
   });
 
-  console.log(brand_cities.length);
+  await imProcurement.brand_cities.createMany({
+    data: brand_cities.map((bc) => ({
+      brand_id: bc.brand_id,
+      city_id: bc.city_id,
+    })),
+  });
 };
 
 run();
