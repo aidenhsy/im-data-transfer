@@ -4,7 +4,7 @@ import { PrismaClient as SCMPricing } from './prisma/clients/scm-pricing';
 import { PrismaClient as ImProcurement } from './prisma/clients/im-procurement';
 
 const run = async () => {
-  const VERSION = '20250625';
+  const VERSION = '20250626';
 
   const im = new IMProd();
   const scm = new SCMProd();
