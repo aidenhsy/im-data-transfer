@@ -122,6 +122,7 @@ const run = async () => {
         });
 
         if (!scmPrice) {
+          console.log(`${VERSION}-2-${scmProdPrice.goods_id}-${city.city_id}`);
           // console.log(
           //   `No city-specific price found for ${item.goods_name} in city ${city.city_id}`
           // );
@@ -140,7 +141,7 @@ const run = async () => {
         });
 
         if (!supplierGood) {
-          // console.log(`No supplier good found for ${item.goods_name}`);
+          console.log(`No supplier good found for ${item.goods_name}`);
           noSupplierGoodCount++;
           continue;
         }
