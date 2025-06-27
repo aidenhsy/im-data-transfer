@@ -14,6 +14,7 @@ const run = async () => {
       update: {
         city_id: shop.city_id,
         is_enabled: shop.is_enabled,
+        status: shop.status,
       },
       where: {
         id: shop.id,

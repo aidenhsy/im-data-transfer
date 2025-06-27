@@ -20,7 +20,6 @@ const run = async () => {
     include: {
       scm_shop: {
         where: {
-          is_enabled: true,
           status: 1,
         },
       },
