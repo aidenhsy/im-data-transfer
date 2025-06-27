@@ -54,6 +54,7 @@ model big_org {
   scm_shop_account     scm_shop_account[]
   scm_shop_brand       scm_shop_brand[]
   scm_shop_brand_copy1 scm_shop_brand_copy1[]
+  supplier             supplier[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -94,12 +95,11 @@ model brand_goods {
 }
 
 model cities {
-  id                      Int                       @id
-  name                    String?                   @unique(map: "unique_city_name") @db.VarChar
-  brand_cities            brand_cities[]
-  plan_item_supplier_good plan_item_supplier_good[]
-  scm_shop                scm_shop[]
-  supplier_items          supplier_items[]
+  id             Int              @id
+  name           String?          @unique(map: "unique_city_name") @db.VarChar
+  brand_cities   brand_cities[]
+  scm_shop       scm_shop[]
+  supplier_items supplier_items[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -268,12 +268,10 @@ model plan_item_supplier_good {
   id                String             @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
   plan_item_id      String?            @db.VarChar
   supplier_item_id  String?            @db.VarChar
-  city_id           Int?
-  cities            cities?            @relation(fields: [city_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  shop_id           Int?
   supply_plan_items supply_plan_items? @relation(fields: [plan_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_shop          scm_shop?          @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_items    supplier_items?    @relation(fields: [supplier_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([plan_item_id, city_id], map: "unique_plan_item_city")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -396,6 +394,7 @@ model scm_shop {
   sales_plan_id                  String?                          @db.VarChar
   big_org_id                     Int?
   shop_pic_url                   String?                          @db.VarChar
+  plan_item_supplier_good        plan_item_supplier_good[]
   scm_order                      scm_order[]
   scm_shop_brand                 scm_shop_brand                   @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_brand_id38")
   big_org                        big_org?                         @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -981,6 +980,8 @@ model supplier {
   auth_url              String?                 @db.VarChar
   access_id             String?                 @db.VarChar
   access_secret         String?                 @db.VarChar
+  big_org_id            Int?
+  big_org               big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_items        supplier_items[]
   supplier_orders       supplier_orders[]
   supplier_pull_records supplier_pull_records[]
@@ -1065,8 +1066,12 @@ model supplier_order_details {
   package_unit_name          String          @db.VarChar(50)
   package_unit_to_base_ratio Int
   order_id                   String          @db.VarChar
+  updated_at                 DateTime?       @default(now()) @db.Timestamp(6)
+  created_at                 DateTime?       @default(now()) @db.Timestamp(6)
   generic_items              generic_items   @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_orders            supplier_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([supplier_reference_id, order_id], map: "unique_reference_order")
 }
 
 model supplier_orders {
@@ -1078,6 +1083,9 @@ model supplier_orders {
   order_date             String                   @db.VarChar(50)
   delivery_date          String                   @db.VarChar(50)
   type                   Int
+  created_at             DateTime?                @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?                @default(now()) @db.Timestamp(6)
+  delivery_time          DateTime?                @db.Timestamp(6)
   supplier_order_details supplier_order_details[]
   supplier               supplier?                @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

@@ -17,6 +17,14 @@ const run = async () => {
         not: null,
       },
     },
+    include: {
+      scm_shop: {
+        where: {
+          is_enabled: true,
+          status: 1,
+        },
+      },
+    },
   });
 
   for (const brand of brands) {
@@ -146,23 +154,22 @@ const run = async () => {
           continue;
         }
 
-        const planItemSupplierGood =
-          await imProcurement.plan_item_supplier_good.upsert({
-            where: {
-              plan_item_id_city_id: {
-                plan_item_id: planItem.id,
-                city_id: city.city_id!,
-              },
-            },
-            update: {
-              supplier_item_id: supplierGood.id,
-            },
-            create: {
+        await imProcurement.plan_item_supplier_good.upsert({
+          where: {
+            plan_item_id_city_id: {
               plan_item_id: planItem.id,
-              supplier_item_id: supplierGood.id,
               city_id: city.city_id!,
             },
-          });
+          },
+          update: {
+            supplier_item_id: supplierGood.id,
+          },
+          create: {
+            plan_item_id: planItem.id,
+            supplier_item_id: supplierGood.id,
+            city_id: city.city_id!,
+          },
+        });
         cityProcessedCount++;
       }
 
