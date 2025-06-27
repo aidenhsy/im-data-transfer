@@ -66,6 +66,11 @@ const run = async () => {
       },
     });
 
+    const shopWith7 = shops.find((i) => (i.city_id = 7));
+    if (shopWith7) {
+      console.log('shopWith7', shopWith7);
+    }
+
     if (shops.length === 0) {
       await scmPricing.scm_good_pricing.create({
         data: {
