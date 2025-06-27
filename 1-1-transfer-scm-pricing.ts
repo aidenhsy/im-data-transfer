@@ -20,6 +20,11 @@ const run = async () => {
   console.log('Total scmGoodPricings', scmGoodPricings.length);
 
   for (const prod of scmGoodPricings) {
+    if (prod.client_tier_id === null) {
+      console.log('Skipping product with null client_tier_id:', prod.id);
+      continue;
+    }
+
     const existGoods = await scmPricing.scm_goods.findFirst({
       where: {
         id: prod.goods_id,
@@ -65,11 +70,6 @@ const run = async () => {
         city_id: true,
       },
     });
-
-    if (prod.client_tier_id === null) {
-      console.log('prod.client_tier_id', prod.client_tier_id);
-      continue;
-    }
 
     if (shops.length === 0) {
       await scmPricing.scm_good_pricing.upsert({
@@ -119,6 +119,7 @@ const run = async () => {
           goods_id: prod.goods_id,
         },
         create: {
+          client_tier_id: prod.client_tier_id,
           profit_margin: prod.profit_margin,
           sale_price: prod.sale_price,
           is_active: prod.is_active,
