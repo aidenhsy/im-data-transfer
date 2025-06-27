@@ -272,6 +272,8 @@ model plan_item_supplier_good {
   supply_plan_items supply_plan_items? @relation(fields: [plan_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop          scm_shop?          @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_items    supplier_items?    @relation(fields: [supplier_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([plan_item_id, shop_id], map: "unique_plan_item_shop")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
