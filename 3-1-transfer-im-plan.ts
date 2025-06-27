@@ -117,7 +117,7 @@ const run = async () => {
 
         if (!scmPrice) {
           console.log(
-            `No scmPrice found for ${item.goods_name} (item.id: ${item.id})`
+            `No scmPrice found for ${VERSION}-${shop.client_tier_id}-${scmProdPrice.goods_id}-${shop.city_id}`
           );
           continue;
         }
