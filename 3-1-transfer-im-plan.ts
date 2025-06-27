@@ -46,10 +46,14 @@ const run = async () => {
 
     console.log('brandItems', brandItems.length);
 
+    let processedCount = 0;
     let noPriceCount = 0;
     let noGenericItemCount = 0;
+    let noSupplierItemCount = 0;
     let uniqueItemIds = new Set();
     let duplicateItemIds = new Set();
+    let itemsWithNoPriceForAnyShop = 0;
+    let totalShopPriceFailures = 0;
 
     for (const item of brandItems) {
       const scmProdPrice = await scm.scm_good_pricing.findFirst({
@@ -106,6 +110,9 @@ const run = async () => {
         },
       });
 
+      let shopProcessedCount = 0;
+      let itemHasPriceForAnyShop = false;
+
       for (const shop of brand.scm_shop) {
         const scmPrice = await scmPricing.scm_good_pricing.findFirst({
           where: {
@@ -116,11 +123,14 @@ const run = async () => {
         });
 
         if (!scmPrice) {
-          console.log(
-            `No scmPrice found for ${VERSION}-${shop.client_tier_id}-${scmProdPrice.goods_id}-${shop.city_id}`
-          );
+          // console.log(
+          //   `No scmPrice found for ${VERSION}-${shop.client_tier_id}-${scmProdPrice.goods_id}-${shop.city_id}`
+          // );
+          totalShopPriceFailures++;
           continue;
         }
+
+        itemHasPriceForAnyShop = true;
 
         const supplierItem = await imProcurement.supplier_items.findFirst({
           where: {
@@ -132,6 +142,7 @@ const run = async () => {
           console.log(
             `No supplierItem found for ${item.goods_name} (item.id: ${item.id})`
           );
+          noSupplierItemCount++;
           continue;
         }
 
@@ -142,8 +153,87 @@ const run = async () => {
             supplier_item_id: supplierItem.id,
           },
         });
+        shopProcessedCount++;
       }
+
+      if (!itemHasPriceForAnyShop) {
+        itemsWithNoPriceForAnyShop++;
+      }
+
+      processedCount++;
     }
+
+    const total = await imProcurement.supply_plan_items.count({
+      where: {
+        supply_plan_id: brand.supply_plan_id,
+      },
+    });
+
+    console.log('total', total);
+
+    // Investigate what records exist in the database
+    const allRecords = await imProcurement.supply_plan_items.findMany({
+      where: {
+        supply_plan_id: brand.supply_plan_id,
+      },
+      include: {
+        generic_items: true, // Include the generic_items details
+      },
+    });
+
+    console.log(`\n=== DATABASE INVESTIGATION ===`);
+    console.log(
+      `Total records in DB for supply_plan_id ${brand.supply_plan_id}: ${allRecords.length}`
+    );
+
+    // Check if any records have item_ids that weren't in our processed set
+    const dbItemIds = new Set(allRecords.map((record) => record.item_id));
+    const processedItemIds = uniqueItemIds;
+    const extraItemIds = new Set(
+      [...dbItemIds].filter((id) => !processedItemIds.has(id))
+    );
+
+    if (extraItemIds.size > 0) {
+      console.log(
+        `\nExtra item_ids in DB (not processed this run): ${extraItemIds.size}`
+      );
+      console.log('Extra item_ids:', Array.from(extraItemIds).slice(0, 10)); // Show first 10
+
+      const extraRecords = allRecords.filter((record) =>
+        extraItemIds.has(record.item_id)
+      );
+      console.log('\nSample extra records:');
+      extraRecords.slice(0, 5).forEach((record) => {
+        console.log(
+          `  - item_id: ${record.item_id}, item_name: ${
+            record.generic_items?.name || 'N/A'
+          }`
+        );
+      });
+    }
+
+    console.log('\n=== SUMMARY ===');
+    console.log(`Total brandItems: ${brandItems.length}`);
+    console.log(`Successfully processed: ${processedCount}`);
+    console.log(
+      `Items with no price for ANY shop: ${itemsWithNoPriceForAnyShop}`
+    );
+    console.log(`Total shop price failures: ${totalShopPriceFailures}`);
+    console.log(`No generic item found: ${noGenericItemCount}`);
+    console.log(`No supplier item found: ${noSupplierItemCount}`);
+    console.log(`Unique item_ids: ${uniqueItemIds.size}`);
+    console.log(`Duplicate item_ids: ${duplicateItemIds.size}`);
+    console.log(
+      `Expected total: ${
+        processedCount + itemsWithNoPriceForAnyShop + noGenericItemCount
+      }`
+    );
+    console.log(`Actual total in DB: ${total}`);
+    console.log(
+      `Difference: ${
+        processedCount + itemsWithNoPriceForAnyShop + noGenericItemCount - total
+      }`
+    );
   }
 };
 
