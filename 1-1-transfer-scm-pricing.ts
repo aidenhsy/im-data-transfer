@@ -66,13 +66,18 @@ const run = async () => {
       },
     });
 
+    if (prod.client_tier_id === null) {
+      console.log('prod.client_tier_id', prod.client_tier_id);
+      continue;
+    }
+
     if (shops.length === 0) {
       await scmPricing.scm_good_pricing.upsert({
         where: {
           goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
             goods_id: prod.goods_id,
             good_unit_id: prod.good_unit_id,
-            client_tier_id: prod.client_tier_id!,
+            client_tier_id: prod.client_tier_id,
             version: VERSION,
             city_id: 1,
             is_active: prod.is_active,
@@ -104,7 +109,7 @@ const run = async () => {
           goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
             goods_id: prod.goods_id,
             good_unit_id: prod.good_unit_id,
-            client_tier_id: prod.client_tier_id!,
+            client_tier_id: prod.client_tier_id,
             version: VERSION,
             city_id: shop.city_id!,
             is_active: prod.is_active,
