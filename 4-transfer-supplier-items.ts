@@ -13,7 +13,6 @@ const run = async () => {
   const shops = await imProcurement.scm_shop.findMany({
     where: {
       status: 1,
-      is_enabled: true,
     },
     select: {
       id: true,
