@@ -72,8 +72,21 @@ const run = async () => {
     }
 
     if (shops.length === 0) {
-      await scmPricing.scm_good_pricing.create({
-        data: {
+      await scmPricing.scm_good_pricing.upsert({
+        where: {
+          goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
+            goods_id: prod.goods_id,
+            good_unit_id: prod.good_unit_id,
+            client_tier_id: prod.client_tier_id!,
+            version: VERSION,
+            city_id: 1,
+            is_active: prod.is_active,
+          },
+        },
+        update: {
+          goods_id: prod.goods_id,
+        },
+        create: {
           client_tier_id: prod.client_tier_id,
           profit_margin: prod.profit_margin,
           sale_price: prod.sale_price,
@@ -91,9 +104,21 @@ const run = async () => {
     }
 
     for (const shop of shops) {
-      await scmPricing.scm_good_pricing.create({
-        data: {
-          client_tier_id: prod.client_tier_id,
+      await scmPricing.scm_good_pricing.upsert({
+        where: {
+          goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
+            goods_id: prod.goods_id,
+            good_unit_id: prod.good_unit_id,
+            client_tier_id: prod.client_tier_id!,
+            version: VERSION,
+            city_id: shop.city_id!,
+            is_active: prod.is_active,
+          },
+        },
+        update: {
+          goods_id: prod.goods_id,
+        },
+        create: {
           profit_margin: prod.profit_margin,
           sale_price: prod.sale_price,
           is_active: prod.is_active,
