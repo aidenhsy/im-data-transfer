@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./clients/scm-pricing"
+  output   = "./clients/scm-pricing-dev"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("SCM_PRICING_URL")
+  url      = env("SCM_PRICING_DEV_URL")
 }
 
 model cities {

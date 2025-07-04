@@ -1,14 +1,14 @@
 import { PrismaClient as IMProd } from './prisma/clients/im-prod';
 import { PrismaClient as SCMProd } from './prisma/clients/scm-prod';
-import { PrismaClient as SCMPricing } from './prisma/clients/scm-pricing';
+import { PrismaClient as SCMPricingProd } from './prisma/clients/scm-pricing-prod';
 
 const run = async () => {
   const scm = new SCMProd();
   const im = new IMProd();
-  const scmPricing = new SCMPricing();
+  const scmPricing = new SCMPricingProd();
 
-  const VERSION = '20250627';
-  const LOCKED_AFTER_DATE = new Date('2025-06-27T03:30:00.000Z');
+  const VERSION = '20250705';
+  const LOCKED_AFTER_DATE = new Date('2025-07-05T03:30:00.000Z');
 
   const scmGoodPricings = await scm.scm_good_pricing.findMany({
     include: {
