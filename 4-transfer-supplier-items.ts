@@ -1,14 +1,14 @@
 import { PrismaClient as IMProd } from './prisma/clients/im-prod';
 import { PrismaClient as SCMProd } from './prisma/clients/scm-prod';
-import { PrismaClient as SCMPricing } from './prisma/clients/scm-pricing';
-import { PrismaClient as ImProcurement } from './prisma/clients/im-procurement';
+import { PrismaClient as SCMPricingProd } from './prisma/clients/scm-pricing-prod';
+import { PrismaClient as ImProcurementProd } from './prisma/clients/im-procurement-prod';
 
 const run = async () => {
   const im = new IMProd();
   const scm = new SCMProd();
-  const scmPricing = new SCMPricing();
-  const imProcurement = new ImProcurement();
-  const VERSION = '20250627';
+  const scmPricing = new SCMPricingProd();
+  const imProcurement = new ImProcurementProd();
+  const VERSION = '20250705';
 
   const shops = await imProcurement.scm_shop.findMany({
     where: {
