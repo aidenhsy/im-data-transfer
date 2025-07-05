@@ -1,10 +1,10 @@
 import { PrismaClient as IMProd } from './prisma/clients/im-prod';
 import { PrismaClient as SCMProd } from './prisma/clients/scm-prod';
-import { PrismaClient as ImProcurement } from './prisma/clients/im-procurement';
+import { PrismaClient as ImProcurementProd } from './prisma/clients/im-procurement-prod';
 
 const run = async () => {
   const scm = new SCMProd();
-  const imProcurement = new ImProcurement();
+  const imProcurement = new ImProcurementProd();
 
   const goods = await scm.scm_goods.findMany();
 
