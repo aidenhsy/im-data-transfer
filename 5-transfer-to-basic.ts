@@ -5,6 +5,22 @@ const run = async () => {
   const imBasicDataProd = new ImBasicDataProdClient();
   const imProcurementProd = new ImProcurementProdClient();
 
+  const cities = await imProcurementProd.cities.findMany();
+
+  for (const city of cities) {
+    await imBasicDataProd.cities.upsert({
+      where: {
+        id: city.id,
+      },
+      create: {
+        ...city,
+      },
+      update: {
+        ...city,
+      },
+    });
+  }
+
   const shops = await imProcurementProd.scm_shop.findMany();
 
   for (const shop of shops) {
