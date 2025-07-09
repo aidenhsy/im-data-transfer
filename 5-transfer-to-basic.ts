@@ -8,6 +8,7 @@ const run = async () => {
   const shops = await imProcurementProd.scm_shop.findMany();
 
   for (const shop of shops) {
+    const { client_tier_id, ...rest } = shop;
     await imBasicDataProd.scm_shop.upsert({
       where: {
         id: shop.id,
@@ -57,10 +58,10 @@ const run = async () => {
             day_of_week: 7,
           },
         ],
-        ...shop,
+        ...rest,
       },
       update: {
-        ...shop,
+        ...rest,
       },
     });
   }
