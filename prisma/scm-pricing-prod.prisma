@@ -457,6 +457,7 @@ model scm_goods {
   averag_cost_price                                              Decimal?                         @db.Decimal(12, 6)
   standard_base_unit                                             Int?
   instore                                                        Int?                             @default(1) @db.SmallInt
+  last_ware_price                                                Decimal?                         @db.Decimal(12, 6)
   private_client_goods                                           private_client_goods[]
   scm_bulk_picking                                               scm_bulk_picking[]
   scm_bulk_picking_routes                                        scm_bulk_picking_routes[]
