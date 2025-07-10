@@ -4,7 +4,6 @@ import { PrismaClient as SCMPricingProd } from './prisma/clients/scm-pricing-pro
 
 const run = async () => {
   const scm = new SCMProd();
-  const im = new IMProd();
   const scmPricing = new SCMPricingProd();
 
   const scmGoods = await scm.scm_goods.findMany();
@@ -26,7 +25,7 @@ const run = async () => {
   const scm_good_units = await scm.scm_good_units.findMany();
 
   for (const unit of scm_good_units) {
-    await im.scm_good_units.upsert({
+    await scmPricing.scm_good_units.upsert({
       where: {
         id: unit.id,
       },
