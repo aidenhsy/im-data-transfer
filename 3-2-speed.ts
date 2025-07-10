@@ -4,7 +4,7 @@ import { PrismaClient as SCMPricingProd } from './prisma/clients/scm-pricing-pro
 import { PrismaClient as ImProcurementProd } from './prisma/clients/im-procurement-prod';
 
 const run = async () => {
-  const VERSION = '20250705';
+  const VERSION = '20250708';
   const BATCH_SIZE = 1000; // Adjust based on your database capacity
 
   const im = new IMProd();

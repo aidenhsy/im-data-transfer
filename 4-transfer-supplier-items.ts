@@ -8,7 +8,7 @@ const run = async () => {
   const scm = new SCMProd();
   const scmPricing = new SCMPricingProd();
   const imProcurement = new ImProcurementProd();
-  const VERSION = '20250705';
+  const VERSION = '20250708';
 
   const shops = await imProcurement.scm_shop.findMany({
     where: {
@@ -18,6 +18,7 @@ const run = async () => {
       id: true,
       shop_name: true,
       is_join: true,
+      city_id: true,
       scm_shop_brand: {
         select: {
           supply_plan_id: true,
@@ -40,7 +41,7 @@ const run = async () => {
       const supplierItem = await imProcurement.supplier_items.findFirst({
         where: {
           supplier_reference_id: {
-            startsWith: `${VERSION}-${tierId}-${supplyItem.item_id}`,
+            startsWith: `${VERSION}-${tierId}-${supplyItem.item_id}-${shop.city_id}`,
           },
         },
       });
