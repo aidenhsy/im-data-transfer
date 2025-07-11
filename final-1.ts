@@ -16,6 +16,15 @@ const run = async () => {
   const VERSION = '20250710';
   const LOCKED_AFTER_DATE = new Date('2025-07-10T03:30:00.000Z');
 
+  await imProcurement.plan_item_supplier_good.deleteMany();
+  await imProcurement.supply_plan_items.deleteMany();
+  await imProcurement.supplier_items.deleteMany();
+  await scmPricing.scm_good_pricing.deleteMany({
+    where: {
+      version: VERSION,
+    },
+  });
+
   const shops = await im.scm_shop.findMany({
     where: {
       status: 1,
