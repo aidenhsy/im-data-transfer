@@ -2,11 +2,16 @@ import axios from 'axios';
 import { PrismaClient as ScmPricing } from './prisma/clients/scm-pricing-prod';
 import { PrismaClient as Scm } from './prisma/clients/scm-prod';
 import { PrismaClient as IM } from './prisma/clients/im-prod';
+import { PrismaClient as IMProcurement } from './prisma/clients/im-procurement-prod';
+
+// im-procurement delete from supplier_items; delete from supply_plan_items
+// scm-pricing delete from scm_good_pricing where version = '20250710';
 
 const run = async () => {
   const scm = new Scm();
   const im = new IM();
   const scmPricing = new ScmPricing();
+  const imProcurement = new IMProcurement();
 
   const VERSION = '20250710';
   const LOCKED_AFTER_DATE = new Date('2025-07-10T03:30:00.000Z');
@@ -49,7 +54,7 @@ const run = async () => {
           continue;
         }
 
-        await scmPricing.scm_good_pricing.upsert({
+        const pricing = await scmPricing.scm_good_pricing.upsert({
           where: {
             goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
               goods_id: scmGoodPricing.goods_id,
@@ -75,6 +80,29 @@ const run = async () => {
             updated_at: scmGoodPricing.updated_at,
             city_id: shop.city_id,
             cut_off_time: good.soldTime,
+          },
+        });
+
+        const brand = await imProcurement.scm_shop_brand.findFirst({
+          where: {
+            id: shop.brand_id,
+          },
+          select: {
+            supply_plan_id: true,
+          },
+        });
+
+        await imProcurement.supply_plan_items.upsert({
+          where: {
+            supply_plan_id_item_id: {
+              supply_plan_id: brand!.supply_plan_id!,
+              item_id: pricing.goods_id,
+            },
+          },
+          update: {},
+          create: {
+            supply_plan_id: brand!.supply_plan_id!,
+            item_id: pricing.goods_id,
           },
         });
       }
