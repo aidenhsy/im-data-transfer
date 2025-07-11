@@ -181,6 +181,21 @@ const run = async () => {
         });
       }
     }
+
+    const duplicates = Array.from(shopGoodsMapping.values()).filter(
+      (m) => m.referenceIds.length > 1
+    );
+    if (duplicates.length > 0) {
+      console.log(`\n📊 SHOP ${shop.shop_name} SUMMARY:`);
+      console.log(
+        `   Found ${duplicates.length} goods_id(s) with multiple referenceIds`
+      );
+      duplicates.forEach((dup) => {
+        console.log(
+          `   - goods_id ${dup.goods_id}: ${dup.referenceIds.length} different referenceIds`
+        );
+      });
+    }
   }
 };
 
