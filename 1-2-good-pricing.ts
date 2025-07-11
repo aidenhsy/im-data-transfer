@@ -26,6 +26,26 @@ const run = async () => {
     });
 
     for (const pricing of pricings) {
+      if (cities.length === 0) {
+        await scmPricing.scm_good_pricing.create({
+          data: {
+            goods_id: good.id,
+            good_unit_id: pricing.good_unit_id,
+            client_tier_id: pricing.client_tier_id!,
+            pricing_strategy: pricing.pricing_strategy,
+            profit_margin: pricing.profit_margin,
+            sale_price: pricing.sale_price,
+            is_active: pricing.is_active,
+            created_at: pricing.created_at,
+            locked_after: LOCKED_AFTER_DATE,
+            version: VERSION,
+            updated_at: pricing.updated_at,
+            cut_off_time: pricing.cut_off_time,
+            city_id: 1,
+          },
+        });
+        continue;
+      }
       for (const city of cities) {
         await scmPricing.scm_good_pricing.create({
           data: {
