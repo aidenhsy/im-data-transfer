@@ -204,6 +204,16 @@ const run = async () => {
       });
     }
   }
+
+  await scmPricing.scm_good_pricing.updateMany({
+    where: {
+      version: VERSION,
+      cut_off_time: null,
+    },
+    data: {
+      cut_off_time: '15:00:00',
+    },
+  });
 };
 
 run();
