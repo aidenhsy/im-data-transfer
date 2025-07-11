@@ -81,6 +81,34 @@ const run = async () => {
             city_id: shop.city_id,
             cut_off_time: good.soldTime,
           },
+          include: {
+            scm_goods: true,
+          },
+        });
+
+        const supplierItem = await imProcurement.supplier_items.upsert({
+          where: {
+            supplier_reference_id: pricing.external_reference_id!,
+          },
+          update: {},
+          create: {
+            name: good.goodsName,
+            status: 1,
+            create_time: new Date(),
+            update_time: new Date(),
+            letter_name: good.letterName,
+            supplier_id: 1,
+            photo_url: good.filePath,
+            price: pricing.sale_price,
+            supplier_reference_id: pricing.external_reference_id!,
+            cut_off_time: pricing.cut_off_time,
+            package_unit_to_base_ratio: good.ratio,
+            package_unit_name: good.saleUnit,
+            base_unit_id: pricing.scm_goods.standard_base_unit,
+            city_id: shop.city_id,
+            weighing: good.weighing,
+            tier_id: shop.client_tier_id!,
+          },
         });
 
         const brand = await imProcurement.scm_shop_brand.findFirst({
@@ -92,7 +120,7 @@ const run = async () => {
           },
         });
 
-        await imProcurement.supply_plan_items.upsert({
+        const supplyPlanItem = await imProcurement.supply_plan_items.upsert({
           where: {
             supply_plan_id_item_id: {
               supply_plan_id: brand!.supply_plan_id!,
@@ -103,6 +131,13 @@ const run = async () => {
           create: {
             supply_plan_id: brand!.supply_plan_id!,
             item_id: pricing.goods_id,
+          },
+        });
+
+        await imProcurement.plan_item_supplier_good.create({
+          data: {
+            plan_item_id: supplyPlanItem.id,
+            supplier_item_id: supplierItem.id,
           },
         });
       }
