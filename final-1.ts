@@ -33,6 +33,12 @@ const run = async () => {
 
   for (const shop of shops) {
     console.log(`Processing shop ${shop.shop_name}`);
+
+    const shopGoodsMapping = new Map<
+      string,
+      { goods_id: number; referenceIds: string[]; goodNames: string[] }
+    >();
+
     const { data } = await axios.get(
       'https://apiim.shaihukeji.com/goods/goodlist',
       {
@@ -41,6 +47,14 @@ const run = async () => {
         },
       }
     );
+    const brand = await imProcurement.scm_shop_brand.findFirst({
+      where: {
+        id: shop.brand_id,
+      },
+      select: {
+        supply_plan_id: true,
+      },
+    });
 
     for (const category of data.data) {
       for (const good of category.goods) {
@@ -61,6 +75,30 @@ const run = async () => {
             `Good ${good.goodsName} ${shop.shop_name} has no scm good pricing`
           );
           continue;
+        }
+
+        // Track the mapping
+        const key = `${scmGoodPricing.goods_id}`;
+        if (!shopGoodsMapping.has(key)) {
+          shopGoodsMapping.set(key, {
+            goods_id: scmGoodPricing.goods_id,
+            referenceIds: [],
+            goodNames: [],
+          });
+        }
+
+        const mapping = shopGoodsMapping.get(key)!;
+        mapping.referenceIds.push(good.referenceId);
+        mapping.goodNames.push(good.goodsName);
+
+        // Check if we have multiple referenceIds for the same goods_id
+        if (mapping.referenceIds.length > 1) {
+          console.warn(
+            `🚨 DUPLICATE GOODS_ID DETECTED in shop ${shop.shop_name}:`
+          );
+          console.warn(`   goods_id: ${mapping.goods_id}`);
+          console.warn(`   referenceIds: ${mapping.referenceIds.join(', ')}`);
+          console.warn(`   goodNames: ${mapping.goodNames.join(', ')}`);
         }
 
         const pricing = await scmPricing.scm_good_pricing.upsert({
@@ -117,15 +155,6 @@ const run = async () => {
             city_id: shop.city_id,
             weighing: good.weighing,
             tier_id: shop.client_tier_id!,
-          },
-        });
-
-        const brand = await imProcurement.scm_shop_brand.findFirst({
-          where: {
-            id: shop.brand_id,
-          },
-          select: {
-            supply_plan_id: true,
           },
         });
 
