@@ -10,11 +10,7 @@ const run = async () => {
   const VERSION = '20250710';
   const LOCKED_AFTER_DATE = new Date('2025-07-10T03:30:00.000Z');
 
-  const scmGoods = await scm.scm_goods.findMany({
-    where: {
-      status: 1,
-    },
-  });
+  const scmGoods = await scm.scm_goods.findMany();
 
   for (const good of scmGoods) {
     const cities = await scm.scm_goods_stock_cities.findMany({
