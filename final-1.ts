@@ -48,6 +48,35 @@ const run = async () => {
           );
           continue;
         }
+
+        await scmPricing.scm_good_pricing.upsert({
+          where: {
+            goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
+              goods_id: scmGoodPricing.goods_id,
+              good_unit_id: scmGoodPricing.good_unit_id,
+              client_tier_id: scmGoodPricing.client_tier_id!,
+              version: VERSION,
+              city_id: shop.city_id!,
+              is_active: scmGoodPricing.is_active,
+            },
+          },
+          update: {},
+          create: {
+            goods_id: scmGoodPricing.goods_id,
+            good_unit_id: scmGoodPricing.good_unit_id,
+            client_tier_id: scmGoodPricing.client_tier_id!,
+            pricing_strategy: scmGoodPricing.pricing_strategy,
+            profit_margin: scmGoodPricing.profit_margin,
+            sale_price: scmGoodPricing.sale_price,
+            is_active: scmGoodPricing.is_active,
+            created_at: scmGoodPricing.created_at,
+            locked_after: LOCKED_AFTER_DATE,
+            version: VERSION,
+            updated_at: scmGoodPricing.updated_at,
+            city_id: shop.city_id,
+            cut_off_time: good.soldTime,
+          },
+        });
       }
     }
   }
