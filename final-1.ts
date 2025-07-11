@@ -147,6 +147,7 @@ const run = async () => {
           data: {
             plan_item_id: supplyPlanItem.id,
             supplier_item_id: supplierItem.id,
+            shop_id: shop.id,
           },
         });
       }

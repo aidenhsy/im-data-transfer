@@ -7,7 +7,6 @@ const run = async () => {
   const shops = await imProcurement.scm_shop.findMany({
     where: {
       status: 1,
-      is_enabled: true,
     },
   });
 
@@ -20,11 +19,21 @@ const run = async () => {
       `https://imms.shaihukeji.com/procurement/menu/shop-menu-flat/${shop.id}`
     );
 
-    for (const category of imMenu) {
-      for (const item of category.goods) {
-        console.log(item);
+    for (const category of imMenu.data) {
+      for (const good of category.goods) {
+        const procurementGood = procurementMenu.data.find(
+          (item) => item.supplier_item_name === good.goodsName
+        );
+        if (!procurementGood) {
+          console.log(`${shop.shop_name} ${good.goodsName} not found`);
+          continue;
+        }
+        if (procurementGood.price !== good.price) {
+          console.log(
+            `${shop.shop_name} ${good.goodsName} price is not match ${procurementGood.price} !== ${good.price}`
+          );
+        }
       }
-      break;
     }
 
     break;
