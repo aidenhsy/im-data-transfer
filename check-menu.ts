@@ -11,6 +11,7 @@ const run = async () => {
   });
 
   for (const shop of shops) {
+    console.log(`Processing shop ${shop.shop_name}`);
     const { data: imMenu } = await axios.get(
       `https://apiim.shaihukeji.com/goods/goodlist?shopId=${shop.id}`
     );
@@ -19,8 +20,13 @@ const run = async () => {
       `https://imms.shaihukeji.com/procurement/menu/shop-menu-flat/${shop.id}`
     );
 
+    let imCount = 0;
+    const procurement = procurementMenu.data.filter(
+      (item) => item.supplier_item_name !== null
+    );
     for (const category of imMenu.data) {
       for (const good of category.goods) {
+        imCount++;
         const procurementGood = procurementMenu.data.find(
           (item) => item.supplier_item_name === good.goodsName
         );
@@ -28,15 +34,16 @@ const run = async () => {
           console.log(`${shop.shop_name} ${good.goodsName} not found`);
           continue;
         }
-        if (procurementGood.price !== good.price) {
+        if (Number(procurementGood.price) !== Number(good.price)) {
           console.log(
             `${shop.shop_name} ${good.goodsName} price is not match ${procurementGood.price} !== ${good.price}`
           );
         }
       }
     }
-
-    break;
+    console.log(
+      `${shop.shop_name} ${imCount} goods ${procurement.length} procurement`
+    );
   }
 };
 

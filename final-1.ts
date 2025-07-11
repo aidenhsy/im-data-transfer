@@ -13,8 +13,8 @@ const run = async () => {
   const scmPricing = new ScmPricing();
   const imProcurement = new IMProcurement();
 
-  const VERSION = '20250710';
-  const LOCKED_AFTER_DATE = new Date('2025-07-10T03:30:00.000Z');
+  const VERSION = '20250711';
+  const LOCKED_AFTER_DATE = new Date('2025-07-11T03:30:00.000Z');
 
   await imProcurement.plan_item_supplier_good.deleteMany();
   await imProcurement.supply_plan_items.deleteMany();
