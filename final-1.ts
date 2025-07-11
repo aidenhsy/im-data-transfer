@@ -172,8 +172,15 @@ const run = async () => {
           },
         });
 
-        await imProcurement.plan_item_supplier_good.create({
-          data: {
+        await imProcurement.plan_item_supplier_good.upsert({
+          where: {
+            plan_item_id_shop_id: {
+              plan_item_id: supplyPlanItem.id,
+              shop_id: shop.id,
+            },
+          },
+          update: {},
+          create: {
             plan_item_id: supplyPlanItem.id,
             supplier_item_id: supplierItem.id,
             shop_id: shop.id,
