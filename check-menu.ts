@@ -11,7 +11,6 @@ const run = async () => {
   });
 
   for (const shop of shops) {
-    console.log(`Processing shop ${shop.shop_name}`);
     const { data: imMenu } = await axios.get(
       `https://apiim.shaihukeji.com/goods/goodlist?shopId=${shop.id}`
     );
@@ -42,7 +41,7 @@ const run = async () => {
       }
     }
     console.log(
-      `${shop.shop_name} ${imCount} goods ${procurement.length} procurement`
+      `${shop.shop_name} ${imCount} goods vs. ${procurement.length} procurement`
     );
   }
 };
