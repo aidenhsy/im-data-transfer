@@ -14,7 +14,14 @@ const run = async () => {
       where: {
         id: good.id,
       },
-      update: {},
+      update: {
+        name: good.name,
+        category_id: good.category_id,
+        status: good.status,
+        letter_name: good.letter_name,
+        photo_url: good.photo_url,
+        base_unit_id: good.standard_base_unit,
+      },
       create: {
         id: good.id,
         name: good.name,
