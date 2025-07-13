@@ -13,6 +13,8 @@ const run = async () => {
     },
   });
 
+  console.log(`Found ${goods.length} goods`);
+
   for (const good of goods) {
     const goodPricing = await scm.scm_good_pricing.findFirst({
       where: {
