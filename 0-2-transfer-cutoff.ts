@@ -14,8 +14,11 @@ const run = async () => {
   });
 
   console.log(`Found ${goods.length} goods`);
+  let current = 1;
 
   for (const good of goods) {
+    console.log(`Processing good ${current} of ${goods.length}`);
+    current++;
     const goodPricing = await scm.scm_good_pricing.findFirst({
       where: {
         id: good.reference_id!,
