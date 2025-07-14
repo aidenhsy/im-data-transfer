@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { PrismaClient as ImProcurementProdClient } from './prisma/clients/im-procurement-prod';
 
-const run = async () => {
+const checkMenu = async () => {
   const imProcurement = new ImProcurementProdClient();
 
   const shops = await imProcurement.scm_shop.findMany({
@@ -46,4 +46,4 @@ const run = async () => {
   }
 };
 
-run();
+checkMenu();
