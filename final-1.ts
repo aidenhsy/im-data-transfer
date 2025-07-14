@@ -101,10 +101,6 @@ const run = async () => {
           console.warn(`   goodNames: ${mapping.goodNames.join(', ')}`);
         }
 
-        if (good.goodsName === '芸豆') {
-          console.log(scmGoodPricing);
-        }
-
         const pricing = await scmPricing.scm_good_pricing.upsert({
           where: {
             goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
