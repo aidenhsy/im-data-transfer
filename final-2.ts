@@ -21,13 +21,17 @@ const run = async () => {
       },
     });
 
-    await scmPricing.scm_good_pricing.update({
+    const newPricing = await scmPricing.scm_good_pricing.update({
       where: {
         id: pricing.id,
       },
       data: {
         sale_price:
-          Number(good?.price) * (1 + Number(pricing.profit_margin) / 100),
+          Math.round(
+            Number(good?.price) *
+              (1 + Number(pricing.profit_margin) / 100) *
+              100
+          ) / 100,
       },
     });
 
@@ -46,7 +50,7 @@ const run = async () => {
         id: supplierItem?.id,
       },
       data: {
-        price: Number(good?.price) * (1 + Number(pricing.profit_margin) / 100),
+        price: newPricing.sale_price,
       },
     });
   }
