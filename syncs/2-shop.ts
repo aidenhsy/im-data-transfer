@@ -8,7 +8,7 @@ const run = async () => {
   const shops = await imProcurement.scm_shop.findMany();
 
   for (const shop of shops) {
-    const { ...rest, client_tier_id } = shop;
+    const { client_tier_id, ...rest } = shop;
     await imBasicData.scm_shop.upsert({
       where: { id: shop.id },
       update: {
