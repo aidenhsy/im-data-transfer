@@ -9,7 +9,7 @@ const run = async () => {
   const scm = new Scm();
   const scmPricing = new ScmPricing();
 
-  const supplierGoods = await imProcurement.supplier_items.findMany();
+  const supplierGoods = await imProcurement.supplier_order_details.findMany();
   const length = supplierGoods.length;
 
   let i = 0;
@@ -33,10 +33,10 @@ const run = async () => {
       console.log(supplierGood.supplier_reference_id);
       continue;
     }
-    await imProcurement.supplier_items.update({
+    await imProcurement.supplier_order_details.update({
       where: { id: supplierGood.id },
       data: {
-        name: pricing?.scm_goods?.name,
+        supplier_item_name: pricing?.scm_goods?.name,
       },
     });
   }
