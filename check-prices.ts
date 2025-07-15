@@ -20,7 +20,7 @@ const run = async () => {
     }
     if (Number(good.price) !== Number(pricing?.price)) {
       console.log(
-        `${good.id} ${good.name} ${good.price} ${pricing?.price} good price not equal`
+        `${good.id} ${good.name} ${good.price} ${pricing?.price} not equal`
       );
     }
 
@@ -34,38 +34,10 @@ const run = async () => {
     for (const item of pricings) {
       if (item.pricing_strategy === 'margin') {
         const correctPrice =
-          Math.round(
-            Number(good.price) * (1 + Number(item.profit_margin) / 100) * 100
-          ) / 100;
+          Number(good.price) * (1 + Number(item.profit_margin) / 100);
 
-        const currentPrice = Math.round(Number(item.sale_price) * 100) / 100;
-
-        if (Number(correctPrice) !== Number(currentPrice)) {
-          console.log(
-            `${good.id} ${good.name} ${correctPrice} ${currentPrice} margin price not equal`
-          );
-        }
+        console.log(correctPrice);
       }
-    }
-  }
-
-  const supplierGoods = await imProcurement.supplier_items.findMany();
-
-  for (const good of supplierGoods) {
-    const goodPrice = await scmPricing.scm_good_pricing.findFirst({
-      where: {
-        external_reference_id: good.supplier_reference_id,
-      },
-    });
-
-    if (!goodPrice) {
-      console.log(`${good.supplier_reference_id} not found`);
-    }
-
-    if (Number(good.price) !== Number(goodPrice?.sale_price)) {
-      console.log(
-        `${good.supplier_reference_id} ${good.price} ${goodPrice?.sale_price} not equal`
-      );
     }
   }
 };
