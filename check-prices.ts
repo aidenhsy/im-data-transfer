@@ -34,7 +34,9 @@ const run = async () => {
     for (const item of pricings) {
       if (item.pricing_strategy === 'margin') {
         const correctPrice =
-          Number(good.price) * (1 + Number(item.profit_margin) / 100);
+          Math.round(
+            Number(good.price) * (1 + Number(item.profit_margin) / 100) * 100
+          ) / 100;
 
         if (Number(correctPrice) !== Number(item.sale_price)) {
           console.log(
