@@ -20,7 +20,7 @@ const run = async () => {
     }
     if (Number(good.price) !== Number(pricing?.price)) {
       console.log(
-        `${good.id} ${good.name} ${good.price} ${pricing?.price} not equal`
+        `${good.id} ${good.name} ${good.price} ${pricing?.price} not good price `
       );
     }
 
@@ -36,7 +36,11 @@ const run = async () => {
         const correctPrice =
           Number(good.price) * (1 + Number(item.profit_margin) / 100);
 
-        console.log(correctPrice);
+        if (Number(correctPrice) !== Number(item.sale_price)) {
+          console.log(
+            `${good.id} ${good.name} ${correctPrice} ${item.sale_price} not margin price equal`
+          );
+        }
       }
     }
   }
