@@ -48,6 +48,26 @@ const run = async () => {
       }
     }
   }
+
+  const supplierGoods = await imProcurement.supplier_items.findMany();
+
+  for (const good of supplierGoods) {
+    const goodPrice = await scmPricing.scm_good_pricing.findFirst({
+      where: {
+        external_reference_id: good.supplier_reference_id,
+      },
+    });
+
+    if (!goodPrice) {
+      console.log(`${good.supplier_reference_id} not found`);
+    }
+
+    if (Number(good.price) !== Number(goodPrice?.sale_price)) {
+      console.log(
+        `${good.supplier_reference_id} ${good.price} ${goodPrice?.sale_price} not equal`
+      );
+    }
+  }
 };
 
 run();
