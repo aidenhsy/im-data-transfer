@@ -1,10 +1,10 @@
-import { PrismaClient as IMProd } from './prisma/clients/im-prod';
-import { PrismaClient as SCMProd } from './prisma/clients/scm-prod';
+import { PrismaClient as IMProd } from '../prisma/clients/im-prod';
+import { PrismaClient as SCMProd } from '../prisma/clients/scm-prod';
 import { PrismaClient as SCMPricing } from './prisma/clients/scm-pricing';
 import { PrismaClient as ImProcurement } from './prisma/clients/im-procurement';
 
 const run = async () => {
-  const VERSION = '20250627';
+  const VERSION = '20250626';
 
   const im = new IMProd();
   const scm = new SCMProd();
@@ -20,6 +20,7 @@ const run = async () => {
     include: {
       scm_shop: {
         where: {
+          is_enabled: true,
           status: 1,
         },
       },
@@ -36,6 +37,12 @@ const run = async () => {
       },
     });
 
+    const brandCities = await imProcurement.brand_cities.findMany({
+      where: {
+        brand_id: brand.id,
+      },
+    });
+
     const brandItems = await im.scm_supply_plan_scm_goods.findMany({
       where: {
         supply_plan_id: brand.supply_plan_id,
@@ -48,11 +55,11 @@ const run = async () => {
     let processedCount = 0;
     let noPriceCount = 0;
     let noGenericItemCount = 0;
-    let noSupplierItemCount = 0;
+    let noSupplierGoodCount = 0;
     let uniqueItemIds = new Set();
     let duplicateItemIds = new Set();
-    let itemsWithNoPriceForAnyShop = 0;
-    let totalShopPriceFailures = 0;
+    let itemsWithNoPriceForAnyCity = 0;
+    let totalCityPriceFailures = 0;
 
     for (const item of brandItems) {
       const scmProdPrice = await scm.scm_good_pricing.findFirst({
@@ -109,54 +116,65 @@ const run = async () => {
         },
       });
 
-      let shopProcessedCount = 0;
-      let itemHasPriceForAnyShop = false;
+      let cityProcessedCount = 0;
+      let itemHasPriceForAnyCity = false;
 
-      for (const shop of brand.scm_shop) {
+      for (const city of brandCities) {
+        // Look for city-specific pricing
         const scmPrice = await scmPricing.scm_good_pricing.findFirst({
           where: {
             external_reference_id: {
-              startsWith: `${VERSION}-${shop.client_tier_id}-${scmProdPrice.goods_id}-${shop.city_id}`,
+              startsWith: `${VERSION}-2-${scmProdPrice.goods_id}-${city.city_id}`,
             },
           },
         });
 
         if (!scmPrice) {
+          // console.log(`${VERSION}-2-${scmProdPrice.goods_id}-${city.city_id}`);
           // console.log(
-          //   `No scmPrice found for ${VERSION}-${shop.client_tier_id}-${scmProdPrice.goods_id}-${shop.city_id}`
+          //   `No city-specific price found for ${item.goods_name} in city ${city.city_id}`
           // );
-          totalShopPriceFailures++;
+          totalCityPriceFailures++;
           continue;
         }
 
-        itemHasPriceForAnyShop = true;
+        itemHasPriceForAnyCity = true;
 
-        const supplierItem = await imProcurement.supplier_items.findFirst({
+        const supplierGood = await imProcurement.supplier_items.findFirst({
           where: {
-            supplier_reference_id: scmPrice.external_reference_id,
+            supplier_reference_id: {
+              startsWith: `${VERSION}-2-${genericItem.id}-${city.city_id}`,
+            },
           },
         });
 
-        if (!supplierItem) {
-          console.log(
-            `No supplierItem found for ${item.goods_name} (item.id: ${item.id})`
-          );
-          noSupplierItemCount++;
+        if (!supplierGood) {
+          console.log(`No supplier good found for ${item.goods_name}`);
+          noSupplierGoodCount++;
           continue;
         }
 
-        await imProcurement.plan_item_supplier_good.create({
-          data: {
+        await imProcurement.plan_item_supplier_good.upsert({
+          where: {
+            plan_item_id_city_id: {
+              plan_item_id: planItem.id,
+              city_id: city.city_id!,
+            },
+          },
+          update: {
+            supplier_item_id: supplierGood.id,
+          },
+          create: {
             plan_item_id: planItem.id,
-            shop_id: shop.id,
-            supplier_item_id: supplierItem.id,
+            supplier_item_id: supplierGood.id,
+            city_id: city.city_id!,
           },
         });
-        shopProcessedCount++;
+        cityProcessedCount++;
       }
 
-      if (!itemHasPriceForAnyShop) {
-        itemsWithNoPriceForAnyShop++;
+      if (!itemHasPriceForAnyCity) {
+        itemsWithNoPriceForAnyCity++;
       }
 
       processedCount++;
@@ -215,22 +233,22 @@ const run = async () => {
     console.log(`Total brandItems: ${brandItems.length}`);
     console.log(`Successfully processed: ${processedCount}`);
     console.log(
-      `Items with no price for ANY shop: ${itemsWithNoPriceForAnyShop}`
+      `Items with no price for ANY city: ${itemsWithNoPriceForAnyCity}`
     );
-    console.log(`Total shop price failures: ${totalShopPriceFailures}`);
+    console.log(`Total city price failures: ${totalCityPriceFailures}`);
     console.log(`No generic item found: ${noGenericItemCount}`);
-    console.log(`No supplier item found: ${noSupplierItemCount}`);
+    console.log(`No supplier good found: ${noSupplierGoodCount}`);
     console.log(`Unique item_ids: ${uniqueItemIds.size}`);
     console.log(`Duplicate item_ids: ${duplicateItemIds.size}`);
     console.log(
       `Expected total: ${
-        processedCount + itemsWithNoPriceForAnyShop + noGenericItemCount
+        processedCount + itemsWithNoPriceForAnyCity + noGenericItemCount
       }`
     );
     console.log(`Actual total in DB: ${total}`);
     console.log(
       `Difference: ${
-        processedCount + itemsWithNoPriceForAnyShop + noGenericItemCount - total
+        processedCount + itemsWithNoPriceForAnyCity + noGenericItemCount - total
       }`
     );
   }

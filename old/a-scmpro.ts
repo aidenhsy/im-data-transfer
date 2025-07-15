@@ -1,4 +1,4 @@
-import { PrismaClient as SCMProd } from './prisma/clients/scm-prod';
+import { PrismaClient as SCMProd } from '../prisma/clients/scm-prod';
 
 const run = async () => {
   const scm = new SCMProd();

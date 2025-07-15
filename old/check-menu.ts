@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PrismaClient as ImProcurementProdClient } from './prisma/clients/im-procurement-prod';
+import { PrismaClient as ImProcurementProdClient } from '../prisma/clients/im-procurement-prod';
 
 const checkMenu = async () => {
   const imProcurement = new ImProcurementProdClient();

@@ -1,5 +1,5 @@
-import { PrismaClient as IMProd } from './prisma/clients/im-prod';
-import { PrismaClient as SCMProd } from './prisma/clients/scm-prod';
+import { PrismaClient as IMProd } from '../prisma/clients/im-prod';
+import { PrismaClient as SCMProd } from '../prisma/clients/scm-prod';
 import { PrismaClient as SCMPricing } from './prisma/clients/scm-pricing';
 import { PrismaClient as ImProcurement } from './prisma/clients/im-procurement';
 

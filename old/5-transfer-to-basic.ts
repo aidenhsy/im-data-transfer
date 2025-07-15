@@ -1,5 +1,5 @@
-import { PrismaClient as ImBasicDataProdClient } from './prisma/clients/im-basic-data-prod';
-import { PrismaClient as ImProcurementProdClient } from './prisma/clients/im-procurement-prod';
+import { PrismaClient as ImBasicDataProdClient } from '../prisma/clients/im-basic-data-prod';
+import { PrismaClient as ImProcurementProdClient } from '../prisma/clients/im-procurement-prod';
 
 const run = async () => {
   const imBasicDataProd = new ImBasicDataProdClient();

@@ -437,22 +437,23 @@ model scm_shop_account {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_shop_brand {
-  id                    Int                     @id @default(autoincrement())
-  brand_name            String                  @db.VarChar(60)
-  create_time           DateTime?               @default(now()) @db.Timestamp(6)
-  tcsl_id               String?                 @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  big_org_id            Int?                    @default(3)
-  is_enabled            Boolean?                @default(false)
-  supply_plan_id        Int?
-  brand_cities          brand_cities[]
-  brand_goods           brand_goods[]
-  scm_brand_account     scm_brand_account[]
-  scm_shop              scm_shop[]
-  big_org               big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
-  scm_supply_plan       scm_supply_plan?        @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  st_ingredient         st_ingredient[]
-  st_kitchen_department st_kitchen_department[]
-  st_sales_plan         st_sales_plan[]
+  id                                                       Int                     @id @default(autoincrement())
+  brand_name                                               String                  @db.VarChar(60)
+  create_time                                              DateTime?               @default(now()) @db.Timestamp(6)
+  tcsl_id                                                  String?                 @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  big_org_id                                               Int?                    @default(3)
+  is_enabled                                               Boolean?                @default(false)
+  supply_plan_id                                           Int?
+  brand_cities                                             brand_cities[]
+  brand_goods                                              brand_goods[]
+  scm_brand_account                                        scm_brand_account[]
+  scm_shop                                                 scm_shop[]
+  big_org                                                  big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
+  scm_supply_plan                                          scm_supply_plan?        @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_supply_plan_scm_supply_plan_brand_idToscm_shop_brand scm_supply_plan[]       @relation("scm_supply_plan_brand_idToscm_shop_brand")
+  st_ingredient                                            st_ingredient[]
+  st_kitchen_department                                    st_kitchen_department[]
+  st_sales_plan                                            st_sales_plan[]
 
   @@index([tcsl_id], map: "idx_sc_shop_brand_tcsl_id")
 }
@@ -480,14 +481,16 @@ model scm_shop_scm_shop_account {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_supply_plan {
-  id                Int                 @id @default(autoincrement())
-  name              String?             @db.VarChar(60)
-  serial_num        String?             @unique @db.VarChar
-  organization_id   Int?
-  scm_shop_brand    scm_shop_brand[]
-  st_ingredient     st_ingredient[]
-  st_sales_plan     st_sales_plan[]
-  supply_plan_items supply_plan_items[]
+  id                                                      Int                 @id @default(autoincrement())
+  name                                                    String?             @db.VarChar(60)
+  serial_num                                              String?             @unique @db.VarChar
+  organization_id                                         Int?
+  brand_id                                                Int?
+  scm_shop_brand                                          scm_shop_brand[]
+  scm_shop_brand_scm_supply_plan_brand_idToscm_shop_brand scm_shop_brand?     @relation("scm_supply_plan_brand_idToscm_shop_brand", fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  st_ingredient                                           st_ingredient[]
+  st_sales_plan                                           st_sales_plan[]
+  supply_plan_items                                       supply_plan_items[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1040,13 +1043,13 @@ model supplier_order_details {
   order_qty                  Decimal         @db.Decimal(12, 4)
   actual_delivery_qty        Decimal?        @db.Decimal(12, 4)
   supplier_reference_id      String          @db.VarChar
-  cut_off_time               String?         @db.VarChar(50)
-  package_unit_name          String          @db.VarChar(50)
+  cut_off_time               String?         @db.VarChar
+  package_unit_name          String          @db.VarChar
   package_unit_to_base_ratio Int
   order_id                   String          @db.VarChar
   updated_at                 DateTime?       @default(now()) @db.Timestamp(6)
   created_at                 DateTime?       @default(now()) @db.Timestamp(6)
-  supplier_item_name         String          @db.VarChar(50)
+  supplier_item_name         String          @db.VarChar
   supplier_item_photo        String          @db.VarChar
   confirm_delivery_qty       Decimal?        @db.Decimal(12, 4)
   final_qty                  Decimal?        @db.Decimal(12, 4)
@@ -1069,6 +1072,8 @@ model supplier_orders {
   updated_at                    DateTime?                       @default(now()) @db.Timestamp(6)
   delivery_time                 DateTime?                       @db.Timestamp(6)
   supplier_note                 String?
+  order_amount                  Decimal?                        @db.Decimal(12, 4)
+  actual_amount                 Decimal?                        @db.Decimal(12, 4)
   submit_cart_attempts          submit_cart_attempts[]
   supplier_order_details        supplier_order_details[]
   supplier_order_status_history supplier_order_status_history[]
