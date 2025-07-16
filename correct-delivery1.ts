@@ -124,7 +124,7 @@ const run = async () => {
       0
     );
 
-    if (Number(scmFinal) !== Number(imProcurementFinal)) {
+    if (Number(scmFinal.toFixed(2)) !== Number(imProcurementFinal.toFixed(2))) {
       console.log(scmFinal, imProcurementFinal, order.id);
     }
   }
