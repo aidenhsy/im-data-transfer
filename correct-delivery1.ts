@@ -35,6 +35,16 @@ const run = async () => {
     },
   });
 
+  const scmDetails = await scmDB.scm_order_details.findMany({
+    where: {
+      scm_order: {
+        delivery_day_info_id: {
+          in: ['2025-07-15', '2025-07-16'],
+        },
+      },
+    },
+  });
+
   const length = imProcurementOrder.length;
   let count = 0;
   for (const order of imProcurementOrder) {
@@ -52,11 +62,9 @@ const run = async () => {
         (detail) => detail.supplier_reference_id === scmDetail.reference_id
       );
 
-      const scmDetailCheck = await scmDB.scm_order_details.findFirst({
-        where: {
-          reference_id: scmDetail.reference_id,
-        },
-      });
+      const scmDetailCheck = scmDetails.find(
+        (detail) => detail.reference_id === scmDetail.reference_id
+      );
 
       if (!imProcurementDetail) {
         console.log('!!! not found', scmDetail.reference_id, order.id);
