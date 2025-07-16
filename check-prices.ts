@@ -8,8 +8,12 @@ const run = async () => {
   const scmPricing = new ScmPricing();
 
   const goods = await scm.scm_goods.findMany();
+  const length = goods.length;
+  let i = 0;
 
   for (const good of goods) {
+    i++;
+    console.log(`${i}/${length}`);
     const pricing = await scmPricing.scm_goods.findFirst({
       where: {
         id: good.id,

@@ -487,26 +487,28 @@ model shop_area {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model shop_equipment {
-  id                     String                 @id @db.VarChar(50)
-  name                   String                 @db.VarChar(100)
-  manufacturer_id        String                 @db.VarChar(50)
-  category_id            String                 @db.VarChar(50)
-  size                   String?                @db.VarChar(100)
-  purchase_date          DateTime?              @db.Timestamp(6)
-  warranty_period        String?                @db.VarChar(500)
-  after_service_phone    String?                @db.VarChar(100)
-  purchase_money         Decimal?               @db.Decimal(10, 2)
-  picture_url            String?                @db.VarChar(255)
-  belong_shop_id         Int?
-  create_user_id         Int?
-  create_time            DateTime?              @default(now()) @db.Timestamp(6)
-  status                 Int?                   @default(1) @db.SmallInt
-  remark                 String?                @db.VarChar(300)
-  qrcode_url             String?                @db.VarChar(200)
-  equipment_category     equipment_category     @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_equipment_category_fk")
-  equipment_manufacturer equipment_manufacturer @relation(fields: [manufacturer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_equipment_manufacturer_fk")
-  scm_shop_account       scm_shop_account?      @relation(fields: [create_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_scm_shop_account_fk")
-  scm_shop               scm_shop?              @relation(fields: [belong_shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_scm_shop_fk")
+  id                      String                   @id @db.VarChar(50)
+  name                    String                   @db.VarChar(100)
+  manufacturer_id         String                   @db.VarChar(50)
+  category_id             String                   @db.VarChar(50)
+  size                    String?                  @db.VarChar(100)
+  purchase_date           DateTime?                @db.Timestamp(6)
+  warranty_period         String?                  @db.VarChar(500)
+  after_service_phone     String?                  @db.VarChar(100)
+  purchase_money          Decimal?                 @db.Decimal(10, 2)
+  picture_url             String?                  @db.VarChar(255)
+  belong_shop_id          Int?
+  create_user_id          Int?
+  create_time             DateTime?                @default(now()) @db.Timestamp(6)
+  status                  Int?                     @default(1) @db.SmallInt
+  remark                  String?                  @db.VarChar(300)
+  qrcode_url              String?                  @db.VarChar(200)
+  position_id             String?                  @db.VarChar(32)
+  equipment_category      equipment_category       @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_equipment_category_fk")
+  equipment_manufacturer  equipment_manufacturer   @relation(fields: [manufacturer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_equipment_manufacturer_fk")
+  scm_shop_account        scm_shop_account?        @relation(fields: [create_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_scm_shop_account_fk")
+  scm_shop                scm_shop?                @relation(fields: [belong_shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_scm_shop_fk")
+  shop_equipment_position shop_equipment_position? @relation(fields: [position_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "shop_equipment_shop_equipment_position_fk")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1025,6 +1027,16 @@ model user_roles {
   scm_shop_account scm_shop_account @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([user_id, role_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shop_equipment_position {
+  id             String           @id(map: "shop_equipment_section_pkey") @db.VarChar(32)
+  parent_id      String           @db.VarChar(32)
+  shop_id        Int
+  position_name  String           @db.VarChar(100)
+  create_time    DateTime         @default(now()) @db.Timestamp(6)
+  shop_equipment shop_equipment[]
 }
 
 enum pricing_strategy_type {
