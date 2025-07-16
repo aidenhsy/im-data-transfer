@@ -137,6 +137,23 @@ const run = async () => {
       console.log(scmFinal, imProcurementFinal, order.id);
       console.log('Difference:', difference);
     } else {
+      await scmOrderDB.procurement_orders.update({
+        where: {
+          id: scmOrder.id,
+        },
+        data: {
+          actual_amount: scmFinalRounded,
+        },
+      });
+
+      await imProcurementDB.supplier_orders.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          actual_amount: scmFinalRounded,
+        },
+      });
     }
   }
 
