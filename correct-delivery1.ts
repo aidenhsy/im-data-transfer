@@ -45,12 +45,15 @@ const run = async () => {
         (detail) => detail.supplier_reference_id === scmDetail.reference_id
       );
 
-      if (!imProcurementDetail) {
-        console.log('!!! not found details');
+      const scmDetailCheck = await scmDB.scm_order_details.findFirst({
+        where: {
+          reference_id: scmDetail.reference_id,
+        },
+      });
+
+      if (!scmDetailCheck) {
+        console.log('!!! not found', scmDetail.reference_id, order.id);
         continue;
-      }
-      if (Number(scmDetail.price) !== Number(imProcurementDetail.price)) {
-        console.log('!!! price not match', scmDetail.id, order.id);
       }
     }
 
