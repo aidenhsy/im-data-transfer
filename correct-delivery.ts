@@ -15,7 +15,7 @@ const run = async () => {
 
   // Option 1: Using raw SQL to compare two fields in the same record (Recommended)
   const orderItems = await imProcurement.$queryRaw<OrderItemResult[]>`
-    SELECT supplier_orders.id, status, supplier_reference_id FROM supplier_order_details
+    SELECT supplier_order_details.id, status, supplier_reference_id FROM supplier_order_details
     JOIN supplier_orders ON supplier_order_details.order_id = supplier_orders.id
     WHERE order_qty != actual_delivery_qty
     AND actual_delivery_qty IS NOT NULL
