@@ -39,7 +39,7 @@ const run = async () => {
     where: {
       scm_order: {
         delivery_day_info_id: {
-          in: ['2025-07-15', '2025-07-16'],
+          in: ['2025-07-14', '2025-07-15', '2025-07-16'],
         },
       },
     },
@@ -67,12 +67,20 @@ const run = async () => {
       );
 
       if (!imProcurementDetail) {
-        console.log('!!! not found', scmDetail.reference_id, order.id);
+        console.log(
+          '!!! not found imProcurementDetail',
+          scmDetail.reference_id,
+          order.id
+        );
         continue;
       }
 
       if (!scmDetailCheck) {
-        console.log('!!! not found', scmDetail.reference_id, order.id);
+        console.log(
+          '!!! not found scmDetailCheck',
+          scmDetail.reference_id,
+          order.id
+        );
         continue;
       }
 
