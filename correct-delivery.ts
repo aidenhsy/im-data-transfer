@@ -17,7 +17,7 @@ const run = async () => {
   const orderItems = await imProcurement.$queryRaw<OrderItemResult[]>`
     SELECT supplier_order_details.id, status, supplier_reference_id FROM supplier_order_details
     JOIN supplier_orders ON supplier_order_details.order_id = supplier_orders.id
-    WHERE final_qty != actual_delivery_qty
+    WHERE final_qty != confirm_delivery_qty
     AND actual_delivery_qty IS NOT NULL
     AND order_date='2025-07-14'; 
   `;
