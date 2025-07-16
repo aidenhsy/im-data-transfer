@@ -40,20 +40,34 @@ const run = async () => {
       continue;
     }
 
-    const scmFinal = scmOrder.procurement_order_details.reduce((acc, curr) => {
-      return acc + Number(curr.final_qty) * Number(curr.price);
-    }, 0);
+    for (const scmDetail of scmOrder.procurement_order_details) {
+      const imProcurementDetail = order.supplier_order_details.find(
+        (detail) => detail.supplier_reference_id === scmDetail.reference_id
+      );
 
-    const imProcurementFinal = order.supplier_order_details.reduce(
-      (acc, curr) => {
-        return acc + Number(curr.final_qty) * Number(curr.price);
-      },
-      0
-    );
-
-    if (Number(scmFinal) !== Number(imProcurementFinal)) {
-      console.log(scmFinal, imProcurementFinal, order.id);
+      if (!imProcurementDetail) {
+        console.log('!!! not found details');
+        continue;
+      }
+      if (Number(scmDetail.price) !== Number(imProcurementDetail.price)) {
+        console.log('!!! price not match', scmDetail.id, order.id);
+      }
     }
+
+    // const scmFinal = scmOrder.procurement_order_details.reduce((acc, curr) => {
+    //   return acc + Number(curr.final_qty) * Number(curr.price);
+    // }, 0);
+
+    // const imProcurementFinal = order.supplier_order_details.reduce(
+    //   (acc, curr) => {
+    //     return acc + Number(curr.final_qty) * Number(curr.price);
+    //   },
+    //   0
+    // );
+
+    // if (Number(scmFinal) !== Number(imProcurementFinal)) {
+    //   console.log(scmFinal, imProcurementFinal, order.id);
+    // }
   }
 
   // Clean up connections
