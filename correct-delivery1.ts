@@ -26,44 +26,34 @@ const run = async () => {
 
   console.log(imProcurementOrder.length);
   for (const order of imProcurementOrder) {
-    for (const detail of order.supplier_order_details) {
-      if (detail.final_qty === null) {
-        await imProcurementDB.supplier_order_details.update({
-          where: {
-            id: detail.id,
-          },
-          data: {
-            final_qty: detail.confirm_delivery_qty,
-          },
-        });
-      }
+    const scmOrder = await scmOrderDB.procurement_orders.findFirst({
+      where: {
+        client_order_id: order.id,
+      },
+      include: {
+        procurement_order_details: true,
+      },
+    });
+
+    if (!scmOrder) {
+      console.log('!!! not found', order.id);
+      continue;
     }
-    // const scmOrder = await scmOrderDB.procurement_orders.findFirst({
-    //   where: {
-    //     client_order_id: order.id,
-    //   },
-    //   include: {
-    //     procurement_order_details: true,
-    //   },
-    // });
 
-    // if (!scmOrder) {
-    //   console.log('!!! not found', order.id);
-    //   continue;
-    // }
+    const scmFinal = scmOrder.procurement_order_details.reduce((acc, curr) => {
+      return acc + Number(curr.final_qty) * Number(curr.price);
+    }, 0);
 
-    // const scmFinal = scmOrder.procurement_order_details.reduce((acc, curr) => {
-    //   return acc + Number(curr.final_qty) * Number(curr.price);
-    // }, 0);
+    const imProcurementFinal = order.supplier_order_details.reduce(
+      (acc, curr) => {
+        return acc + Number(curr.final_qty) * Number(curr.price);
+      },
+      0
+    );
 
-    // const imProcurementFinal = order.supplier_order_details.reduce(
-    //   (acc, curr) => {
-    //     return acc + Number(curr.final_qty) * Number(curr.price);
-    //   },
-    //   0
-    // );
-
-    // console.log(scmFinal, imProcurementFinal, order.id);
+    if (Number(scmFinal) !== Number(imProcurementFinal)) {
+      console.log(scmFinal, imProcurementFinal, order.id);
+    }
   }
 
   // Clean up connections
