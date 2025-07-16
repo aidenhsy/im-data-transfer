@@ -24,8 +24,11 @@ const run = async () => {
     },
   });
 
-  console.log(imProcurementOrder.length);
+  const length = imProcurementOrder.length;
+  let count = 0;
   for (const order of imProcurementOrder) {
+    count++;
+    console.log(`${count}/${length}`);
     const scmOrder = await scmOrderDB.procurement_orders.findFirst({
       where: {
         client_order_id: order.id,
@@ -51,10 +54,37 @@ const run = async () => {
         },
       });
 
+      if (!imProcurementDetail) {
+        console.log('!!! not found', scmDetail.reference_id, order.id);
+        continue;
+      }
+
       if (!scmDetailCheck) {
         console.log('!!! not found', scmDetail.reference_id, order.id);
         continue;
       }
+
+      await scmOrderDB.procurement_order_details.update({
+        where: {
+          id: scmDetail.id,
+        },
+        data: {
+          deliver_qty: scmDetailCheck.delivery_qty,
+          customer_receive_qty: scmDetailCheck.delivery_qty,
+          final_qty: scmDetailCheck.delivery_qty,
+        },
+      });
+
+      await imProcurementDB.supplier_order_details.update({
+        where: {
+          id: imProcurementDetail.id,
+        },
+        data: {
+          actual_delivery_qty: scmDetailCheck.delivery_qty,
+          confirm_delivery_qty: scmDetailCheck.delivery_qty,
+          final_qty: scmDetailCheck.delivery_qty,
+        },
+      });
     }
 
     // const scmFinal = scmOrder.procurement_order_details.reduce((acc, curr) => {
