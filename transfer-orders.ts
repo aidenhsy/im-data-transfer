@@ -57,88 +57,16 @@ const run = async () => {
       },
     });
     for (const item of order.scm_order_details) {
+      const orderDateVersion = dayjs(order.create_time)
+        .utc()
+        .format('YYYYMMDD');
       const pricing = await scmPiceDB.scm_good_pricing.findFirst({
         where: {
-          goods_id: Number(item.goods_id),
-          good_unit_id: item.scm_goods?.order_good_unit_id!,
-          client_tier_id: shop?.client_tier_id!,
-          city_id: shop?.city_id!,
+          external_reference_id: `${orderDateVersion}-${shop?.client_tier_id}-${item.goods_id}-${shop?.city_id}-${item.scm_goods?.order_good_unit_id}`,
         },
       });
       if (!pricing) {
-        const markup =
-          ((Number(item.price) - Number(item.hide_price)) /
-            Number(item.hide_price)) *
-          100;
-        const version = dayjs(item.create_time).utc().format('YYYYMMDD');
-        await scmPiceDB.scm_good_pricing.upsert({
-          where: {
-            goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
-              goods_id: Number(item.goods_id),
-              good_unit_id: item.scm_goods?.order_good_unit_id!,
-              client_tier_id: shop?.client_tier_id!,
-              version,
-              city_id: shop?.city_id!,
-              is_active: true,
-            },
-          },
-          update: {},
-          create: {
-            goods_id: Number(item.goods_id),
-            good_unit_id: item.scm_goods?.order_good_unit_id!,
-            client_tier_id: shop?.client_tier_id!,
-            city_id: shop?.city_id!,
-            pricing_strategy: 'margin',
-            profit_margin: markup,
-            sale_price: item.price,
-            is_active: true,
-            created_at: dayjs(item.create_time).utc().toDate(),
-            locked_after: dayjs(item.create_time)
-              .utc()
-              .hour(3)
-              .minute(30)
-              .second(0)
-              .millisecond(0)
-              .toDate(),
-            version,
-            cut_off_time: '15:00:00',
-          },
-        });
-      } else {
-        const version = dayjs(item.create_time).utc().format('YYYYMMDD');
-        await scmPiceDB.scm_good_pricing.upsert({
-          where: {
-            goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
-              goods_id: Number(item.goods_id),
-              good_unit_id: item.scm_goods?.order_good_unit_id!,
-              client_tier_id: shop?.client_tier_id!,
-              city_id: shop?.city_id!,
-              version,
-              is_active: true,
-            },
-          },
-          update: {},
-          create: {
-            goods_id: Number(item.goods_id),
-            good_unit_id: item.scm_goods?.order_good_unit_id!,
-            client_tier_id: shop?.client_tier_id!,
-            city_id: shop?.city_id!,
-            pricing_strategy: 'margin',
-            profit_margin: pricing.profit_margin,
-            sale_price: item.price,
-            is_active: true,
-            created_at: dayjs(item.create_time).utc().toDate(),
-            locked_after: dayjs(item.create_time)
-              .utc()
-              .hour(3)
-              .minute(30)
-              .second(0)
-              .millisecond(0)
-              .toDate(),
-            version,
-            cut_off_time: '15:00:00',
-          },
-        });
+        console.log('no pricing');
       }
     }
   }
