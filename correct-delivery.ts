@@ -17,7 +17,7 @@ const run = async () => {
   const orderItems = await imProcurement.$queryRaw<OrderItemResult[]>`
     SELECT supplier_order_details.id, status, supplier_reference_id FROM supplier_order_details
     JOIN supplier_orders ON supplier_order_details.order_id = supplier_orders.id
-    WHERE order_qty != actual_delivery_qty
+    WHERE final_qty != actual_delivery_qty
     AND actual_delivery_qty IS NOT NULL
     AND order_date='2025-07-14'; 
   `;
@@ -37,28 +37,16 @@ const run = async () => {
       console.log(`Order detail ${item.supplier_reference_id} not found`);
       continue;
     }
-    if (orderDetail.status === 4 || orderDetail.status === 5) {
-      await imProcurement.supplier_order_details.update({
-        where: {
-          id: item.id,
-        },
-        data: {
-          actual_delivery_qty: orderDetail.delivery_qty,
-          confirm_delivery_qty: orderDetail.delivery_qty,
-          final_qty: orderDetail.delivery_qty,
-        },
-      });
-    } else {
-      await imProcurement.supplier_order_details.update({
-        where: {
-          id: item.id,
-        },
-        data: {
-          actual_delivery_qty: orderDetail.delivery_qty,
-          confirm_delivery_qty: orderDetail.delivery_qty,
-        },
-      });
-    }
+    await imProcurement.supplier_order_details.update({
+      where: {
+        id: item.id,
+      },
+      data: {
+        actual_delivery_qty: orderDetail.delivery_qty,
+        confirm_delivery_qty: orderDetail.delivery_qty,
+        final_qty: orderDetail.delivery_qty,
+      },
+    });
 
     const newOrderDetail = await scmOrder.procurement_order_details.findFirst({
       where: {
@@ -73,31 +61,16 @@ const run = async () => {
       continue;
     }
 
-    if (
-      newOrderDetail.procurement_orders.status === 4 ||
-      newOrderDetail.procurement_orders.status === 5
-    ) {
-      await scmOrder.procurement_order_details.update({
-        where: {
-          id: newOrderDetail.id,
-        },
-        data: {
-          deliver_qty: orderDetail.delivery_qty,
-          customer_receive_qty: orderDetail.delivery_qty,
-          final_qty: orderDetail.delivery_qty,
-        },
-      });
-    } else {
-      await scmOrder.procurement_order_details.update({
-        where: {
-          id: newOrderDetail.id,
-        },
-        data: {
-          deliver_qty: orderDetail.delivery_qty,
-          customer_receive_qty: orderDetail.delivery_qty,
-        },
-      });
-    }
+    await scmOrder.procurement_order_details.update({
+      where: {
+        id: newOrderDetail.id,
+      },
+      data: {
+        deliver_qty: orderDetail.delivery_qty,
+        customer_receive_qty: orderDetail.delivery_qty,
+        final_qty: orderDetail.delivery_qty,
+      },
+    });
   }
 
   // Clean up connections
