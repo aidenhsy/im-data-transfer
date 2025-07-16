@@ -127,10 +127,16 @@ const run = async () => {
     // Use tolerance-based comparison (0.01 for 2 decimal place precision)
     const tolerance = 0.01;
     const difference = Math.abs(scmFinal - imProcurementFinal);
+    const scmFinalRounded = Math.round(scmFinal * 100) / 100;
+    const imProcurementFinalRounded =
+      Math.round(imProcurementFinal * 100) / 100;
+
+    console.log(scmFinalRounded, imProcurementFinalRounded);
 
     if (difference >= tolerance) {
       console.log(scmFinal, imProcurementFinal, order.id);
       console.log('Difference:', difference);
+    } else {
     }
   }
 
