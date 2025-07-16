@@ -124,12 +124,13 @@ const run = async () => {
       0
     );
 
-    const scmRounded = Math.round(scmFinal * 100) / 100;
-    const imProcurementRounded = Math.round(imProcurementFinal * 100) / 100;
+    // Use tolerance-based comparison (0.01 for 2 decimal place precision)
+    const tolerance = 0.01;
+    const difference = Math.abs(scmFinal - imProcurementFinal);
 
-    if (scmRounded !== imProcurementRounded) {
+    if (difference >= tolerance) {
       console.log(scmFinal, imProcurementFinal, order.id);
-      console.log('Rounded:', scmRounded, imProcurementRounded);
+      console.log('Difference:', difference);
     }
   }
 
