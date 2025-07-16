@@ -50,77 +50,83 @@ const run = async () => {
   for (const order of imProcurementOrder) {
     count++;
     console.log(`${count}/${length}`);
-    const scmOrder = scmOrderList.find((o) => o.client_order_id === order.id);
+    // const scmOrder = scmOrderList.find((o) => o.client_order_id === order.id);
 
+    // if (!scmOrder) {
+    //   console.log('!!! not found', order.id);
+    //   continue;
+    // }
+
+    // for (const scmDetail of scmOrder.procurement_order_details) {
+    //   const imProcurementDetail = order.supplier_order_details.find(
+    //     (detail) => detail.supplier_reference_id === scmDetail.reference_id
+    //   );
+
+    //   const scmDetailCheck = scmDetails.find(
+    //     (detail) => detail.reference_id === scmDetail.reference_id
+    //   );
+
+    //   if (!imProcurementDetail) {
+    //     console.log(
+    //       '!!! not found imProcurementDetail',
+    //       scmDetail.reference_id,
+    //       order.id
+    //     );
+    //     continue;
+    //   }
+
+    //   if (!scmDetailCheck) {
+    //     console.log(
+    //       '!!! not found scmDetailCheck',
+    //       scmDetail.reference_id,
+    //       order.id
+    //     );
+    //     continue;
+    //   }
+
+    //   await scmOrderDB.procurement_order_details.update({
+    //     where: {
+    //       id: scmDetail.id,
+    //     },
+    //     data: {
+    //       deliver_qty: scmDetailCheck.delivery_qty,
+    //       customer_receive_qty: scmDetailCheck.delivery_qty,
+    //       final_qty: scmDetailCheck.delivery_qty,
+    //     },
+    //   });
+
+    //   await imProcurementDB.supplier_order_details.update({
+    //     where: {
+    //       id: imProcurementDetail.id,
+    //     },
+    //     data: {
+    //       actual_delivery_qty: scmDetailCheck.delivery_qty,
+    //       confirm_delivery_qty: scmDetailCheck.delivery_qty,
+    //       final_qty: scmDetailCheck.delivery_qty,
+    //     },
+    //   });
+    // }
+
+    const scmOrder = scmOrderList.find((o) => o.client_order_id === order.id);
     if (!scmOrder) {
-      console.log('!!! not found', order.id);
+      console.log('!!! not found scmOrder', order.id);
       continue;
     }
 
-    for (const scmDetail of scmOrder.procurement_order_details) {
-      const imProcurementDetail = order.supplier_order_details.find(
-        (detail) => detail.supplier_reference_id === scmDetail.reference_id
-      );
+    const scmFinal = scmOrder.procurement_order_details.reduce((acc, curr) => {
+      return acc + Number(curr.final_qty) * Number(curr.price);
+    }, 0);
 
-      const scmDetailCheck = scmDetails.find(
-        (detail) => detail.reference_id === scmDetail.reference_id
-      );
+    const imProcurementFinal = order.supplier_order_details.reduce(
+      (acc, curr) => {
+        return acc + Number(curr.final_qty) * Number(curr.price);
+      },
+      0
+    );
 
-      if (!imProcurementDetail) {
-        console.log(
-          '!!! not found imProcurementDetail',
-          scmDetail.reference_id,
-          order.id
-        );
-        continue;
-      }
-
-      if (!scmDetailCheck) {
-        console.log(
-          '!!! not found scmDetailCheck',
-          scmDetail.reference_id,
-          order.id
-        );
-        continue;
-      }
-
-      await scmOrderDB.procurement_order_details.update({
-        where: {
-          id: scmDetail.id,
-        },
-        data: {
-          deliver_qty: scmDetailCheck.delivery_qty,
-          customer_receive_qty: scmDetailCheck.delivery_qty,
-          final_qty: scmDetailCheck.delivery_qty,
-        },
-      });
-
-      await imProcurementDB.supplier_order_details.update({
-        where: {
-          id: imProcurementDetail.id,
-        },
-        data: {
-          actual_delivery_qty: scmDetailCheck.delivery_qty,
-          confirm_delivery_qty: scmDetailCheck.delivery_qty,
-          final_qty: scmDetailCheck.delivery_qty,
-        },
-      });
+    if (Number(scmFinal) !== Number(imProcurementFinal)) {
+      console.log(scmFinal, imProcurementFinal, order.id);
     }
-
-    // const scmFinal = scmOrder.procurement_order_details.reduce((acc, curr) => {
-    //   return acc + Number(curr.final_qty) * Number(curr.price);
-    // }, 0);
-
-    // const imProcurementFinal = order.supplier_order_details.reduce(
-    //   (acc, curr) => {
-    //     return acc + Number(curr.final_qty) * Number(curr.price);
-    //   },
-    //   0
-    // );
-
-    // if (Number(scmFinal) !== Number(imProcurementFinal)) {
-    //   console.log(scmFinal, imProcurementFinal, order.id);
-    // }
   }
 
   // Clean up connections
