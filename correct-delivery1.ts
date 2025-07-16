@@ -24,19 +24,23 @@ const run = async () => {
     },
   });
 
+  const scmOrderList = await scmOrderDB.procurement_orders.findMany({
+    where: {
+      status: {
+        in: [4, 5],
+      },
+    },
+    include: {
+      procurement_order_details: true,
+    },
+  });
+
   const length = imProcurementOrder.length;
   let count = 0;
   for (const order of imProcurementOrder) {
     count++;
     console.log(`${count}/${length}`);
-    const scmOrder = await scmOrderDB.procurement_orders.findFirst({
-      where: {
-        client_order_id: order.id,
-      },
-      include: {
-        procurement_order_details: true,
-      },
-    });
+    const scmOrder = scmOrderList.find((o) => o.client_order_id === order.id);
 
     if (!scmOrder) {
       console.log('!!! not found', order.id);
