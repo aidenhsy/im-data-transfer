@@ -124,8 +124,12 @@ const run = async () => {
       0
     );
 
-    if (Number(scmFinal.toFixed(2)) !== Number(imProcurementFinal.toFixed(2))) {
+    const scmRounded = Math.round(scmFinal * 100) / 100;
+    const imProcurementRounded = Math.round(imProcurementFinal * 100) / 100;
+
+    if (scmRounded !== imProcurementRounded) {
       console.log(scmFinal, imProcurementFinal, order.id);
+      console.log('Rounded:', scmRounded, imProcurementRounded);
     }
   }
 
