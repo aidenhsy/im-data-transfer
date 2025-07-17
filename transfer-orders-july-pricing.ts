@@ -60,7 +60,9 @@ const run = async () => {
 
   for (const order of orders) {
     count++;
-    console.log(`${count}/${length}`);
+    if (count % 100 === 0) {
+      console.log(`${count}/${length}`);
+    }
     const shop = await imProcurementDB.scm_shop.findFirst({
       where: {
         id: Number(order.shop_id),
