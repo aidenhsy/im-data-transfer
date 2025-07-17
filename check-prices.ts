@@ -13,7 +13,9 @@ const run = async () => {
 
   for (const good of goods) {
     i++;
-    console.log(`${i}/${length}`);
+    if (i % 100 === 0) {
+      console.log(`${i}/${length}`);
+    }
     const pricing = await scmPricing.scm_goods.findFirst({
       where: {
         id: good.id,
