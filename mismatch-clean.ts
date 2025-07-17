@@ -44,6 +44,7 @@ const run = async () => {
       Number(scmOrder.length)
     ) {
       console.log(
+        procurementOrder.id,
         procurementOrder.supplier_order_details.length,
         scmOrder.length
       );
