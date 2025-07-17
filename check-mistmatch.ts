@@ -9,25 +9,28 @@ const run = async () => {
   const scmOrderDB = new ScmOrder();
   const scmDB = new Scm();
 
-  const supplierOrders = await imProcurementDB.supplier_orders.findMany({
+  const orders = await scmDB.scm_order_details.findMany({
     where: {
-      status: {
-        in: [4, 5],
+      reference_order_id: {
+        not: null,
       },
     },
   });
 
-  for (const order of supplierOrders) {
-    const scm = await scmDB.scm_order_details.findFirst({
+  for (const order of orders) {
+    const imProcurementOrder = await imProcurementDB.supplier_orders.findFirst({
       where: {
-        reference_order_id: order.id,
+        id: order.reference_order_id!,
       },
     });
 
-    if (!scm) {
-      console.log(order.id);
+    if (!imProcurementOrder) {
+      console.log('not found', order.reference_order_id);
     }
   }
+
+  console.log('done');
+  process.exit(0);
 };
 
 run();
