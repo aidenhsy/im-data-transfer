@@ -9,7 +9,13 @@ const run = async () => {
   const scmOrderDB = new ScmOrder();
   const scmDB = new Scm();
 
-  const supplierOrders = await imProcurementDB.supplier_orders.findMany();
+  const supplierOrders = await imProcurementDB.supplier_orders.findMany({
+    where: {
+      status: {
+        in: [4, 5],
+      },
+    },
+  });
 
   for (const order of supplierOrders) {
     const scm = await scmDB.scm_order_details.findFirst({
