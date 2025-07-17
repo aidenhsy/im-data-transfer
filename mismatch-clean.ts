@@ -24,7 +24,7 @@ const run = async () => {
       },
     });
 
-    if (scmOrder) {
+    if (!scmOrder) {
       console.log(order.id);
       continue;
     }
