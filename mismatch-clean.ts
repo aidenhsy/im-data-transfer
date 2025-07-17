@@ -9,37 +9,26 @@ const run = async () => {
   const scmOrderDB = new ScmOrder();
   const scmDB = new Scm();
 
-  const shops = await imProcurementDB.scm_shop.findMany({
+  const procurementOrders = await imProcurementDB.supplier_orders.findMany({
     where: {
-      status: 1,
+      status: {
+        in: [4, 5],
+      },
     },
   });
 
-  for (const shop of shops) {
-    const orders = await imProcurementDB.supplier_orders.findMany({
+  for (const order of procurementOrders) {
+    const scmOrder = await scmDB.scm_order_details.findFirst({
       where: {
-        shop_id: shop.id,
-        actual_amount: {
-          not: null,
-        },
+        reference_order_id: order.id,
       },
     });
 
-    for (const order of orders) {
-      const sameAmount = await imProcurementDB.supplier_orders.findMany({
-        where: {
-          shop_id: shop.id,
-          actual_amount: order.actual_amount,
-          delivery_date: order.delivery_date,
-        },
-      });
-
-      if (sameAmount.length > 1) {
-        console.log(sameAmount);
-      }
+    if (scmOrder) {
+      console.log(order.id);
+      continue;
     }
   }
-
   console.log('done');
   process.exit(0);
 };
