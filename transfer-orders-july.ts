@@ -60,7 +60,9 @@ const run = async () => {
 
   for (const order of orders) {
     count++;
-    console.log(`${count}/${length}`);
+    if (count % 100 === 0) {
+      console.log(`${count}/${length}`);
+    }
     const shop = await imProcurementDB.scm_shop.findFirst({
       where: {
         id: Number(order.shop_id),
@@ -111,7 +113,10 @@ const run = async () => {
         },
       });
       if (!pricing) {
-        console.log('no pricing');
+        console.log(
+          'no pricing',
+          `${orderDateVersion}-${shop?.client_tier_id}-${item.goods_id}-${shop?.city_id}-${item.scm_goods?.order_good_unit_id}`
+        );
         continue;
       }
       // await imProcurementDB.supplier_order_details.create({
