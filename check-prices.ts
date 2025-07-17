@@ -13,7 +13,7 @@ const run = async () => {
 
   for (const good of goods) {
     i++;
-    if (i % 100 === 0) {
+    if (i % 1000 === 0) {
       console.log(`${i}/${length}`);
     }
     const pricing = await scmPricing.scm_goods.findFirst({
