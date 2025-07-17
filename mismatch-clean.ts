@@ -30,6 +30,7 @@ const run = async () => {
         where: {
           shop_id: shop.id,
           actual_amount: order.actual_amount,
+          delivery_date: order.delivery_date,
         },
       });
 
