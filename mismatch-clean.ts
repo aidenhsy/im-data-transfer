@@ -20,7 +20,14 @@ const run = async () => {
     },
   });
 
+  const length = procurementOrders.length;
+  let count = 0;
+
   for (const procurementOrder of procurementOrders) {
+    count++;
+    if (count % 100 === 0) {
+      console.log(`${count}/${length}`);
+    }
     const scmOrder = await scmDB.scm_order_details.findMany({
       where: {
         reference_order_id: procurementOrder.id,
@@ -32,10 +39,12 @@ const run = async () => {
       continue;
     }
 
-    console.log(
-      procurementOrder.supplier_order_details.length,
-      scmOrder.length
-    );
+    if (procurementOrder.supplier_order_details.length !== scmOrder.length) {
+      console.log(
+        procurementOrder.supplier_order_details.length,
+        scmOrder.length
+      );
+    }
   }
 
   console.log('done');
