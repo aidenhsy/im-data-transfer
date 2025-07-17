@@ -106,8 +106,8 @@ const run = async () => {
             sale_price: item.price,
             weighted_average_cost: Number(item.hide_price),
             is_active: true,
-            created_at: dayjs(item.create_time).utc().toDate(),
-            locked_after: dayjs(item.create_time)
+            created_at: dayjs(order.create_time).utc().toDate(),
+            locked_after: dayjs(order.create_time)
               .utc()
               .hour(3)
               .minute(30)
@@ -119,7 +119,7 @@ const run = async () => {
           },
         });
       } else {
-        const version = dayjs(item.create_time).utc().format('YYYYMMDD');
+        const version = dayjs(order.create_time).utc().format('YYYYMMDD');
         await scmPiceDB.scm_good_pricing.upsert({
           where: {
             goods_id_good_unit_id_client_tier_id_version_city_id_is_active: {
@@ -142,8 +142,8 @@ const run = async () => {
             profit_margin: pricing.profit_margin,
             sale_price: item.price,
             is_active: true,
-            created_at: dayjs(item.create_time).utc().toDate(),
-            locked_after: dayjs(item.create_time)
+            created_at: dayjs(order.create_time).utc().toDate(),
+            locked_after: dayjs(order.create_time)
               .utc()
               .hour(3)
               .minute(30)
