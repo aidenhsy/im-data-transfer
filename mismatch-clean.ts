@@ -39,7 +39,10 @@ const run = async () => {
       continue;
     }
 
-    if (procurementOrder.supplier_order_details.length !== scmOrder.length) {
+    if (
+      Number(procurementOrder.supplier_order_details.length) !==
+      Number(scmOrder.length)
+    ) {
       console.log(
         procurementOrder.supplier_order_details.length,
         scmOrder.length
