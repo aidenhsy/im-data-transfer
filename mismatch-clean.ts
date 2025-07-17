@@ -15,18 +15,27 @@ const run = async () => {
         in: [4, 5],
       },
     },
+    include: {
+      supplier_order_details: true,
+    },
   });
 
   for (const procurementOrder of procurementOrders) {
-    const scmOrder = await scmDB.scm_order_details.findFirst({
+    const scmOrder = await scmDB.scm_order_details.findMany({
       where: {
         reference_order_id: procurementOrder.id,
       },
     });
 
-    if (!scmOrder) {
+    if (scmOrder.length === 0) {
       console.log(procurementOrder.id);
+      continue;
     }
+
+    console.log(
+      procurementOrder.supplier_order_details.length,
+      scmOrder.length
+    );
   }
 
   console.log('done');
