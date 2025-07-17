@@ -9,45 +9,33 @@ const run = async () => {
   const scmOrderDB = new ScmOrder();
   const scmDB = new Scm();
 
-  const procurementOrders = await imProcurementDB.supplier_orders.findMany({
+  const shops = await imProcurementDB.scm_shop.findMany({
     where: {
-      status: {
-        in: [4, 5],
-      },
-    },
-    include: {
-      supplier_order_details: true,
+      status: 1,
     },
   });
 
-  const length = procurementOrders.length;
-  let count = 0;
-
-  for (const procurementOrder of procurementOrders) {
-    count++;
-    if (count % 100 === 0) {
-      console.log(`${count}/${length}`);
-    }
-    const scmOrder = await scmDB.scm_order_details.findMany({
+  for (const shop of shops) {
+    const orders = await imProcurementDB.supplier_orders.findMany({
       where: {
-        reference_order_id: procurementOrder.id,
+        shop_id: shop.id,
+        actual_amount: {
+          not: null,
+        },
       },
     });
 
-    if (scmOrder.length === 0) {
-      console.log(procurementOrder.id);
-      continue;
-    }
+    for (const order of orders) {
+      const sameAmount = await imProcurementDB.supplier_orders.findMany({
+        where: {
+          shop_id: shop.id,
+          actual_amount: order.actual_amount,
+        },
+      });
 
-    if (
-      Number(procurementOrder.supplier_order_details.length) !==
-      Number(scmOrder.length)
-    ) {
-      console.log(
-        procurementOrder.id,
-        procurementOrder.supplier_order_details.length,
-        scmOrder.length
-      );
+      if (sameAmount.length > 1) {
+        console.log(sameAmount);
+      }
     }
   }
 
