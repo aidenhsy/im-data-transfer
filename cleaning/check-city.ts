@@ -39,7 +39,7 @@ const run = async () => {
         external_reference_id: detail.supplier_reference_id,
       },
     });
-    if (matchedPricings?.city_id !== shop?.city_id) {
+    if (Number(matchedPricings?.city_id) !== Number(shop?.city_id)) {
       console.log(
         detail.supplier_reference_id,
         shop?.city_id,
