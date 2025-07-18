@@ -43,13 +43,14 @@ const run = async () => {
 
     if (order.delivery_date !== scmOrder?.scm_order?.delivery_day_info_id) {
       console.log(
-        'IMProcurement.supplier_orders.delivery_date:',
-        order.delivery_date,
-        'Scm.scm_order.delivery_day_info_id:',
-        scmOrder?.scm_order?.delivery_day_info_id,
-        'Scm.scm_order.create_time:',
+        'procurement create_time:',
+        order.created_at,
+        'scm create_time:',
         scmOrder?.scm_order?.create_time,
-        '--------------------------------'
+        'procurement delivery_date:',
+        order.delivery_date,
+        'scm delivery date',
+        scmOrder?.scm_order?.delivery_day_info_id
       );
     }
   }
