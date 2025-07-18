@@ -66,7 +66,27 @@ const run = async () => {
       if (
         scmOrderDetail?.scm_order?.delivery_day_info_id !== order.delivery_date
       ) {
-        console.log('delivery_day_info_id not match', order.id);
+        console.log(
+          'delivery_day_info_id not match',
+          'scm.delivery_day_info_id:',
+          scmOrderDetail?.scm_order?.delivery_day_info_id,
+          'im.delivery_date:',
+          order.delivery_date,
+          'scm.delivery_time:',
+          scmOrderDetail?.scm_order?.delivery_time,
+          'im.delivery_time:',
+          order.delivery_time,
+          'scm.receival_time:',
+          scmOrderDetail?.scm_order?.receival_time,
+          'im.receive_time:',
+          order.receive_time,
+          'scm.create_time:',
+          scmOrderDetail?.scm_order?.create_time,
+          'im.created_at:',
+          order.created_at,
+          'scm.automatic:',
+          scmOrderDetail?.scm_order?.automatic
+        );
         continue;
       }
 
