@@ -35,11 +35,11 @@ const run = async () => {
       if (Number(parts[3]) !== Number(shop?.city_id)) {
         console.log(
           item.supplier_items?.supplier_reference_id,
+          shop?.city_id,
           'city mismatch'
         );
       }
     }
-    break;
   }
 };
 
