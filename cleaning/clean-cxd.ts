@@ -10,6 +10,7 @@ const run = async () => {
       version: '20250718',
     },
   });
+  console.log(pricings.length);
 
   for (const pricing of pricings) {
     const existSupplierItem = await imProcurementDB.supplier_items.findFirst({
