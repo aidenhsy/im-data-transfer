@@ -17,8 +17,14 @@ const run = async () => {
   const scmDB = new Scm();
 
   const procurementOrders = await imProcurementDB.supplier_orders.findMany();
+  const length = procurementOrders.length;
+  let count = 0;
 
   for (const order of procurementOrders) {
+    count++;
+    if (count % 100 === 0) {
+      console.log(`${count}/${length}`);
+    }
     const scmOrderDetail = await scmDB.scm_order_details.findFirst({
       where: {
         reference_order_id: order.id,
@@ -38,8 +44,26 @@ const run = async () => {
     }
 
     if (scmOrderDetail.scm_order?.automatic === 2 && order.type !== 1) {
-      console.log('automatic is 2 and type is not 1', order.id);
-      console.log(scmOrderDetail.scm_order.create_time);
+      const scmOrder = await scmOrderDB.procurement_orders.findFirst({
+        where: {
+          client_order_id: order.id,
+        },
+      });
+      if (!scmOrder) {
+        console.log('scmOrder not found', order.id);
+        continue;
+      }
+
+      await scmOrderDB.procurement_orders.update({
+        where: { id: scmOrder.id },
+        data: {
+          type: 1,
+        },
+      });
+      await imProcurementDB.supplier_orders.update({
+        where: { id: order.id },
+        data: { type: 1 },
+      });
     }
   }
 };
