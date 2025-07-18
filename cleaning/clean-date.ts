@@ -75,7 +75,6 @@ const run = async () => {
         },
         data: {
           delivery_date: scmOrderDetail?.scm_order?.delivery_day_info_id!,
-          created_at: scmOrderDetail?.scm_order?.create_time!,
           delivery_time: scmOrderDetail?.scm_order?.delivery_time!,
           customer_receive_time: scmOrderDetail?.scm_order?.receival_time!,
         },
@@ -88,7 +87,6 @@ const run = async () => {
           delivery_date: scmOrderDetail?.scm_order?.delivery_day_info_id!,
           delivery_time: scmOrderDetail?.scm_order?.delivery_time!,
           receive_time: scmOrderDetail?.scm_order?.receival_time!,
-          created_at: scmOrderDetail?.scm_order?.create_time!,
         },
       });
     }
