@@ -15,7 +15,7 @@ const run = async () => {
 
   for (const detail of orderDetails) {
     count++;
-    if (count % 100 === 0) {
+    if (count % 10000 === 0) {
       console.log(`${count}/${length}`);
     }
 
