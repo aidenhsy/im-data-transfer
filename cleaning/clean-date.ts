@@ -62,11 +62,18 @@ const run = async () => {
         console.log('scmOrder not found', order.id);
         continue;
       }
+      const correcrOrderDate = dayjs(order.created_at).format('YYYY-MM-DD');
 
       if (dayjs(order.created_at).format('YYYY-MM-DD') !== order.order_date) {
         console.log('order_date not match', order.id);
-        console.log(order.created_at, order.order_date);
+        console.log(
+          order.created_at,
+          dayjs(order.created_at).format('YYYY-MM-DD'),
+          order.order_date
+        );
         continue;
+      } else {
+        console.log(order.order_date, correcrOrderDate);
       }
       // if (
       //   scmOrderDetail?.scm_order?.delivery_day_info_id !== order.delivery_date
