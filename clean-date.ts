@@ -3,6 +3,13 @@ import { PrismaClient as IMProcurementDev } from './prisma/clients/im-procuremen
 import { PrismaClient as ScmOrder } from './prisma/clients/scm-order-prod';
 import { PrismaClient as Scm } from './prisma/clients/scm-prod';
 import { PrismaClient as ScmPricing } from './prisma/clients/scm-pricing-prod';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+// Configure dayjs with timezone support
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const run = async () => {
   const imProcurementDB = new IMProcurement();
@@ -42,11 +49,26 @@ const run = async () => {
     });
 
     if (order.delivery_date !== scmOrder?.scm_order?.delivery_day_info_id) {
+      // Convert UTC times to Shanghai time using dayjs
+      const procurementTimeShanghai = order.created_at
+        ? dayjs
+            .utc(order.created_at)
+            .tz('Asia/Shanghai')
+            .format('YYYY-MM-DD HH:mm:ss')
+        : null;
+
+      const scmTimeShanghai = scmOrder?.scm_order?.create_time
+        ? dayjs
+            .utc(scmOrder.scm_order.create_time)
+            .tz('Asia/Shanghai')
+            .format('YYYY-MM-DD HH:mm:ss')
+        : null;
+
       console.log(
-        'procurement create_time:',
-        order.created_at,
-        'scm create_time:',
-        scmOrder?.scm_order?.create_time,
+        'procurement create_time (Shanghai):',
+        procurementTimeShanghai,
+        'scm create_time (Shanghai):',
+        scmTimeShanghai,
         'procurement delivery_date:',
         order.delivery_date,
         'scm delivery date',
