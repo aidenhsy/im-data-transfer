@@ -57,12 +57,7 @@ const run = async () => {
             .format('YYYY-MM-DD HH:mm:ss')
         : null;
 
-      const scmTimeShanghai = scmOrder?.scm_order?.create_time
-        ? dayjs
-            .utc(scmOrder.scm_order.create_time)
-            .tz('Asia/Shanghai')
-            .format('YYYY-MM-DD HH:mm:ss')
-        : null;
+      const scmTimeShanghai = scmOrder?.scm_order?.create_time;
 
       console.log(
         'procurement create_time (Shanghai):',
