@@ -43,7 +43,7 @@ const run = async () => {
       console.log(
         detail.supplier_reference_id,
         shop?.city_id,
-        shop?.id,
+        matchedPricings?.city_id,
         'city mismatch'
       );
       continue;
