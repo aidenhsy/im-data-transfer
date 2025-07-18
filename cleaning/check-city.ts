@@ -31,7 +31,6 @@ const run = async () => {
     const supplierReferenceId = item.supplier_items?.supplier_reference_id;
     if (supplierReferenceId) {
       const parts = supplierReferenceId.split('-');
-      console.log(parts[3]);
       if (Number(parts[3]) !== Number(shop?.city_id)) {
         console.log(
           item.supplier_items?.supplier_reference_id,
