@@ -37,7 +37,7 @@ const run = async () => {
         console.log(order.id, detail.supplier_reference_id, '!!!!');
         continue;
       }
-      if (detail.final_qty !== orderDetail.delivery_qty) {
+      if (Number(detail.final_qty) !== Number(orderDetail.delivery_qty)) {
         console.log('im final:', detail.final_qty);
         console.log('im delivery', detail.actual_delivery_qty);
         console.log('im receive', detail.confirm_delivery_qty);
