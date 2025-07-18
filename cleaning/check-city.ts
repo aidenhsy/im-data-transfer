@@ -40,7 +40,12 @@ const run = async () => {
       },
     });
     if (matchedPricings?.city_id !== shop?.city_id) {
-      console.log(detail.supplier_reference_id, 'city mismatch');
+      console.log(
+        detail.supplier_reference_id,
+        shop?.city_id,
+        shop?.id,
+        'city mismatch'
+      );
       continue;
     }
   }
