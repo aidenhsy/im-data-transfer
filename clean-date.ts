@@ -50,19 +50,14 @@ const run = async () => {
 
     if (order.delivery_date !== scmOrder?.scm_order?.delivery_day_info_id) {
       // Convert UTC times to Shanghai time using dayjs
-      const procurementTimeShanghai = order.created_at
-        ? dayjs
-            .utc(order.created_at)
-            .tz('Asia/Shanghai')
-            .format('YYYY-MM-DD HH:mm:ss')
-        : null;
+      const procurementTimeShanghai = order.created_at;
 
       const scmTimeShanghai = scmOrder?.scm_order?.create_time;
 
       console.log(
-        'procurement create_time (Shanghai):',
+        'procurement create_time:',
         procurementTimeShanghai,
-        'scm create_time (Shanghai):',
+        'scm create_time:',
         scmTimeShanghai,
         'procurement delivery_date:',
         order.delivery_date,
