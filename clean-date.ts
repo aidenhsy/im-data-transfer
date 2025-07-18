@@ -113,7 +113,6 @@ const run = async () => {
             },
           });
         }
-        break;
       }
     }
   }
