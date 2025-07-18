@@ -50,20 +50,22 @@ const run = async () => {
 
     if (order.delivery_date !== scmOrder?.scm_order?.delivery_day_info_id) {
       // Convert UTC times to Shanghai time using dayjs
-      const procurementTimeShanghai = order.created_at;
+      const procurementCreate = order.created_at;
 
-      const scmTimeShanghai = scmOrder?.scm_order?.create_time;
+      const scmCreate = scmOrder?.scm_order?.create_time;
 
-      console.log(
-        'procurement create_time:',
-        procurementTimeShanghai,
-        'scm create_time:',
-        scmTimeShanghai,
-        'procurement delivery_date:',
-        order.delivery_date,
-        'scm delivery date',
-        scmOrder?.scm_order?.delivery_day_info_id
-      );
+      if (scmCreate! < procurementCreate) {
+        console.log(
+          'procurement create_time:',
+          procurementCreate,
+          'scm create_time:',
+          scmCreate,
+          'procurement delivery_date:',
+          order.delivery_date,
+          'scm delivery date',
+          scmOrder?.scm_order?.delivery_day_info_id
+        );
+      }
     }
   }
 
