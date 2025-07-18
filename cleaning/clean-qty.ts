@@ -26,22 +26,26 @@ const run = async () => {
     console.log(`${count}/${length}`);
 
     for (const detail of order.supplier_order_details) {
-      const orderDetail = await scmDB.scm_order_details.findFirst({
+      const orderDetail = await scmDB.scm_order_details.findMany({
         where: {
           reference_order_id: order.id,
           reference_id: detail.supplier_reference_id,
         },
       });
 
-      if (!orderDetail) {
+      if (orderDetail.length === 0) {
         console.log(order.id, detail.supplier_reference_id, '!!!!');
         continue;
       }
-      if (Number(detail.final_qty) !== Number(orderDetail.delivery_qty)) {
+      if (orderDetail.length > 1) {
+        console.log(order.id, detail.supplier_reference_id, '!!!!');
+        continue;
+      }
+      if (Number(detail.final_qty) !== Number(orderDetail[0].delivery_qty)) {
         console.log('im final:', detail.final_qty);
         console.log('im delivery', detail.actual_delivery_qty);
         console.log('im receive', detail.confirm_delivery_qty);
-        console.log('scm delivery:', orderDetail.delivery_qty);
+        console.log('scm delivery:', orderDetail[0].delivery_qty);
         console.log('--------------------------------');
       }
     }
