@@ -17,18 +17,37 @@ const run = async () => {
     },
   });
 
+  const length = procurementOrders.length;
+  let count = 0;
+  console.log(length);
   for (const order of procurementOrders) {
+    count++;
+    if (count % 100 === 0) {
+      console.log(`${count}/${length}`);
+    }
     const scmOrder = await scmDB.scm_order_details.findFirst({
       where: {
         reference_order_id: order.id,
       },
+      select: {
+        scm_order: {
+          select: {
+            delivery_day_info_id: true,
+            delivery_time: true,
+            receival_time: true,
+          },
+        },
+      },
     });
 
-    if (!scmOrder) {
-      console.log(order.id);
-      continue;
+    if (order.delivery_date !== scmOrder?.scm_order?.delivery_day_info_id) {
+      console.log(
+        order.delivery_date,
+        scmOrder?.scm_order?.delivery_day_info_id
+      );
     }
   }
+
   console.log('done');
   process.exit(0);
 };
