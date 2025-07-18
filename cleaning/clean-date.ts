@@ -91,7 +91,7 @@ const run = async () => {
       }
 
       if (scmOrderDetail?.scm_order?.create_time! < order.created_at) {
-        if (scmOrderDetail?.scm_order?.automatic) {
+        if (scmOrderDetail?.scm_order?.automatic === 2) {
           await scmOrderDB.procurement_orders.update({
             where: {
               id: scmOrder.id,
