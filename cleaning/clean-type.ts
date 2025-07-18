@@ -40,6 +40,8 @@ const run = async () => {
     if (scmOrderDetail.scm_order?.automatic === 2 && order.type !== 1) {
       console.log('automatic is 2 and type is not 1', order.id);
       console.log(scmOrderDetail.scm_order.create_time);
+    } else {
+      console.log(order.type, scmOrderDetail.scm_order?.automatic);
     }
   }
 };
