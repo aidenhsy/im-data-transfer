@@ -63,6 +63,13 @@ const run = async () => {
         continue;
       }
 
+      if (
+        scmOrderDetail?.scm_order?.delivery_day_info_id !== order.delivery_date
+      ) {
+        console.log('delivery_day_info_id not match', order.id);
+        continue;
+      }
+
       if (scmOrderDetail?.scm_order?.create_time! < order.created_at) {
         if (scmOrderDetail?.scm_order?.automatic) {
           await scmOrderDB.procurement_orders.update({
