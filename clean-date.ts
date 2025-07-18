@@ -32,7 +32,7 @@ const run = async () => {
     if (count % 100 === 0) {
       console.log(`${count}/${length}`);
     }
-    const scmOrder = await scmDB.scm_order_details.findFirst({
+    const scmOrderDetail = await scmDB.scm_order_details.findFirst({
       where: {
         reference_order_id: order.id,
       },
@@ -43,28 +43,77 @@ const run = async () => {
             delivery_time: true,
             receival_time: true,
             create_time: true,
+            automatic: true,
           },
         },
       },
     });
 
-    if (order.delivery_date !== scmOrder?.scm_order?.delivery_day_info_id) {
+    if (
+      order.delivery_date !== scmOrderDetail?.scm_order?.delivery_day_info_id
+    ) {
       // Convert UTC times to Shanghai time using dayjs
-      const procurementCreate = order.created_at;
+      const scmOrder = await scmOrderDB.procurement_orders.findFirst({
+        where: {
+          client_order_id: order.id,
+        },
+      });
+      if (!scmOrder) {
+        console.log('scmOrder not found', order.id);
+        continue;
+      }
 
-      const scmCreate = scmOrder?.scm_order?.create_time;
-
-      if (scmCreate! < procurementCreate) {
-        console.log(
-          'procurement create_time:',
-          procurementCreate,
-          'scm create_time:',
-          scmCreate,
-          'procurement delivery_date:',
-          order.delivery_date,
-          'scm delivery date',
-          scmOrder?.scm_order?.delivery_day_info_id
-        );
+      if (scmOrderDetail?.scm_order?.create_time! < order.created_at) {
+        if (scmOrderDetail?.scm_order?.automatic) {
+          await scmOrderDB.procurement_orders.update({
+            where: {
+              id: scmOrder.id,
+            },
+            data: {
+              delivery_date: scmOrderDetail?.scm_order?.delivery_day_info_id!,
+              created_at: scmOrderDetail?.scm_order?.create_time!,
+              delivery_time: scmOrderDetail?.scm_order?.delivery_time!,
+              customer_receive_time: scmOrderDetail?.scm_order?.receival_time!,
+              type: 1,
+            },
+          });
+          await imProcurementDB.supplier_orders.update({
+            where: {
+              id: order.id,
+            },
+            data: {
+              delivery_date: scmOrderDetail?.scm_order?.delivery_day_info_id!,
+              delivery_time: scmOrderDetail?.scm_order?.delivery_time!,
+              receive_time: scmOrderDetail?.scm_order?.receival_time!,
+              created_at: scmOrderDetail?.scm_order?.create_time!,
+              type: 1,
+            },
+          });
+        } else {
+          await scmOrderDB.procurement_orders.update({
+            where: {
+              id: scmOrder.id,
+            },
+            data: {
+              delivery_date: scmOrderDetail?.scm_order?.delivery_day_info_id!,
+              created_at: scmOrderDetail?.scm_order?.create_time!,
+              delivery_time: scmOrderDetail?.scm_order?.delivery_time!,
+              customer_receive_time: scmOrderDetail?.scm_order?.receival_time!,
+            },
+          });
+          await imProcurementDB.supplier_orders.update({
+            where: {
+              id: order.id,
+            },
+            data: {
+              delivery_date: scmOrderDetail?.scm_order?.delivery_day_info_id!,
+              delivery_time: scmOrderDetail?.scm_order?.delivery_time!,
+              receive_time: scmOrderDetail?.scm_order?.receival_time!,
+              created_at: scmOrderDetail?.scm_order?.create_time!,
+            },
+          });
+        }
+        break;
       }
     }
   }
