@@ -21,7 +21,7 @@ const run = async () => {
     });
 
   for (const item of planSupplierItems) {
-    const shop = await scmPricingDB.scm_shop.findFirst({
+    const shop = await imProcurementDB.scm_shop.findFirst({
       where: {
         id: Number(item.shop_id),
       },
