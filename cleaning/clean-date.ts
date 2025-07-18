@@ -62,16 +62,14 @@ const run = async () => {
         console.log('scmOrder not found', order.id);
         continue;
       }
-      const correctOrderDate = dayjs(order.created_at).format('YYYY-MM-DD');
+      const correctOrderDate = dayjs(order.created_at)
+        .utc()
+        .format('YYYY-MM-DD');
 
       if (correctOrderDate !== order.order_date) {
         console.log(order.order_date, correctOrderDate);
         console.log('order_date not match', order.id);
-        console.log(
-          order.created_at,
-          dayjs(order.created_at).format('YYYY-MM-DD'),
-          order.order_date
-        );
+        console.log(order.created_at, correctOrderDate, order.order_date);
         continue;
       }
 
