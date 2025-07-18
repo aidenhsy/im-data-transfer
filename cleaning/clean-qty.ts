@@ -46,6 +46,7 @@ const run = async () => {
         console.log('im delivery', detail.actual_delivery_qty);
         console.log('im receive', detail.confirm_delivery_qty);
         console.log('scm delivery:', orderDetail[0].deliver_goods_qty);
+        console.log('scm receive:', orderDetail[0].goods_name);
         console.log('scm final:', orderDetail[0].delivery_qty);
         console.log('--------------------------------');
       }
