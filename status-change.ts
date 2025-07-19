@@ -20,13 +20,47 @@ const run = async () => {
       where: {
         reference_order_id: order.id,
       },
-      include: {
-        scm_order: true,
+    });
+
+    if (!orderDetails) {
+      console.log(order.id, 'No order details');
+      continue;
+    }
+
+    const scmOrder = await scm.scm_order.findFirst({
+      where: {
+        id: orderDetails?.order_id!,
       },
     });
 
-    if (orderDetails?.scm_order?.status !== 3) {
-      console.log(order.id);
+    if (!scmOrder) {
+      console.log(order.id, 'No scm order');
+      continue;
+    }
+
+    const scmOrderStock = await scm.scm_order_stock.findMany({
+      where: {
+        order_id: scmOrder.id,
+      },
+    });
+
+    if (scmOrder?.status !== 3) {
+      await scm.scm_order.update({
+        where: {
+          id: scmOrder.id,
+        },
+        data: {
+          status: 3,
+        },
+      });
+      await scm.scm_order_stock.updateMany({
+        where: {
+          order_id: scmOrder.id,
+        },
+        data: {
+          status: 3,
+        },
+      });
     }
   }
   console.log(i);
