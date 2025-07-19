@@ -8,38 +8,36 @@ const run = async () => {
   const imProcurementDB = new ImProcurementDB();
   const scmPricingDB = new ScmPricingDB();
 
-  const planSupplierItems =
-    await imProcurementDB.plan_item_supplier_good.findMany({
-      select: {
-        shop_id: true,
-        supplier_items: {
-          select: {
-            supplier_reference_id: true,
-          },
+  const supplyPlanGoods = await imProcurementDB.supply_plan_items.findMany({
+    where: {
+      supply_plan_id: 83,
+    },
+    include: {
+      generic_items: true,
+    },
+  });
+
+  for (const item of supplyPlanGoods) {
+    const supplierGood = await imProcurementDB.supplier_items.findFirst({
+      where: {
+        supplier_reference_id: {
+          startsWith: `20250718-2-${item.item_id}-19`,
         },
       },
     });
 
-  for (const item of planSupplierItems) {
-    const shop = await imProcurementDB.scm_shop.findFirst({
-      where: {
-        id: Number(item.shop_id),
-      },
-    });
-
-    // Just console log 3 got from supplier_reference_id
-    const supplierReferenceId = item.supplier_items?.supplier_reference_id;
-    if (supplierReferenceId) {
-      const parts = supplierReferenceId.split('-');
-      if (Number(parts[3]) !== Number(shop?.city_id)) {
-        console.log(
-          item.supplier_items?.supplier_reference_id,
-          shop?.city_id,
-          'city mismatch'
-        );
-      }
+    if (supplierGood) {
+      await imProcurementDB.plan_item_supplier_good.create({
+        data: {
+          plan_item_id: item.id,
+          supplier_item_id: supplierGood.id,
+          shop_id: 139,
+        },
+      });
     }
   }
+  console.log('done');
+  process.exit(0);
 };
 
 run();
