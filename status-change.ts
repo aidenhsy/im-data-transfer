@@ -13,9 +13,14 @@ const run = async () => {
     },
   });
 
+  const length = data.length;
   let i = 0;
   for (const order of data) {
     i++;
+    if (i % 100 === 0) {
+      console.log(`${i}/${length}`);
+    }
+
     const orderDetails = await scm.scm_order_details.findFirst({
       where: {
         reference_order_id: order.id,
@@ -45,6 +50,7 @@ const run = async () => {
     });
 
     if (scmOrder?.status !== 3) {
+      console.log(scmOrder.id, 'Updating order status');
       await scm.scm_order.update({
         where: {
           id: scmOrder.id,
@@ -63,7 +69,6 @@ const run = async () => {
       });
     }
   }
-  console.log(i);
 };
 
 run();
