@@ -11,7 +11,7 @@ const run = async () => {
   const missingOrders = await imProcurement.supplier_orders.findMany({
     where: {
       id: {
-        notIn: scmOrders.map((item) => item.id),
+        notIn: scmOrders.map((item) => item.client_order_id),
       },
     },
   });
