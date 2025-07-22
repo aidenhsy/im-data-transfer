@@ -33,7 +33,7 @@ const run = async () => {
     const pricings = await scmPricing.scm_good_pricing.findMany({
       where: {
         goods_id: good.id,
-        version: '20250721',
+        version: '20250722',
       },
     });
 
