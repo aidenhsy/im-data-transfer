@@ -17,7 +17,7 @@ const run = async () => {
   });
 
   console.log(missingOrders);
-
+  console.log(missingOrders.map((item) => item.id));
   console.log(missingOrders.length);
 };
 
