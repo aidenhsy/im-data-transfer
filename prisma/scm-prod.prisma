@@ -582,27 +582,28 @@ model scm_menu {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_order {
-  id                   Int                   @id @default(autoincrement())
-  order_no             String?               @db.VarChar(200)
-  shop_id              Int
-  delivery_time        DateTime              @db.Timestamp(6)
-  address              String?               @db.VarChar(200)
-  status               Int                   @default(0) @db.SmallInt
-  create_time          DateTime?             @default(now()) @db.Timestamp(6)
-  update_time          DateTime?             @default(now()) @db.Timestamp(6)
-  automatic            Int?                  @default(1) @db.SmallInt
-  remarks              String?               @db.VarChar
-  admin_id             Int?                  @default(0)
-  receival_time        DateTime?             @db.Timestamp(6)
-  locking              Int?                  @default(0) @db.SmallInt
-  delivery_day_info_id String?               @db.VarChar
-  reference_id         String?               @db.VarChar
-  client_org_id        Int?
-  scm_bulk_picking     scm_bulk_picking[]
-  client_organizations client_organizations? @relation(fields: [client_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  day_info             day_info?             @relation(fields: [delivery_day_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_shop             scm_shop              @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_shop_id_fkey2")
-  scm_order_details    scm_order_details[]
+  id                      Int                   @id @default(autoincrement())
+  order_no                String?               @db.VarChar(200)
+  shop_id                 Int
+  delivery_time           DateTime              @db.Timestamp(6)
+  address                 String?               @db.VarChar(200)
+  status                  Int                   @default(0) @db.SmallInt
+  create_time             DateTime?             @default(now()) @db.Timestamp(6)
+  update_time             DateTime?             @default(now()) @db.Timestamp(6)
+  automatic               Int?                  @default(1) @db.SmallInt
+  remarks                 String?               @db.VarChar
+  admin_id                Int?                  @default(0)
+  receival_time           DateTime?             @db.Timestamp(6)
+  locking                 Int?                  @default(0) @db.SmallInt
+  delivery_day_info_id    String?               @db.VarChar
+  reference_id            String?               @db.VarChar
+  client_org_id           Int?
+  estimated_delivery_time DateTime?             @db.Date
+  scm_bulk_picking        scm_bulk_picking[]
+  client_organizations    client_organizations? @relation(fields: [client_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  day_info                day_info?             @relation(fields: [delivery_day_info_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_shop                scm_shop              @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_order_shop_id_fkey2")
+  scm_order_details       scm_order_details[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
