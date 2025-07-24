@@ -42,6 +42,10 @@ const run = async () => {
     }
 
     if (!correspondingScmOrder.deliver_qty) {
+      console.log(
+        '!! update deliver qty for scm order',
+        correspondingScmOrder.id
+      );
       await scmOrder.procurement_order_details.update({
         where: {
           id: correspondingScmOrder.id,
@@ -51,13 +55,17 @@ const run = async () => {
         },
       });
     }
-    if (!correspondingScmOrder.deliver_qty) {
-      await scmOrder.procurement_order_details.update({
+    if (!imProcurementDetail.actual_delivery_qty) {
+      console.log(
+        '!! update deliver qty for im procurement',
+        imProcurementDetail.id
+      );
+      await imProcurement.supplier_order_details.update({
         where: {
-          id: correspondingScmOrder.id,
+          id: imProcurementDetail.id,
         },
         data: {
-          deliver_qty: order.deliver_goods_qty,
+          actual_delivery_qty: order.deliver_goods_qty,
         },
       });
     }
