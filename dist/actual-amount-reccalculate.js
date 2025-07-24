@@ -10,6 +10,9 @@ const run = async () => {
             status: {
                 in: [4, 5],
             },
+            actual_amount: {
+                gt: 20000,
+            },
         },
         include: {
             supplier_order_details: true,
