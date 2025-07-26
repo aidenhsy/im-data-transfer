@@ -9,7 +9,7 @@ const run = async () => {
 
   const orderDetails = await imProcurement.supplier_order_details.findMany({
     where: {
-      actual_delivery_qty: null,
+      confirm_delivery_qty: null,
       supplier_orders: {
         status: 20,
       },
