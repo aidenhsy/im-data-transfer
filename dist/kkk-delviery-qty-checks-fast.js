@@ -12,11 +12,11 @@ const run = async () => {
     let hasMoreData = true;
     let totalProcessed = 0;
     const total = await procurement.supplier_orders.count({
-    // where: {
-    // status: {
-    //   in: [2, 4, 5, 20],
-    // },
-    // },
+        where: {
+            status: {
+                in: [2, 4, 5, 20],
+            },
+        },
     });
     while (hasMoreData) {
         console.log(`${skip}/${total}`);
@@ -24,11 +24,11 @@ const run = async () => {
             orderBy: {
                 created_at: 'desc',
             },
-            // where: {
-            // status: {
-            //   in: [2, 4, 5, 20],
-            // },
-            // },
+            where: {
+                status: {
+                    in: [2, 4, 5, 20],
+                },
+            },
             include: {
                 supplier_order_details: true,
             },
@@ -107,10 +107,6 @@ const run = async () => {
             }
             if (!scmBasic) {
                 console.log(`${procurementOrder.id} ${procurementDetail.supplier_reference_id} scm basic missing`);
-                await order.procurement_order_details.update({
-                    where: { id: scmDetail.id },
-                    data: { deliver_qty: Number(procurementDetail.actual_delivery_qty) },
-                });
                 continue;
             }
             const deliverGoodsQty = Number(scmBasic.deliver_goods_qty);
