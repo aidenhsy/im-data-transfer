@@ -11,6 +11,9 @@ const run = async () => {
                 in: [4, 5, 20],
             },
         },
+        orderBy: {
+            created_at: 'desc',
+        },
         include: {
             supplier_order_details: true,
         },
@@ -31,6 +34,26 @@ const run = async () => {
             });
             if (!scmDetail) {
                 console.log(`${procurementOrder.id} ${procurementDetail.supplier_reference_id} scm order missing`);
+                continue;
+            }
+            if (Number(procurementDetail.confirm_delivery_qty) >
+                Number(procurementDetail.actual_delivery_qty)) {
+                await procurement.supplier_order_details.update({
+                    where: {
+                        id: procurementDetail.id,
+                    },
+                    data: {
+                        confirm_delivery_qty: Number(procurementDetail.actual_delivery_qty),
+                    },
+                });
+                await order.procurement_order_details.update({
+                    where: {
+                        id: scmDetail.id,
+                    },
+                    data: {
+                        customer_receive_qty: Number(procurementDetail.actual_delivery_qty),
+                    },
+                });
                 continue;
             }
             await order.procurement_order_details.update({
