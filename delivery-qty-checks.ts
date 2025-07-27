@@ -59,7 +59,7 @@ const run = async () => {
           Number(procurementDetail.actual_delivery_qty)
       ) {
         console.log(
-          `${procurementOrder.id} ${procurementDetail.supplier_reference_id} \n scm order: ${scmDetail.deliver_qty} \n scm basic: ${scmBasic.deliver_goods_qty} \n procurement: ${procurementDetail.actual_delivery_qty}`
+          `${procurementOrder.id} ${procurementDetail.supplier_reference_id} \n current status: ${procurementOrder.status} \n scm order: ${scmDetail.deliver_qty} \n scm basic: ${scmBasic.deliver_goods_qty} \n procurement: ${procurementDetail.actual_delivery_qty}`
         );
         console.log('--------------------------------');
       }
