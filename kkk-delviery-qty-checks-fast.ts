@@ -129,6 +129,10 @@ const run = async () => {
         // console.log(
         //   `${procurementOrder.id} ${procurementDetail.supplier_reference_id} scm basic missing`
         // );
+        await order.procurement_order_details.update({
+          where: { id: scmDetail.id },
+          data: { deliver_qty: Number(procurementDetail.actual_delivery_qty) },
+        });
         continue;
       }
 
