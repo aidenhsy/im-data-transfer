@@ -7,7 +7,7 @@ const run = async () => {
   const basic = new Basic();
   const order = new Order();
 
-  const pageSize = 1000;
+  const pageSize = 100;
   let skip = 0;
   let hasMoreData = true;
   let totalProcessed = 0;

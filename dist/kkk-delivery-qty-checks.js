@@ -7,7 +7,7 @@ const run = async () => {
     const procurement = new im_procurement_prod_1.PrismaClient();
     const basic = new scm_prod_1.PrismaClient();
     const order = new scm_order_prod_1.PrismaClient();
-    const pageSize = 1000;
+    const pageSize = 100;
     let skip = 0;
     let hasMoreData = true;
     let totalProcessed = 0;
