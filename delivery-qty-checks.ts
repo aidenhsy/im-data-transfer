@@ -62,6 +62,24 @@ const run = async () => {
           `${procurementOrder.id} ${procurementDetail.supplier_reference_id} \n current status: ${procurementOrder.status} \n scm order: ${scmDetail.deliver_qty} \n scm basic: ${scmBasic.deliver_goods_qty} \n procurement: ${procurementDetail.actual_delivery_qty}`
         );
         console.log('--------------------------------');
+
+        await procurement.supplier_order_details.update({
+          where: {
+            id: procurementDetail.id,
+          },
+          data: {
+            actual_delivery_qty: Number(scmBasic.deliver_goods_qty),
+          },
+        });
+
+        await order.procurement_order_details.update({
+          where: {
+            id: scmDetail.id,
+          },
+          data: {
+            deliver_qty: Number(scmBasic.deliver_goods_qty),
+          },
+        });
       }
     }
   }
