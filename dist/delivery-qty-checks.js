@@ -11,6 +11,11 @@ const run = async () => {
         orderBy: {
             created_at: 'desc',
         },
+        where: {
+            status: {
+                in: [2, 4, 5, 20],
+            },
+        },
         include: {
             supplier_order_details: true,
         },
@@ -31,14 +36,19 @@ const run = async () => {
                     reference_order_id: procurementOrder.id,
                 },
             });
-            if (!scmDetail || !scmBasic) {
-                console.log(`${procurementOrder.id} ${procurementDetail.supplier_reference_id} missing`);
+            if (!scmDetail) {
+                console.log(`${procurementOrder.id} ${procurementDetail.supplier_reference_id} scm order missing`);
+                continue;
+            }
+            if (!scmBasic) {
+                console.log(`${procurementOrder.id} ${procurementDetail.supplier_reference_id} scm basic missing`);
                 continue;
             }
             if (Number(scmBasic.deliver_goods_qty) !== Number(scmDetail.deliver_qty) ||
                 Number(scmBasic.deliver_goods_qty) !==
                     Number(procurementDetail.actual_delivery_qty)) {
-                console.log(`${procurementOrder.id} ${procurementDetail.supplier_reference_id} delivery qty miss`);
+                console.log(`${procurementOrder.id} ${procurementDetail.supplier_reference_id} \n scm order: ${scmDetail.deliver_qty} \n scm basic: ${scmBasic.deliver_goods_qty} \n procurement: ${procurementDetail.actual_delivery_qty}`);
+                console.log('--------------------------------');
             }
         }
     }

@@ -11,6 +11,11 @@ const run = async () => {
     orderBy: {
       created_at: 'desc',
     },
+    where: {
+      status: {
+        in: [2, 4, 5, 20],
+      },
+    },
     include: {
       supplier_order_details: true,
     },
@@ -34,9 +39,16 @@ const run = async () => {
         },
       });
 
-      if (!scmDetail || !scmBasic) {
+      if (!scmDetail) {
         console.log(
-          `${procurementOrder.id} ${procurementDetail.supplier_reference_id} missing`
+          `${procurementOrder.id} ${procurementDetail.supplier_reference_id} scm order missing`
+        );
+        continue;
+      }
+
+      if (!scmBasic) {
+        console.log(
+          `${procurementOrder.id} ${procurementDetail.supplier_reference_id} scm basic missing`
         );
         continue;
       }
@@ -47,8 +59,9 @@ const run = async () => {
           Number(procurementDetail.actual_delivery_qty)
       ) {
         console.log(
-          `${procurementOrder.id} ${procurementDetail.supplier_reference_id} delivery qty miss`
+          `${procurementOrder.id} ${procurementDetail.supplier_reference_id} \n scm order: ${scmDetail.deliver_qty} \n scm basic: ${scmBasic.deliver_goods_qty} \n procurement: ${procurementDetail.actual_delivery_qty}`
         );
+        console.log('--------------------------------');
       }
     }
   }
