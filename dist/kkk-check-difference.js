@@ -44,6 +44,7 @@ const run = async () => {
                 id: true,
                 supplier_order_details: {
                     select: {
+                        id: true,
                         supplier_reference_id: true,
                         actual_delivery_qty: true,
                     },
@@ -65,6 +66,15 @@ const run = async () => {
                 if (Number(procurementDetail.actual_delivery_qty) !==
                     Number(orderDetail.deliver_qty)) {
                     console.log(`${orderDetail.reference_id} difference ${procurementDetail.actual_delivery_qty} ${orderDetail.deliver_qty} \n id: ${order.client_order_id} \n `);
+                    await procurement.supplier_order_details.update({
+                        where: {
+                            id: procurementDetail.id,
+                        },
+                        data: {
+                            actual_delivery_qty: Number(orderDetail.deliver_qty),
+                            confirm_delivery_qty: Number(orderDetail.deliver_qty),
+                        },
+                    });
                     console.log('-----------');
                 }
             }
