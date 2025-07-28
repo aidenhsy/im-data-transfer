@@ -1,21 +1,15 @@
 import { PrismaClient as Procurement } from './prisma/clients/im-procurement-prod';
-import { PrismaClient as Basic } from './prisma/clients/scm-prod';
 import { PrismaClient as Order } from './prisma/clients/scm-order-prod';
 
 const run = async () => {
   const procurement = new Procurement();
-  const basic = new Basic();
   const order = new Order();
 
   const batchSize = 100;
   let skip = 0;
   let hasMoreOrders = true;
 
-  const total = await order.procurement_orders.count();
-
   while (hasMoreOrders) {
-    console.log(`${skip}/${total}`);
-
     const orders = await order.procurement_orders.findMany({
       select: {
         client_order_id: true,
@@ -83,16 +77,15 @@ const run = async () => {
           console.log(
             `${orderDetail.reference_id} difference ${procurementDetail.actual_delivery_qty} ${orderDetail.deliver_qty} \n id: ${order.client_order_id} \n `
           );
+          console.log('-----------');
           await procurement.supplier_order_details.update({
             where: {
               id: procurementDetail.id,
             },
             data: {
-              actual_delivery_qty: Number(orderDetail.deliver_qty),
-              confirm_delivery_qty: Number(orderDetail.deliver_qty),
+              actual_delivery_qty: orderDetail.deliver_qty,
             },
           });
-          console.log('-----------');
         }
       }
     }

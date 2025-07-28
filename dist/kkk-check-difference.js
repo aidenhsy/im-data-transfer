@@ -1,18 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const im_procurement_prod_1 = require("./prisma/clients/im-procurement-prod");
-const scm_prod_1 = require("./prisma/clients/scm-prod");
 const scm_order_prod_1 = require("./prisma/clients/scm-order-prod");
 const run = async () => {
     const procurement = new im_procurement_prod_1.PrismaClient();
-    const basic = new scm_prod_1.PrismaClient();
     const order = new scm_order_prod_1.PrismaClient();
     const batchSize = 100;
     let skip = 0;
     let hasMoreOrders = true;
-    const total = await order.procurement_orders.count();
     while (hasMoreOrders) {
-        console.log(`${skip}/${total}`);
         const orders = await order.procurement_orders.findMany({
             select: {
                 client_order_id: true,
@@ -66,16 +62,15 @@ const run = async () => {
                 if (Number(procurementDetail.actual_delivery_qty) !==
                     Number(orderDetail.deliver_qty)) {
                     console.log(`${orderDetail.reference_id} difference ${procurementDetail.actual_delivery_qty} ${orderDetail.deliver_qty} \n id: ${order.client_order_id} \n `);
+                    console.log('-----------');
                     await procurement.supplier_order_details.update({
                         where: {
                             id: procurementDetail.id,
                         },
                         data: {
-                            actual_delivery_qty: Number(orderDetail.deliver_qty),
-                            confirm_delivery_qty: Number(orderDetail.deliver_qty),
+                            actual_delivery_qty: orderDetail.deliver_qty,
                         },
                     });
-                    console.log('-----------');
                 }
             }
         }
