@@ -29,7 +29,7 @@ const run = async () => {
     // for (const orderId of uniqueOrderIds) {
     const order = await procurement.supplier_orders.findFirst({
         where: {
-            id: '9d8f2e0d-0d24-45f5-aead-2541659fca99',
+            id: '04a85bfa-8c97-4929-8fce-f6253a90a8f9',
         },
         include: {
             supplier_order_details: true,
@@ -43,7 +43,14 @@ const run = async () => {
         }
     }
     if (mismatch === 0) {
-        console.log('No mismatch');
+        await procurement.supplier_orders.update({
+            where: {
+                id: order?.id,
+            },
+            data: {
+                status: 4,
+            },
+        });
     }
     // if (mismatch === 0) {
     //   console.log(orderId);
