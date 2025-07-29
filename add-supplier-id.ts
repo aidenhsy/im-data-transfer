@@ -81,7 +81,7 @@ const run = async () => {
         continue;
       }
 
-      console.log(procurementDetail.supplier_reference_id, 'not found!');
+      console.log(sectionId, 'not found!');
     }
 
     totalProcessed += procurementDetails.length;
