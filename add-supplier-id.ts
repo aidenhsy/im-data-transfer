@@ -11,12 +11,20 @@ const run = async () => {
   let skip = 0;
   let totalProcessed = 0;
 
-  const total = await procurement.supplier_order_details.count();
+  const total = await procurement.supplier_order_details.count({
+    where: {
+      supplier_item_id: null,
+    },
+  });
+
   while (true) {
     const procurementDetails =
       await procurement.supplier_order_details.findMany({
         orderBy: {
           created_at: 'desc',
+        },
+        where: {
+          supplier_item_id: null,
         },
         take: batchSize,
         skip: skip,
