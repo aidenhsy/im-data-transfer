@@ -8,17 +8,19 @@ const run = async () => {
   const scmOrder = new ScmOrder();
 
   const scmOrders = await scmOrder.procurement_orders.findMany();
-  const missingOrders = await imProcurement.supplier_orders.findMany({
-    where: {
-      id: {
-        notIn: scmOrders.map((item) => item.client_order_id),
-      },
-    },
-  });
+  const imProcurementOrders = await imProcurement.supplier_orders.findMany();
 
-  console.log(missingOrders);
-  console.log(missingOrders.map((item) => item.id));
-  console.log(missingOrders.length);
+  const missingScmOrders = imProcurementOrders.filter(
+    (item) => !scmOrders.some((scm) => scm.client_order_id === item.id)
+  );
+
+  const missingImProcurementOrders = scmOrders.filter(
+    (item) => !imProcurementOrders.some((im) => im.id === item.client_order_id)
+  );
+
+  console.log(missingScmOrders.length, 'missingScmOrders');
+  console.log(missingScmOrders.map((item) => item.id));
+  console.log(missingImProcurementOrders.length, 'missingImProcurementOrders');
 };
 
 run();

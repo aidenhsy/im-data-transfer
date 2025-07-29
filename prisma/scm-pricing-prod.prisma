@@ -370,6 +370,8 @@ model scm_good_pricing {
   scm_goods             scm_goods      @relation(fields: [goods_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([goods_id, good_unit_id, client_tier_id, version, city_id, is_active], map: "unique_client_tier_goods_unit_version")
+  @@unique([client_tier_id, version, city_id, goods_id], map: "unique_pricing_combination")
+  @@index([external_reference_id], map: "idx_scm_good_pricing_external_ref_id")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.

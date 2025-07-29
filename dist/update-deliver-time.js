@@ -8,15 +8,11 @@ const run = async () => {
     const imProcurement = new im_procurement_prod_1.PrismaClient();
     const scmOrder = new scm_order_prod_1.PrismaClient();
     const scmOrders = await scmOrder.procurement_orders.findMany();
-    const missingOrders = await imProcurement.supplier_orders.findMany({
-        where: {
-            id: {
-                notIn: scmOrders.map((item) => item.client_order_id),
-            },
-        },
-    });
-    console.log(missingOrders);
-    console.log(missingOrders.map((item) => item.id));
-    console.log(missingOrders.length);
+    const imProcurementOrders = await imProcurement.supplier_orders.findMany();
+    const missingScmOrders = imProcurementOrders.filter((item) => !scmOrders.some((scm) => scm.client_order_id === item.id));
+    const missingImProcurementOrders = scmOrders.filter((item) => !imProcurementOrders.some((im) => im.id === item.client_order_id));
+    console.log(missingScmOrders.length, 'missingScmOrders');
+    console.log(missingScmOrders.map((item) => item.id));
+    console.log(missingImProcurementOrders.length, 'missingImProcurementOrders');
 };
 run();
