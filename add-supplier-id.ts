@@ -7,53 +7,78 @@ const run = async () => {
   const order = new Order();
   const pricing = new Pricing();
 
-  const procurementDetails = await procurement.supplier_order_details.findMany({
-    orderBy: {
-      created_at: 'desc',
-    },
-    take: 100,
-    skip: 0,
-  });
+  const batchSize = 100;
+  let skip = 0;
+  let totalProcessed = 0;
 
-  for (const procurementDetail of procurementDetails) {
-    const supplierItem = await procurement.supplier_items.findFirst({
-      where: {
-        supplier_reference_id: procurementDetail.supplier_reference_id,
-      },
-    });
+  const total = await procurement.supplier_order_details.count();
+  while (true) {
+    const procurementDetails =
+      await procurement.supplier_order_details.findMany({
+        orderBy: {
+          created_at: 'desc',
+        },
+        take: batchSize,
+        skip: skip,
+      });
 
-    if (supplierItem) {
-      console.log(supplierItem.id);
-      continue;
+    // If no more records, break the loop
+    if (procurementDetails.length === 0) {
+      break;
     }
 
-    const sectionId = procurementDetail.supplier_reference_id
-      .split('-')
-      .slice(2)
-      .join('-');
+    console.log(`${skip} / ${total}`);
 
-    const supplierItem2 = await procurement.supplier_items.findFirst({
-      where: {
-        supplier_reference_id: {
-          endsWith: sectionId,
-        },
-      },
-    });
-
-    if (supplierItem2) {
-      await procurement.supplier_order_details.update({
+    for (const procurementDetail of procurementDetails) {
+      const supplierItem = await procurement.supplier_items.findFirst({
         where: {
-          id: procurementDetail.id,
-        },
-        data: {
-          supplier_item_id: supplierItem2.id,
+          supplier_reference_id: procurementDetail.supplier_reference_id,
         },
       });
-      continue;
+
+      if (supplierItem) {
+        console.log(supplierItem.id);
+        continue;
+      }
+
+      const sectionId = procurementDetail.supplier_reference_id
+        .split('-')
+        .slice(2)
+        .join('-');
+
+      const supplierItem2 = await procurement.supplier_items.findFirst({
+        where: {
+          supplier_reference_id: {
+            endsWith: sectionId,
+          },
+        },
+      });
+
+      if (supplierItem2) {
+        await procurement.supplier_order_details.update({
+          where: {
+            id: procurementDetail.id,
+          },
+          data: {
+            supplier_item_id: supplierItem2.id,
+          },
+        });
+        continue;
+      }
+
+      console.log(procurementDetail.supplier_reference_id, 'not found!');
     }
 
-    console.log(procurementDetail.supplier_reference_id, 'not found!');
+    totalProcessed += procurementDetails.length;
+    skip += batchSize;
+
+    // If we got fewer records than the batch size, we've reached the end
+    if (procurementDetails.length < batchSize) {
+      break;
+    }
   }
+
+  console.log(`Total records processed: ${totalProcessed}`);
 };
 
 run();
