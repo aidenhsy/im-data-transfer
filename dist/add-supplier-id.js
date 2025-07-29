@@ -31,7 +31,14 @@ const run = async () => {
                 },
             });
             if (supplierItem) {
-                console.log(supplierItem.id);
+                await procurement.supplier_order_details.update({
+                    where: {
+                        id: procurementDetail.id,
+                    },
+                    data: {
+                        supplier_item_id: supplierItem.id,
+                    },
+                });
                 continue;
             }
             const sectionId = procurementDetail.supplier_reference_id
