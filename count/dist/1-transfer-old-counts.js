@@ -39,23 +39,26 @@ exports.__esModule = true;
 var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
 var im_prod_1 = require("../prisma/clients/im-prod");
 var im_procurement_prod_1 = require("../prisma/clients/im-procurement-prod");
+var scm_pricing_prod_1 = require("../prisma/clients/scm-pricing-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imInventory, imProd, imProcurement, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, shop_id, tier_id, newCount, _a, _b, detail, good_id, supplier_item, sortedMissingItems;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
+    var imInventory, imProd, imProcurement, scmPricing, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, tier_id, newCount, _a, _b, detail, good_id, supplier_item, scmGood;
+    var _c, _d;
+    return __generator(this, function (_e) {
+        switch (_e.label) {
             case 0:
                 imInventory = new im_inventory_prod_1.PrismaClient();
                 imProd = new im_prod_1.PrismaClient();
                 imProcurement = new im_procurement_prod_1.PrismaClient();
+                scmPricing = new scm_pricing_prod_1.PrismaClient();
                 return [4 /*yield*/, imInventory.shop_item_weighted_price.deleteMany()];
             case 1:
-                _c.sent();
+                _e.sent();
                 return [4 /*yield*/, imInventory.inventory_count_details.deleteMany()];
             case 2:
-                _c.sent();
+                _e.sent();
                 return [4 /*yield*/, imInventory.inventory_count.deleteMany()];
             case 3:
-                _c.sent();
+                _e.sent();
                 return [4 /*yield*/, imProd.scm_inventory_single.findMany({
                         where: {
                             end_date: new Date('2025-05-31')
@@ -65,12 +68,12 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         }
                     })];
             case 4:
-                oldCounts = _c.sent();
+                oldCounts = _e.sent();
                 missingItems = new Set();
                 _i = 0, oldCounts_1 = oldCounts;
-                _c.label = 5;
+                _e.label = 5;
             case 5:
-                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 12];
+                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 14];
                 oldCount = oldCounts_1[_i];
                 return [4 /*yield*/, imInventory.scm_shop.findFirst({
                         where: {
@@ -78,13 +81,12 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         }
                     })];
             case 6:
-                shop = _c.sent();
+                shop = _e.sent();
                 if (!shop) {
                     console.log("shop not found: " + oldCount.shop_id);
-                    return [3 /*break*/, 11];
+                    return [3 /*break*/, 13];
                 }
                 city_id = shop.city_id;
-                shop_id = oldCount.shop_id;
                 tier_id = shop.client_tier_id;
                 return [4 /*yield*/, imInventory.inventory_count.create({
                         data: {
@@ -98,11 +100,11 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         }
                     })];
             case 7:
-                newCount = _c.sent();
+                newCount = _e.sent();
                 _a = 0, _b = oldCount.scm_inventory_detail;
-                _c.label = 8;
+                _e.label = 8;
             case 8:
-                if (!(_a < _b.length)) return [3 /*break*/, 11];
+                if (!(_a < _b.length)) return [3 /*break*/, 13];
                 detail = _b[_a];
                 good_id = detail.goods_id;
                 return [4 /*yield*/, imProcurement.supplier_items.findFirst({
@@ -113,24 +115,48 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         }
                     })];
             case 9:
-                supplier_item = _c.sent();
-                if (!supplier_item) {
-                    missingItems.add(detail.goods_id);
-                    return [3 /*break*/, 10];
-                }
-                _c.label = 10;
+                supplier_item = _e.sent();
+                if (!!supplier_item) return [3 /*break*/, 12];
+                missingItems.add(good_id);
+                return [4 /*yield*/, scmPricing.scm_goods.findFirst({
+                        where: {
+                            id: Number(good_id)
+                        },
+                        include: {
+                            scm_good_units_scm_goods_order_good_unit_idToscm_good_units: true
+                        }
+                    })];
             case 10:
+                scmGood = _e.sent();
+                return [4 /*yield*/, imProcurement.supplier_items.create({
+                        data: {
+                            name: scmGood === null || scmGood === void 0 ? void 0 : scmGood.name,
+                            status: 0,
+                            letter_name: scmGood === null || scmGood === void 0 ? void 0 : scmGood.letter_name,
+                            supplier_id: 1,
+                            photo_url: scmGood === null || scmGood === void 0 ? void 0 : scmGood.photo_url,
+                            price: Number(detail.price),
+                            supplier_reference_id: "20250730-" + tier_id + "-" + good_id + "-" + city_id + "-" + (scmGood === null || scmGood === void 0 ? void 0 : scmGood.order_good_unit_id),
+                            cut_off_time: '14:00:00',
+                            base_unit_id: scmGood === null || scmGood === void 0 ? void 0 : scmGood.standard_base_unit,
+                            package_unit_name: (_c = scmGood === null || scmGood === void 0 ? void 0 : scmGood.scm_good_units_scm_goods_order_good_unit_idToscm_good_units) === null || _c === void 0 ? void 0 : _c.name,
+                            package_unit_to_base_ratio: Number((_d = scmGood === null || scmGood === void 0 ? void 0 : scmGood.scm_good_units_scm_goods_order_good_unit_idToscm_good_units) === null || _d === void 0 ? void 0 : _d.ratio_to_base),
+                            city_id: city_id,
+                            weighing: 1,
+                            tier_id: tier_id
+                        }
+                    })];
+            case 11:
+                _e.sent();
+                return [3 /*break*/, 12];
+            case 12:
                 _a++;
                 return [3 /*break*/, 8];
-            case 11:
+            case 13:
                 _i++;
                 return [3 /*break*/, 5];
-            case 12:
+            case 14:
                 console.log("\nDistinct missing items (" + missingItems.size + "):");
-                sortedMissingItems = Array.from(missingItems).sort();
-                sortedMissingItems.forEach(function (item) {
-                    console.log(item + ",");
-                });
                 return [2 /*return*/];
         }
     });

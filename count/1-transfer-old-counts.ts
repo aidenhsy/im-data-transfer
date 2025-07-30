@@ -1,11 +1,13 @@
 import { PrismaClient as ImInventory } from '../prisma/clients/im-inventory-prod';
 import { PrismaClient as ImProd } from '../prisma/clients/im-prod';
 import { PrismaClient as ImProcurement } from '../prisma/clients/im-procurement-prod';
+import { PrismaClient as ScmPricing } from '../prisma/clients/scm-pricing-prod';
 
 const run = async () => {
   const imInventory = new ImInventory();
   const imProd = new ImProd();
   const imProcurement = new ImProcurement();
+  const scmPricing = new ScmPricing();
 
   await imInventory.shop_item_weighted_price.deleteMany();
   await imInventory.inventory_count_details.deleteMany();
@@ -33,8 +35,7 @@ const run = async () => {
     }
 
     const city_id = shop.city_id;
-    const shop_id = oldCount.shop_id;
-    const tier_id = shop.client_tier_id;
+    const tier_id = shop.client_tier_id!;
 
     const newCount = await imInventory.inventory_count.create({
       data: {
@@ -58,7 +59,40 @@ const run = async () => {
         },
       });
       if (!supplier_item) {
-        missingItems.add(`20250730-${tier_id}-${good_id}-${city_id}`);
+        missingItems.add(good_id);
+        const scmGood = await scmPricing.scm_goods.findFirst({
+          where: {
+            id: Number(good_id),
+          },
+          include: {
+            scm_good_units_scm_goods_order_good_unit_idToscm_good_units: true,
+          },
+        });
+        await imProcurement.supplier_items.create({
+          data: {
+            name: scmGood?.name!,
+            status: 0,
+            letter_name: scmGood?.letter_name!,
+            supplier_id: 1,
+            photo_url: scmGood?.photo_url!,
+            price: Number(detail.price),
+            supplier_reference_id: `20250730-${tier_id}-${good_id}-${city_id}-${scmGood?.order_good_unit_id}`,
+            cut_off_time: '14:00:00',
+            base_unit_id: scmGood?.standard_base_unit,
+            package_unit_name:
+              scmGood
+                ?.scm_good_units_scm_goods_order_good_unit_idToscm_good_units
+                ?.name,
+            package_unit_to_base_ratio: Number(
+              scmGood
+                ?.scm_good_units_scm_goods_order_good_unit_idToscm_good_units
+                ?.ratio_to_base
+            ),
+            city_id: city_id,
+            weighing: 1,
+            tier_id: tier_id,
+          },
+        });
         continue;
       }
 
@@ -87,12 +121,6 @@ const run = async () => {
   }
 
   console.log(`\nDistinct missing items (${missingItems.size}):`);
-
-  // Convert Set to Array and sort for better readability
-  const sortedMissingItems = Array.from(missingItems).sort();
-  sortedMissingItems.forEach((item) => {
-    console.log(`${item},`);
-  });
 };
 
 run();
