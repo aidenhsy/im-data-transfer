@@ -41,6 +41,7 @@ const run = async () => {
       data: {
         id: oldCount.id.toString(),
         shop_id: oldCount.shop_id,
+        type: 1,
         status: 1,
         count_amount: oldCount.last_amount,
         finished_at: oldCount.end_date!,
