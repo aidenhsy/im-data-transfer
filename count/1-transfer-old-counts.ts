@@ -51,7 +51,7 @@ const run = async () => {
 
     for (const detail of oldCount.scm_inventory_detail) {
       const good_id = detail.goods_id;
-      const supplier_item = await imProcurement.supplier_items.findFirst({
+      const supplier_item = await imInventory.supplier_items.findFirst({
         where: {
           supplier_reference_id: {
             startsWith: `20250730-${tier_id}-${good_id}-${city_id}`,

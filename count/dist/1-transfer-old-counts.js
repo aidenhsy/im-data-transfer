@@ -107,7 +107,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 if (!(_a < _b.length)) return [3 /*break*/, 16];
                 detail = _b[_a];
                 good_id = detail.goods_id;
-                return [4 /*yield*/, imProcurement.supplier_items.findFirst({
+                return [4 /*yield*/, imInventory.supplier_items.findFirst({
                         where: {
                             supplier_reference_id: {
                                 startsWith: "20250730-" + tier_id + "-" + good_id + "-" + city_id
