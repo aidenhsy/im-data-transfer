@@ -96,27 +96,27 @@ const run = async () => {
         continue;
       }
 
-      // await imInventory.inventory_count_details.create({
-      //   data: {
-      //     id: detail.id.toString(),
-      //     hypo_qty: null,
-      //     count_qty: detail.qty,
-      //     weighted_price: Number(detail.price),
-      //     supplier_item_id: supplier_item.id,
-      //     inventory_count_id: newCount.id,
-      //   },
-      // });
+      await imInventory.inventory_count_details.create({
+        data: {
+          id: detail.id.toString(),
+          hypo_qty: null,
+          count_qty: detail.qty,
+          weighted_price: Number(detail.price),
+          supplier_item_id: supplier_item.id,
+          inventory_count_id: newCount.id,
+        },
+      });
 
-      // await imInventory.shop_item_weighted_price.create({
-      //   data: {
-      //     shop_id: Number(shop_id),
-      //     supplier_item_id: supplier_item.id,
-      //     weighted_price: Number(detail.price),
-      //     total_qty: Number(detail.qty),
-      //     total_value: Number(detail.price) * Number(detail.qty),
-      //     type: 'stock_count',
-      //   },
-      // });
+      await imInventory.shop_item_weighted_price.create({
+        data: {
+          shop_id: Number(shop.id),
+          supplier_item_id: supplier_item.id,
+          weighted_price: Number(detail.price),
+          total_qty: Number(detail.qty),
+          total_value: Number(detail.price) * Number(detail.qty),
+          type: 'stock_count',
+        },
+      });
     }
   }
 

@@ -73,7 +73,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 _i = 0, oldCounts_1 = oldCounts;
                 _e.label = 5;
             case 5:
-                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 14];
+                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 17];
                 oldCount = oldCounts_1[_i];
                 return [4 /*yield*/, imInventory.scm_shop.findFirst({
                         where: {
@@ -84,7 +84,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 shop = _e.sent();
                 if (!shop) {
                     console.log("shop not found: " + oldCount.shop_id);
-                    return [3 /*break*/, 13];
+                    return [3 /*break*/, 16];
                 }
                 city_id = shop.city_id;
                 tier_id = shop.client_tier_id;
@@ -104,7 +104,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 _a = 0, _b = oldCount.scm_inventory_detail;
                 _e.label = 8;
             case 8:
-                if (!(_a < _b.length)) return [3 /*break*/, 13];
+                if (!(_a < _b.length)) return [3 /*break*/, 16];
                 detail = _b[_a];
                 good_id = detail.goods_id;
                 return [4 /*yield*/, imProcurement.supplier_items.findFirst({
@@ -148,14 +148,39 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                     })];
             case 11:
                 _e.sent();
-                return [3 /*break*/, 12];
-            case 12:
+                return [3 /*break*/, 15];
+            case 12: return [4 /*yield*/, imInventory.inventory_count_details.create({
+                    data: {
+                        id: detail.id.toString(),
+                        hypo_qty: null,
+                        count_qty: detail.qty,
+                        weighted_price: Number(detail.price),
+                        supplier_item_id: supplier_item.id,
+                        inventory_count_id: newCount.id
+                    }
+                })];
+            case 13:
+                _e.sent();
+                return [4 /*yield*/, imInventory.shop_item_weighted_price.create({
+                        data: {
+                            shop_id: Number(shop.id),
+                            supplier_item_id: supplier_item.id,
+                            weighted_price: Number(detail.price),
+                            total_qty: Number(detail.qty),
+                            total_value: Number(detail.price) * Number(detail.qty),
+                            type: 'stock_count'
+                        }
+                    })];
+            case 14:
+                _e.sent();
+                _e.label = 15;
+            case 15:
                 _a++;
                 return [3 /*break*/, 8];
-            case 13:
+            case 16:
                 _i++;
                 return [3 /*break*/, 5];
-            case 14:
+            case 17:
                 console.log("\nDistinct missing items (" + missingItems.size + "):");
                 return [2 /*return*/];
         }
