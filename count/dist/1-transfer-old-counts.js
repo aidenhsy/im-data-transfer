@@ -39,17 +39,20 @@ exports.__esModule = true;
 var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
 var im_prod_1 = require("../prisma/clients/im-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imInventory, imProd, oldCounts, _i, oldCounts_1, oldCount, shop, city_id, shop_id, tier_id, newCount, _a, _b, detail, good_id, supplier_item;
+    var imInventory, imProd, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, shop_id, tier_id, newCount, _a, _b, detail, good_id, supplier_item, sortedMissingItems;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 imInventory = new im_inventory_prod_1.PrismaClient();
                 imProd = new im_prod_1.PrismaClient();
-                return [4 /*yield*/, imInventory.inventory_count_details.deleteMany()];
+                return [4 /*yield*/, imInventory.shop_item_weighted_price.deleteMany()];
             case 1:
                 _c.sent();
-                return [4 /*yield*/, imInventory.inventory_count.deleteMany()];
+                return [4 /*yield*/, imInventory.inventory_count_details.deleteMany()];
             case 2:
+                _c.sent();
+                return [4 /*yield*/, imInventory.inventory_count.deleteMany()];
+            case 3:
                 _c.sent();
                 return [4 /*yield*/, imProd.scm_inventory_single.findMany({
                         where: {
@@ -59,23 +62,24 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             scm_inventory_detail: true
                         }
                     })];
-            case 3:
-                oldCounts = _c.sent();
-                _i = 0, oldCounts_1 = oldCounts;
-                _c.label = 4;
             case 4:
-                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 13];
+                oldCounts = _c.sent();
+                missingItems = new Set();
+                _i = 0, oldCounts_1 = oldCounts;
+                _c.label = 5;
+            case 5:
+                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 14];
                 oldCount = oldCounts_1[_i];
                 return [4 /*yield*/, imInventory.scm_shop.findFirst({
                         where: {
                             id: Number(oldCount.shop_id)
                         }
                     })];
-            case 5:
+            case 6:
                 shop = _c.sent();
                 if (!shop) {
                     console.log("shop not found: " + oldCount.shop_id);
-                    return [3 /*break*/, 12];
+                    return [3 /*break*/, 13];
                 }
                 city_id = shop.city_id;
                 shop_id = oldCount.shop_id;
@@ -86,17 +90,17 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             shop_id: oldCount.shop_id,
                             status: 1,
                             count_amount: oldCount.last_amount,
-                            finished_at: oldCount.create_time,
-                            created_at: oldCount.create_time,
-                            updated_at: oldCount.create_time
+                            finished_at: oldCount.end_date,
+                            created_at: oldCount.end_date,
+                            updated_at: oldCount.end_date
                         }
                     })];
-            case 6:
+            case 7:
                 newCount = _c.sent();
                 _a = 0, _b = oldCount.scm_inventory_detail;
-                _c.label = 7;
-            case 7:
-                if (!(_a < _b.length)) return [3 /*break*/, 12];
+                _c.label = 8;
+            case 8:
+                if (!(_a < _b.length)) return [3 /*break*/, 13];
                 detail = _b[_a];
                 good_id = detail.goods_id;
                 return [4 /*yield*/, imInventory.supplier_items.findFirst({
@@ -106,11 +110,11 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             }
                         }
                     })];
-            case 8:
+            case 9:
                 supplier_item = _c.sent();
                 if (!supplier_item) {
-                    console.log("supplier_item not found: " + detail.goods_id);
-                    return [3 /*break*/, 11];
+                    missingItems.add(detail.goods_id);
+                    return [3 /*break*/, 12];
                 }
                 return [4 /*yield*/, imInventory.inventory_count_details.create({
                         data: {
@@ -122,7 +126,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             inventory_count_id: newCount.id
                         }
                     })];
-            case 9:
+            case 10:
                 _c.sent();
                 return [4 /*yield*/, imInventory.shop_item_weighted_price.create({
                         data: {
@@ -134,16 +138,22 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             type: 'stock_count'
                         }
                     })];
-            case 10:
-                _c.sent();
-                _c.label = 11;
             case 11:
-                _a++;
-                return [3 /*break*/, 7];
+                _c.sent();
+                _c.label = 12;
             case 12:
+                _a++;
+                return [3 /*break*/, 8];
+            case 13:
                 _i++;
-                return [3 /*break*/, 4];
-            case 13: return [2 /*return*/];
+                return [3 /*break*/, 5];
+            case 14:
+                console.log("\nDistinct missing items (" + missingItems.size + "):");
+                sortedMissingItems = Array.from(missingItems).sort();
+                sortedMissingItems.forEach(function (item) {
+                    console.log(item);
+                });
+                return [2 /*return*/];
         }
     });
 }); };

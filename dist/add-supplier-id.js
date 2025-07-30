@@ -10,6 +10,8 @@ const run = async () => {
     const batchSize = 100;
     let skip = 0;
     let totalProcessed = 0;
+    // Set to collect distinct missing items
+    const missingItems = new Set();
     const total = await procurement.supplier_order_details.count({
         where: {
             supplier_item_id: null,
@@ -70,7 +72,8 @@ const run = async () => {
                 });
                 continue;
             }
-            console.log(sectionId, 'not found!');
+            // Add to missing items set (automatically handles duplicates)
+            missingItems.add(sectionId);
         }
         totalProcessed += procurementDetails.length;
         skip += batchSize;
@@ -80,5 +83,11 @@ const run = async () => {
         }
     }
     console.log(`Total records processed: ${totalProcessed}`);
+    console.log(`\nDistinct missing items (${missingItems.size}):`);
+    // Convert Set to Array and sort for better readability
+    const sortedMissingItems = Array.from(missingItems).sort();
+    sortedMissingItems.forEach((item) => {
+        console.log(item);
+    });
 };
 run();

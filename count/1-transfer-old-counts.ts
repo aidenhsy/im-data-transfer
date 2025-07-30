@@ -17,6 +17,8 @@ const run = async () => {
     },
   });
 
+  let missingItems = new Set();
+
   for (const oldCount of oldCounts) {
     const shop = await imInventory.scm_shop.findFirst({
       where: {
@@ -38,9 +40,9 @@ const run = async () => {
         shop_id: oldCount.shop_id,
         status: 1,
         count_amount: oldCount.last_amount,
-        finished_at: oldCount.create_time,
-        created_at: oldCount.create_time!,
-        updated_at: oldCount.create_time!,
+        finished_at: oldCount.end_date!,
+        created_at: oldCount.end_date!,
+        updated_at: oldCount.end_date!,
       },
     });
 
@@ -54,7 +56,7 @@ const run = async () => {
         },
       });
       if (!supplier_item) {
-        console.log(`supplier_item not found: ${detail.goods_id}`);
+        missingItems.add(detail.goods_id);
         continue;
       }
 
@@ -81,6 +83,14 @@ const run = async () => {
       });
     }
   }
+
+  console.log(`\nDistinct missing items (${missingItems.size}):`);
+
+  // Convert Set to Array and sort for better readability
+  const sortedMissingItems = Array.from(missingItems).sort();
+  sortedMissingItems.forEach((item) => {
+    console.log(item);
+  });
 };
 
 run();
