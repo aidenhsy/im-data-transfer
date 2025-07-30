@@ -38,13 +38,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
 var im_prod_1 = require("../prisma/clients/im-prod");
+var im_procurement_prod_1 = require("../prisma/clients/im-procurement-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imInventory, imProd, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, shop_id, tier_id, newCount, _a, _b, detail, good_id, supplier_item, sortedMissingItems;
+    var imInventory, imProd, imProcurement, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, shop_id, tier_id, newCount, _a, _b, detail, good_id, supplier_item, sortedMissingItems;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
                 imInventory = new im_inventory_prod_1.PrismaClient();
                 imProd = new im_prod_1.PrismaClient();
+                imProcurement = new im_procurement_prod_1.PrismaClient();
                 return [4 /*yield*/, imInventory.shop_item_weighted_price.deleteMany()];
             case 1:
                 _c.sent();
@@ -68,7 +70,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 _i = 0, oldCounts_1 = oldCounts;
                 _c.label = 5;
             case 5:
-                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 14];
+                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 12];
                 oldCount = oldCounts_1[_i];
                 return [4 /*yield*/, imInventory.scm_shop.findFirst({
                         where: {
@@ -79,7 +81,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 shop = _c.sent();
                 if (!shop) {
                     console.log("shop not found: " + oldCount.shop_id);
-                    return [3 /*break*/, 13];
+                    return [3 /*break*/, 11];
                 }
                 city_id = shop.city_id;
                 shop_id = oldCount.shop_id;
@@ -100,13 +102,13 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 _a = 0, _b = oldCount.scm_inventory_detail;
                 _c.label = 8;
             case 8:
-                if (!(_a < _b.length)) return [3 /*break*/, 13];
+                if (!(_a < _b.length)) return [3 /*break*/, 11];
                 detail = _b[_a];
                 good_id = detail.goods_id;
-                return [4 /*yield*/, imInventory.supplier_items.findFirst({
+                return [4 /*yield*/, imProcurement.supplier_items.findFirst({
                         where: {
                             supplier_reference_id: {
-                                startsWith: "20250727-" + tier_id + "-" + good_id + "-" + city_id
+                                startsWith: "20250730-" + tier_id + "-" + good_id + "-" + city_id
                             }
                         }
                     })];
@@ -114,40 +116,16 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 supplier_item = _c.sent();
                 if (!supplier_item) {
                     missingItems.add(detail.goods_id);
-                    return [3 /*break*/, 12];
+                    return [3 /*break*/, 10];
                 }
-                return [4 /*yield*/, imInventory.inventory_count_details.create({
-                        data: {
-                            id: detail.id.toString(),
-                            hypo_qty: null,
-                            count_qty: detail.qty,
-                            weighted_price: Number(detail.price),
-                            supplier_item_id: supplier_item.id,
-                            inventory_count_id: newCount.id
-                        }
-                    })];
+                _c.label = 10;
             case 10:
-                _c.sent();
-                return [4 /*yield*/, imInventory.shop_item_weighted_price.create({
-                        data: {
-                            shop_id: Number(shop_id),
-                            supplier_item_id: supplier_item.id,
-                            weighted_price: Number(detail.price),
-                            total_qty: Number(detail.qty),
-                            total_value: Number(detail.price) * Number(detail.qty),
-                            type: 'stock_count'
-                        }
-                    })];
-            case 11:
-                _c.sent();
-                _c.label = 12;
-            case 12:
                 _a++;
                 return [3 /*break*/, 8];
-            case 13:
+            case 11:
                 _i++;
                 return [3 /*break*/, 5];
-            case 14:
+            case 12:
                 console.log("\nDistinct missing items (" + missingItems.size + "):");
                 sortedMissingItems = Array.from(missingItems).sort();
                 sortedMissingItems.forEach(function (item) {

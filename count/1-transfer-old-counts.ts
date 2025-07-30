@@ -1,9 +1,11 @@
 import { PrismaClient as ImInventory } from '../prisma/clients/im-inventory-prod';
 import { PrismaClient as ImProd } from '../prisma/clients/im-prod';
+import { PrismaClient as ImProcurement } from '../prisma/clients/im-procurement-prod';
 
 const run = async () => {
   const imInventory = new ImInventory();
   const imProd = new ImProd();
+  const imProcurement = new ImProcurement();
 
   await imInventory.shop_item_weighted_price.deleteMany();
   await imInventory.inventory_count_details.deleteMany();
@@ -48,10 +50,10 @@ const run = async () => {
 
     for (const detail of oldCount.scm_inventory_detail) {
       const good_id = detail.goods_id;
-      const supplier_item = await imInventory.supplier_items.findFirst({
+      const supplier_item = await imProcurement.supplier_items.findFirst({
         where: {
           supplier_reference_id: {
-            startsWith: `20250727-${tier_id}-${good_id}-${city_id}`,
+            startsWith: `20250730-${tier_id}-${good_id}-${city_id}`,
           },
         },
       });
@@ -60,27 +62,27 @@ const run = async () => {
         continue;
       }
 
-      await imInventory.inventory_count_details.create({
-        data: {
-          id: detail.id.toString(),
-          hypo_qty: null,
-          count_qty: detail.qty,
-          weighted_price: Number(detail.price),
-          supplier_item_id: supplier_item.id,
-          inventory_count_id: newCount.id,
-        },
-      });
+      // await imInventory.inventory_count_details.create({
+      //   data: {
+      //     id: detail.id.toString(),
+      //     hypo_qty: null,
+      //     count_qty: detail.qty,
+      //     weighted_price: Number(detail.price),
+      //     supplier_item_id: supplier_item.id,
+      //     inventory_count_id: newCount.id,
+      //   },
+      // });
 
-      await imInventory.shop_item_weighted_price.create({
-        data: {
-          shop_id: Number(shop_id),
-          supplier_item_id: supplier_item.id,
-          weighted_price: Number(detail.price),
-          total_qty: Number(detail.qty),
-          total_value: Number(detail.price) * Number(detail.qty),
-          type: 'stock_count',
-        },
-      });
+      // await imInventory.shop_item_weighted_price.create({
+      //   data: {
+      //     shop_id: Number(shop_id),
+      //     supplier_item_id: supplier_item.id,
+      //     weighted_price: Number(detail.price),
+      //     total_qty: Number(detail.qty),
+      //     total_value: Number(detail.price) * Number(detail.qty),
+      //     type: 'stock_count',
+      //   },
+      // });
     }
   }
 
