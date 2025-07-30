@@ -91,7 +91,7 @@ const run = async () => {
   // Convert Set to Array and sort for better readability
   const sortedMissingItems = Array.from(missingItems).sort();
   sortedMissingItems.forEach((item) => {
-    console.log(item);
+    console.log(`${item},`);
   });
 };
 
