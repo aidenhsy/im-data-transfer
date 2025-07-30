@@ -5,6 +5,9 @@ const run = async () => {
   const imInventory = new ImInventory();
   const imProd = new ImProd();
 
+  await imInventory.shop_item_weighted_price.deleteMany();
+  await imInventory.inventory_count_details.deleteMany();
+  await imInventory.inventory_count.deleteMany();
   const oldCounts = await imProd.scm_inventory_single.findMany({
     where: {
       end_date: new Date('2025-05-31'),

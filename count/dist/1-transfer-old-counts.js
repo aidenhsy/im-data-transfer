@@ -45,6 +45,12 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
             case 0:
                 imInventory = new im_inventory_prod_1.PrismaClient();
                 imProd = new im_prod_1.PrismaClient();
+                return [4 /*yield*/, imInventory.inventory_count_details.deleteMany()];
+            case 1:
+                _c.sent();
+                return [4 /*yield*/, imInventory.inventory_count.deleteMany()];
+            case 2:
+                _c.sent();
                 return [4 /*yield*/, imProd.scm_inventory_single.findMany({
                         where: {
                             end_date: new Date('2025-05-31')
@@ -53,23 +59,23 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             scm_inventory_detail: true
                         }
                     })];
-            case 1:
+            case 3:
                 oldCounts = _c.sent();
                 _i = 0, oldCounts_1 = oldCounts;
-                _c.label = 2;
-            case 2:
-                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 11];
+                _c.label = 4;
+            case 4:
+                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 13];
                 oldCount = oldCounts_1[_i];
                 return [4 /*yield*/, imInventory.scm_shop.findFirst({
                         where: {
                             id: Number(oldCount.shop_id)
                         }
                     })];
-            case 3:
+            case 5:
                 shop = _c.sent();
                 if (!shop) {
                     console.log("shop not found: " + oldCount.shop_id);
-                    return [3 /*break*/, 10];
+                    return [3 /*break*/, 12];
                 }
                 city_id = shop.city_id;
                 shop_id = oldCount.shop_id;
@@ -85,12 +91,12 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             updated_at: oldCount.create_time
                         }
                     })];
-            case 4:
+            case 6:
                 newCount = _c.sent();
                 _a = 0, _b = oldCount.scm_inventory_detail;
-                _c.label = 5;
-            case 5:
-                if (!(_a < _b.length)) return [3 /*break*/, 10];
+                _c.label = 7;
+            case 7:
+                if (!(_a < _b.length)) return [3 /*break*/, 12];
                 detail = _b[_a];
                 good_id = detail.goods_id;
                 return [4 /*yield*/, imInventory.supplier_items.findFirst({
@@ -100,11 +106,11 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             }
                         }
                     })];
-            case 6:
+            case 8:
                 supplier_item = _c.sent();
                 if (!supplier_item) {
                     console.log("supplier_item not found: " + detail.goods_id);
-                    return [3 /*break*/, 9];
+                    return [3 /*break*/, 11];
                 }
                 return [4 /*yield*/, imInventory.inventory_count_details.create({
                         data: {
@@ -116,7 +122,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             inventory_count_id: newCount.id
                         }
                     })];
-            case 7:
+            case 9:
                 _c.sent();
                 return [4 /*yield*/, imInventory.shop_item_weighted_price.create({
                         data: {
@@ -128,16 +134,16 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             type: 'stock_count'
                         }
                     })];
-            case 8:
-                _c.sent();
-                _c.label = 9;
-            case 9:
-                _a++;
-                return [3 /*break*/, 5];
             case 10:
+                _c.sent();
+                _c.label = 11;
+            case 11:
+                _a++;
+                return [3 /*break*/, 7];
+            case 12:
                 _i++;
-                return [3 /*break*/, 2];
-            case 11: return [2 /*return*/];
+                return [3 /*break*/, 4];
+            case 13: return [2 /*return*/];
         }
     });
 }); };
