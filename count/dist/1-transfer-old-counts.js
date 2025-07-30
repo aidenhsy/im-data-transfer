@@ -129,7 +129,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 console.log("\nDistinct missing items (" + missingItems.size + "):");
                 sortedMissingItems = Array.from(missingItems).sort();
                 sortedMissingItems.forEach(function (item) {
-                    console.log(item);
+                    console.log(item + ",");
                 });
                 return [2 /*return*/];
         }

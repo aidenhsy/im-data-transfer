@@ -58,7 +58,7 @@ const run = async () => {
         },
       });
       if (!supplier_item) {
-        missingItems.add(detail.goods_id);
+        missingItems.add(`20250730-${tier_id}-${good_id}-${city_id}`);
         continue;
       }
 
