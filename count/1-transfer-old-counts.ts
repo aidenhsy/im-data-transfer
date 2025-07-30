@@ -41,6 +41,7 @@ const run = async () => {
       data: {
         id: oldCount.id.toString(),
         shop_id: oldCount.shop_id,
+        type: 1,
         status: 1,
         count_amount: oldCount.last_amount,
         finished_at: oldCount.end_date!,
@@ -51,7 +52,7 @@ const run = async () => {
 
     for (const detail of oldCount.scm_inventory_detail) {
       const good_id = detail.goods_id;
-      const supplier_item = await imProcurement.supplier_items.findFirst({
+      const supplier_item = await imInventory.supplier_items.findFirst({
         where: {
           supplier_reference_id: {
             startsWith: `20250730-${tier_id}-${good_id}-${city_id}`,
@@ -104,6 +105,8 @@ const run = async () => {
           weighted_price: Number(detail.price),
           supplier_item_id: supplier_item.id,
           inventory_count_id: newCount.id,
+          updated_at: oldCount.end_date!,
+          created_at: oldCount.end_date!,
         },
       });
 
@@ -115,6 +118,8 @@ const run = async () => {
           total_qty: Number(detail.qty),
           total_value: Number(detail.price) * Number(detail.qty),
           type: 'stock_count',
+          updated_at: oldCount.end_date!,
+          created_at: oldCount.end_date!,
         },
       });
     }

@@ -92,6 +92,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         data: {
                             id: oldCount.id.toString(),
                             shop_id: oldCount.shop_id,
+                            type: 1,
                             status: 1,
                             count_amount: oldCount.last_amount,
                             finished_at: oldCount.end_date,
@@ -107,7 +108,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 if (!(_a < _b.length)) return [3 /*break*/, 16];
                 detail = _b[_a];
                 good_id = detail.goods_id;
-                return [4 /*yield*/, imProcurement.supplier_items.findFirst({
+                return [4 /*yield*/, imInventory.supplier_items.findFirst({
                         where: {
                             supplier_reference_id: {
                                 startsWith: "20250730-" + tier_id + "-" + good_id + "-" + city_id
@@ -156,7 +157,9 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         count_qty: detail.qty,
                         weighted_price: Number(detail.price),
                         supplier_item_id: supplier_item.id,
-                        inventory_count_id: newCount.id
+                        inventory_count_id: newCount.id,
+                        updated_at: oldCount.end_date,
+                        created_at: oldCount.end_date
                     }
                 })];
             case 13:
@@ -168,7 +171,9 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             weighted_price: Number(detail.price),
                             total_qty: Number(detail.qty),
                             total_value: Number(detail.price) * Number(detail.qty),
-                            type: 'stock_count'
+                            type: 'stock_count',
+                            updated_at: oldCount.end_date,
+                            created_at: oldCount.end_date
                         }
                     })];
             case 14:
