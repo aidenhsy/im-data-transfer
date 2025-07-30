@@ -104,6 +104,8 @@ const run = async () => {
           weighted_price: Number(detail.price),
           supplier_item_id: supplier_item.id,
           inventory_count_id: newCount.id,
+          updated_at: oldCount.end_date!,
+          created_at: oldCount.end_date!,
         },
       });
 
@@ -115,6 +117,8 @@ const run = async () => {
           total_qty: Number(detail.qty),
           total_value: Number(detail.price) * Number(detail.qty),
           type: 'stock_count',
+          updated_at: oldCount.end_date!,
+          created_at: oldCount.end_date!,
         },
       });
     }
