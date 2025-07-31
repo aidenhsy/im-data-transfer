@@ -41,7 +41,7 @@ var im_prod_1 = require("../prisma/clients/im-prod");
 var im_procurement_prod_1 = require("../prisma/clients/im-procurement-prod");
 var scm_pricing_prod_1 = require("../prisma/clients/scm-pricing-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imInventory, imProd, imProcurement, scmPricing, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, tier_id, _a, _b, detail, good_id, supplier_item, scmGood;
+    var imInventory, imProd, imProcurement, scmPricing, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, tier_id, _a, _b, detail, good_id, scmGood, supplier_reference_id, supplier_item;
     var _c, _d;
     return __generator(this, function (_e) {
         switch (_e.label) {
@@ -86,17 +86,6 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 if (!(_a < _b.length)) return [3 /*break*/, 11];
                 detail = _b[_a];
                 good_id = detail.goods_id;
-                return [4 /*yield*/, imInventory.supplier_items.findFirst({
-                        where: {
-                            supplier_reference_id: {
-                                startsWith: "20250731-" + tier_id + "-" + good_id + "-" + city_id
-                            }
-                        }
-                    })];
-            case 5:
-                supplier_item = _e.sent();
-                if (!!supplier_item) return [3 /*break*/, 10];
-                missingItems.add(good_id);
                 return [4 /*yield*/, scmPricing.scm_goods.findFirst({
                         where: {
                             id: Number(good_id)
@@ -105,8 +94,20 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             scm_good_units_scm_goods_order_good_unit_idToscm_good_units: true
                         }
                     })];
-            case 6:
+            case 5:
                 scmGood = _e.sent();
+                supplier_reference_id = scmGood
+                    ? "20250731-" + tier_id + "-" + good_id + "-" + city_id + "-" + (scmGood === null || scmGood === void 0 ? void 0 : scmGood.order_good_unit_id)
+                    : "20250731-" + tier_id + "-" + good_id + "-" + city_id;
+                return [4 /*yield*/, imInventory.supplier_items.findFirst({
+                        where: {
+                            supplier_reference_id: supplier_reference_id
+                        }
+                    })];
+            case 6:
+                supplier_item = _e.sent();
+                if (!!supplier_item) return [3 /*break*/, 10];
+                missingItems.add(good_id);
                 if (!!scmGood) return [3 /*break*/, 8];
                 return [4 /*yield*/, imProcurement.supplier_items.create({
                         data: {
@@ -116,7 +117,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             supplier_id: 1,
                             photo_url: null,
                             price: Number(detail.price),
-                            supplier_reference_id: "20250731-" + tier_id + "-" + good_id + "-" + city_id,
+                            supplier_reference_id: supplier_reference_id,
                             cut_off_time: '14:00:00',
                             base_unit_id: 1,
                             package_unit_name: null,
@@ -137,7 +138,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         supplier_id: 1,
                         photo_url: scmGood.photo_url,
                         price: Number(detail.price),
-                        supplier_reference_id: "20250731-" + tier_id + "-" + good_id + "-" + city_id + "-" + (scmGood === null || scmGood === void 0 ? void 0 : scmGood.order_good_unit_id),
+                        supplier_reference_id: supplier_reference_id,
                         cut_off_time: '14:00:00',
                         base_unit_id: scmGood === null || scmGood === void 0 ? void 0 : scmGood.standard_base_unit,
                         package_unit_name: (_c = scmGood === null || scmGood === void 0 ? void 0 : scmGood.scm_good_units_scm_goods_order_good_unit_idToscm_good_units) === null || _c === void 0 ? void 0 : _c.name,

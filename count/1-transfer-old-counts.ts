@@ -53,23 +53,31 @@ const run = async () => {
 
     for (const detail of oldCount.scm_inventory_detail_copy) {
       const good_id = detail.goods_id;
-      const supplier_item = await imInventory.supplier_items.findFirst({
+      // First, check if we need to create a supplier item
+      const scmGood = await scmPricing.scm_goods.findFirst({
         where: {
-          supplier_reference_id: {
-            startsWith: `20250731-${tier_id}-${good_id}-${city_id}`,
-          },
+          id: Number(good_id),
+        },
+        include: {
+          scm_good_units_scm_goods_order_good_unit_idToscm_good_units: true,
         },
       });
+
+      // Determine the supplier_reference_id format
+      const supplier_reference_id = scmGood
+        ? `20250731-${tier_id}-${good_id}-${city_id}-${scmGood?.order_good_unit_id}`
+        : `20250731-${tier_id}-${good_id}-${city_id}`;
+
+      // Check if supplier item already exists with the exact reference ID
+      const supplier_item = await imInventory.supplier_items.findFirst({
+        where: {
+          supplier_reference_id: supplier_reference_id,
+        },
+      });
+
       if (!supplier_item) {
         missingItems.add(good_id);
-        const scmGood = await scmPricing.scm_goods.findFirst({
-          where: {
-            id: Number(good_id),
-          },
-          include: {
-            scm_good_units_scm_goods_order_good_unit_idToscm_good_units: true,
-          },
-        });
+
         if (!scmGood) {
           await imProcurement.supplier_items.create({
             data: {
@@ -79,7 +87,7 @@ const run = async () => {
               supplier_id: 1,
               photo_url: null,
               price: Number(detail.price),
-              supplier_reference_id: `20250731-${tier_id}-${good_id}-${city_id}`,
+              supplier_reference_id: supplier_reference_id,
               cut_off_time: '14:00:00',
               base_unit_id: 1,
               package_unit_name: null,
@@ -100,7 +108,7 @@ const run = async () => {
             supplier_id: 1,
             photo_url: scmGood.photo_url!,
             price: Number(detail.price),
-            supplier_reference_id: `20250731-${tier_id}-${good_id}-${city_id}-${scmGood?.order_good_unit_id}`,
+            supplier_reference_id: supplier_reference_id,
             cut_off_time: '14:00:00',
             base_unit_id: scmGood?.standard_base_unit,
             package_unit_name:
