@@ -38,9 +38,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imInventory, batchSize, skip, hasMoreOrders, total, orders, _i, orders_1, order, _a, _b, detail, item, oldTotalQty, oldTotalValue, newTotalQty, newTotaValue, newWeightedPrice;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
+    var imInventory, batchSize, skip, hasMoreOrders, total, _loop_1, state_1;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
             case 0:
                 imInventory = new im_inventory_prod_1.PrismaClient();
                 batchSize = 100;
@@ -54,105 +54,150 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         }
                     })];
             case 1:
-                total = _c.sent();
-                _c.label = 2;
+                total = _a.sent();
+                console.log("Total orders to process: " + total);
+                _loop_1 = function () {
+                    var orders, shopItemCombinations, orderDetails, _i, orders_1, order, _a, _b, detail, key, existingPrices, priceMap, _c, existingPrices_1, price, key, dataToInsert, _d, orderDetails_1, _e, order, detail, key, existingItem, oldTotalQty, oldTotalValue, newTotalQty, newTotalValue, newWeightedPrice;
+                    return __generator(this, function (_f) {
+                        switch (_f.label) {
+                            case 0:
+                                console.log("Processing batch " + (Math.floor(skip / batchSize) + 1) + " of " + Math.ceil(total / batchSize));
+                                return [4 /*yield*/, imInventory.supplier_orders.findMany({
+                                        where: {
+                                            status: {
+                                                "in": [4, 5]
+                                            }
+                                        },
+                                        include: {
+                                            supplier_order_details: true
+                                        },
+                                        orderBy: {
+                                            receive_time: 'asc'
+                                        },
+                                        skip: skip,
+                                        take: batchSize
+                                    })];
+                            case 1:
+                                orders = _f.sent();
+                                if (orders.length === 0) {
+                                    hasMoreOrders = false;
+                                    return [2 /*return*/, "break"];
+                                }
+                                if (orders.length < batchSize) {
+                                    hasMoreOrders = false;
+                                }
+                                shopItemCombinations = new Set();
+                                orderDetails = [];
+                                for (_i = 0, orders_1 = orders; _i < orders_1.length; _i++) {
+                                    order = orders_1[_i];
+                                    for (_a = 0, _b = order.supplier_order_details; _a < _b.length; _a++) {
+                                        detail = _b[_a];
+                                        key = order.shop_id + "-" + detail.supplier_item_id;
+                                        shopItemCombinations.add(key);
+                                        orderDetails.push({ order: order, detail: detail });
+                                    }
+                                }
+                                return [4 /*yield*/, imInventory.shop_item_weighted_price.findMany({
+                                        where: {
+                                            OR: Array.from(shopItemCombinations).map(function (key) {
+                                                var _a = key.split('-'), shop_id = _a[0], supplier_item_id = _a[1];
+                                                return {
+                                                    shop_id: parseInt(shop_id),
+                                                    supplier_item_id: supplier_item_id
+                                                };
+                                            })
+                                        },
+                                        orderBy: {
+                                            created_at: 'desc'
+                                        }
+                                    })];
+                            case 2:
+                                existingPrices = _f.sent();
+                                priceMap = new Map();
+                                for (_c = 0, existingPrices_1 = existingPrices; _c < existingPrices_1.length; _c++) {
+                                    price = existingPrices_1[_c];
+                                    key = price.shop_id + "-" + price.supplier_item_id;
+                                    if (!priceMap.has(key)) {
+                                        priceMap.set(key, price);
+                                    }
+                                }
+                                dataToInsert = [];
+                                for (_d = 0, orderDetails_1 = orderDetails; _d < orderDetails_1.length; _d++) {
+                                    _e = orderDetails_1[_d], order = _e.order, detail = _e.detail;
+                                    key = order.shop_id + "-" + detail.supplier_item_id;
+                                    existingItem = priceMap.get(key);
+                                    if (existingItem) {
+                                        oldTotalQty = Number(existingItem.total_qty);
+                                        oldTotalValue = Number(existingItem.total_value);
+                                        newTotalQty = oldTotalQty + Number(detail.final_qty);
+                                        newTotalValue = oldTotalValue + Number(detail.price) * Number(detail.final_qty);
+                                        newWeightedPrice = newTotalValue / newTotalQty;
+                                        dataToInsert.push({
+                                            shop_id: order.shop_id,
+                                            supplier_item_id: detail.supplier_item_id,
+                                            type: 'order_in',
+                                            source_order_id: order.id,
+                                            source_detail_id: detail.id,
+                                            created_at: order.receive_time,
+                                            updated_at: order.receive_time,
+                                            weighted_price: newWeightedPrice,
+                                            total_qty: newTotalQty,
+                                            total_value: newTotalValue
+                                        });
+                                    }
+                                    else {
+                                        // Create new weighted price
+                                        dataToInsert.push({
+                                            shop_id: order.shop_id,
+                                            supplier_item_id: detail.supplier_item_id,
+                                            type: 'order_in',
+                                            source_order_id: order.id,
+                                            source_detail_id: detail.id,
+                                            created_at: order.receive_time,
+                                            updated_at: order.receive_time,
+                                            weighted_price: detail.price,
+                                            total_qty: detail.final_qty,
+                                            total_value: Number(detail.price) * Number(detail.final_qty)
+                                        });
+                                    }
+                                }
+                                if (!(dataToInsert.length > 0)) return [3 /*break*/, 4];
+                                return [4 /*yield*/, imInventory.$transaction(function (tx) { return __awaiter(void 0, void 0, void 0, function () {
+                                        return __generator(this, function (_a) {
+                                            switch (_a.label) {
+                                                case 0: return [4 /*yield*/, tx.shop_item_weighted_price.createMany({
+                                                        data: dataToInsert
+                                                    })];
+                                                case 1:
+                                                    _a.sent();
+                                                    return [2 /*return*/];
+                                            }
+                                        });
+                                    }); })];
+                            case 3:
+                                _f.sent();
+                                _f.label = 4;
+                            case 4:
+                                skip += batchSize;
+                                return [2 /*return*/];
+                        }
+                    });
+                };
+                _a.label = 2;
             case 2:
-                if (!hasMoreOrders) return [3 /*break*/, 13];
-                console.log("Processing batch " + (skip + 1) + " of " + total);
-                return [4 /*yield*/, imInventory.supplier_orders.findMany({
-                        where: {
-                            status: {
-                                "in": [4, 5]
-                            }
-                        },
-                        include: {
-                            supplier_order_details: true
-                        },
-                        orderBy: {
-                            receive_time: 'asc'
-                        }
-                    })];
+                if (!hasMoreOrders) return [3 /*break*/, 4];
+                return [5 /*yield**/, _loop_1()];
             case 3:
-                orders = _c.sent();
-                if (orders.length < batchSize) {
-                    hasMoreOrders = false;
-                }
-                if (orders.length === 0) {
-                    return [3 /*break*/, 13];
-                }
-                _i = 0, orders_1 = orders;
-                _c.label = 4;
-            case 4:
-                if (!(_i < orders_1.length)) return [3 /*break*/, 12];
-                order = orders_1[_i];
-                _a = 0, _b = order.supplier_order_details;
-                _c.label = 5;
-            case 5:
-                if (!(_a < _b.length)) return [3 /*break*/, 11];
-                detail = _b[_a];
-                return [4 /*yield*/, imInventory.shop_item_weighted_price.findFirst({
-                        where: {
-                            shop_id: order.shop_id,
-                            supplier_item_id: detail.supplier_item_id
-                        },
-                        orderBy: {
-                            created_at: 'desc'
-                        }
-                    })];
-            case 6:
-                item = _c.sent();
-                if (!item) return [3 /*break*/, 8];
-                oldTotalQty = item.total_qty;
-                oldTotalValue = item.total_value;
-                newTotalQty = Number(oldTotalQty) + Number(detail.final_qty);
-                newTotaValue = Number(oldTotalValue) +
-                    Number(detail.price) * Number(detail.final_qty);
-                newWeightedPrice = newTotaValue / newTotalQty;
-                return [4 /*yield*/, imInventory.shop_item_weighted_price.create({
-                        data: {
-                            shop_id: order.shop_id,
-                            supplier_item_id: detail.supplier_item_id,
-                            type: 'order_in',
-                            source_order_id: order.id,
-                            source_detail_id: detail.id,
-                            created_at: order.receive_time,
-                            updated_at: order.receive_time,
-                            weighted_price: newWeightedPrice,
-                            total_qty: newTotalQty,
-                            total_value: newTotaValue
-                        }
-                    })];
-            case 7:
-                _c.sent();
-                _c.label = 8;
-            case 8: return [4 /*yield*/, imInventory.shop_item_weighted_price.create({
-                    data: {
-                        shop_id: order.shop_id,
-                        supplier_item_id: detail.supplier_item_id,
-                        type: 'order_in',
-                        source_order_id: order.id,
-                        source_detail_id: detail.id,
-                        created_at: order.receive_time,
-                        updated_at: order.receive_time,
-                        weighted_price: detail.price,
-                        total_qty: detail.final_qty,
-                        total_value: Number(detail.price) * Number(detail.final_qty)
-                    }
-                })];
-            case 9:
-                _c.sent();
-                _c.label = 10;
-            case 10:
-                _a++;
-                return [3 /*break*/, 5];
-            case 11:
-                _i++;
-                return [3 /*break*/, 4];
-            case 12:
-                skip += batchSize;
+                state_1 = _a.sent();
+                if (state_1 === "break")
+                    return [3 /*break*/, 4];
                 return [3 /*break*/, 2];
-            case 13: return [2 /*return*/];
+            case 4: return [4 /*yield*/, imInventory.$disconnect()];
+            case 5:
+                _a.sent();
+                console.log('Processing completed successfully');
+                return [2 /*return*/];
         }
     });
 }); };
-run();
+run()["catch"](console.error);
