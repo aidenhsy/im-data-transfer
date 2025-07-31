@@ -18,6 +18,10 @@ const run = async () => {
   });
 
   for (const detail of details) {
+    if (!detail.goods_name) {
+      continue;
+    }
+
     const good = await scmPricing.scm_goods.findFirst({
       where: {
         name: detail.goods_name!,

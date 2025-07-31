@@ -70,6 +70,9 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                     })];
             case 3:
                 good = _a.sent();
+                if (!good) {
+                    console.log(detail.goods_name);
+                }
                 _a.label = 4;
             case 4:
                 _i++;
