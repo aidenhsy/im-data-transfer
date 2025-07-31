@@ -90,6 +90,10 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                                 orderDetails = [];
                                 for (_i = 0, orders_1 = orders; _i < orders_1.length; _i++) {
                                     order = orders_1[_i];
+                                    // Skip orders with null receive_time
+                                    if (!order.receive_time) {
+                                        continue;
+                                    }
                                     for (_a = 0, _b = order.supplier_order_details; _a < _b.length; _a++) {
                                         detail = _b[_a];
                                         key = order.shop_id + "-" + detail.supplier_item_id;

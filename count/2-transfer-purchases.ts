@@ -58,6 +58,11 @@ const run = async () => {
     }> = [];
 
     for (const order of orders) {
+      // Skip orders with null receive_time
+      if (!order.receive_time) {
+        continue;
+      }
+
       for (const detail of order.supplier_order_details) {
         const key = `${order.shop_id}-${detail.supplier_item_id}`;
         shopItemCombinations.add(key);
