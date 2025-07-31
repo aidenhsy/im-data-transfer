@@ -61,6 +61,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
             case 1:
                 oldCounts = _e.sent();
                 missingItems = new Set();
+                console.log(oldCounts.length);
                 _i = 0, oldCounts_1 = oldCounts;
                 _e.label = 2;
             case 2:

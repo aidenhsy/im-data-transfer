@@ -22,6 +22,7 @@ const run = async () => {
   });
 
   let missingItems = new Set();
+  console.log(oldCounts.length);
 
   for (const oldCount of oldCounts) {
     const shop = await imInventory.scm_shop.findFirst({
