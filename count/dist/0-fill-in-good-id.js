@@ -93,3 +93,4 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
         }
     });
 }); };
+run();

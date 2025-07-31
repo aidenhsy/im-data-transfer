@@ -39,3 +39,5 @@ const run = async () => {
     }
   }
 };
+
+run();
