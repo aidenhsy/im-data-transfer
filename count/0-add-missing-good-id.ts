@@ -13,24 +13,30 @@ const run = async () => {
 
   const details = await imProd.scm_inventory_detail_copy.findMany({
     where: {
-      goods_id: null,
+      goods_name: null,
     },
   });
 
   for (const detail of details) {
-    if (!detail.goods_name) {
-      continue;
-    }
-
     const good = await scmPricing.scm_goods.findFirst({
       where: {
-        name: detail.goods_name!,
+        id: detail.goods_id!,
       },
     });
 
     if (!good) {
       console.log(detail.goods_name);
+      continue;
     }
+
+    await imProd.scm_inventory_detail_copy.update({
+      where: {
+        id: detail.id,
+      },
+      data: {
+        goods_name: good.name,
+      },
+    });
   }
 };
 

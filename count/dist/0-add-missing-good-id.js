@@ -53,7 +53,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 scmProd = new scm_prod_1.PrismaClient();
                 return [4 /*yield*/, imProd.scm_inventory_detail_copy.findMany({
                         where: {
-                            goods_id: null
+                            goods_name: null
                         }
                     })];
             case 1:
@@ -61,23 +61,34 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 _i = 0, details_1 = details;
                 _a.label = 2;
             case 2:
-                if (!(_i < details_1.length)) return [3 /*break*/, 5];
+                if (!(_i < details_1.length)) return [3 /*break*/, 6];
                 detail = details_1[_i];
                 return [4 /*yield*/, scmPricing.scm_goods.findFirst({
                         where: {
-                            name: detail.goods_name
+                            id: detail.goods_id
                         }
                     })];
             case 3:
                 good = _a.sent();
                 if (!good) {
                     console.log(detail.goods_name);
+                    return [3 /*break*/, 5];
                 }
-                _a.label = 4;
+                return [4 /*yield*/, imProd.scm_inventory_detail_copy.update({
+                        where: {
+                            id: detail.id
+                        },
+                        data: {
+                            goods_name: good.name
+                        }
+                    })];
             case 4:
+                _a.sent();
+                _a.label = 5;
+            case 5:
                 _i++;
                 return [3 /*break*/, 2];
-            case 5: return [2 /*return*/];
+            case 6: return [2 /*return*/];
         }
     });
 }); };
