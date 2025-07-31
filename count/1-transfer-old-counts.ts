@@ -9,9 +9,9 @@ const run = async () => {
   const imProcurement = new ImProcurement();
   const scmPricing = new ScmPricing();
 
-  await imInventory.shop_item_weighted_price.deleteMany();
-  await imInventory.inventory_count_details.deleteMany();
-  await imInventory.inventory_count.deleteMany();
+  // await imInventory.shop_item_weighted_price.deleteMany();
+  // await imInventory.inventory_count_details.deleteMany();
+  // await imInventory.inventory_count.deleteMany();
   const oldCounts = await imProd.scm_inventory_single_copy.findMany({
     where: {
       end_date: new Date('2025-06-30'),

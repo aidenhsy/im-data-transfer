@@ -50,15 +50,6 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 imProd = new im_prod_1.PrismaClient();
                 imProcurement = new im_procurement_prod_1.PrismaClient();
                 scmPricing = new scm_pricing_prod_1.PrismaClient();
-                return [4 /*yield*/, imInventory.shop_item_weighted_price.deleteMany()];
-            case 1:
-                _e.sent();
-                return [4 /*yield*/, imInventory.inventory_count_details.deleteMany()];
-            case 2:
-                _e.sent();
-                return [4 /*yield*/, imInventory.inventory_count.deleteMany()];
-            case 3:
-                _e.sent();
                 return [4 /*yield*/, imProd.scm_inventory_single_copy.findMany({
                         where: {
                             end_date: new Date('2025-06-30')
@@ -67,31 +58,31 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             scm_inventory_detail_copy: true
                         }
                     })];
-            case 4:
+            case 1:
                 oldCounts = _e.sent();
                 missingItems = new Set();
                 _i = 0, oldCounts_1 = oldCounts;
-                _e.label = 5;
-            case 5:
-                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 13];
+                _e.label = 2;
+            case 2:
+                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 10];
                 oldCount = oldCounts_1[_i];
                 return [4 /*yield*/, imInventory.scm_shop.findFirst({
                         where: {
                             id: Number(oldCount.shop_id)
                         }
                     })];
-            case 6:
+            case 3:
                 shop = _e.sent();
                 if (!shop) {
                     console.log("shop not found: " + oldCount.shop_id);
-                    return [3 /*break*/, 12];
+                    return [3 /*break*/, 9];
                 }
                 city_id = shop.city_id;
                 tier_id = shop.client_tier_id;
                 _a = 0, _b = oldCount.scm_inventory_detail_copy;
-                _e.label = 7;
-            case 7:
-                if (!(_a < _b.length)) return [3 /*break*/, 12];
+                _e.label = 4;
+            case 4:
+                if (!(_a < _b.length)) return [3 /*break*/, 9];
                 detail = _b[_a];
                 good_id = detail.goods_id;
                 return [4 /*yield*/, imInventory.supplier_items.findFirst({
@@ -101,9 +92,9 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             }
                         }
                     })];
-            case 8:
+            case 5:
                 supplier_item = _e.sent();
-                if (!!supplier_item) return [3 /*break*/, 11];
+                if (!!supplier_item) return [3 /*break*/, 8];
                 missingItems.add(good_id);
                 return [4 /*yield*/, scmPricing.scm_goods.findFirst({
                         where: {
@@ -113,7 +104,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             scm_good_units_scm_goods_order_good_unit_idToscm_good_units: true
                         }
                     })];
-            case 9:
+            case 6:
                 scmGood = _e.sent();
                 return [4 /*yield*/, imProcurement.supplier_items.create({
                         data: {
@@ -133,16 +124,16 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             tier_id: tier_id
                         }
                     })];
-            case 10:
+            case 7:
                 _e.sent();
-                return [3 /*break*/, 11];
-            case 11:
+                return [3 /*break*/, 8];
+            case 8:
                 _a++;
-                return [3 /*break*/, 7];
-            case 12:
+                return [3 /*break*/, 4];
+            case 9:
                 _i++;
-                return [3 /*break*/, 5];
-            case 13:
+                return [3 /*break*/, 2];
+            case 10:
                 console.log("\nDistinct missing items (" + missingItems.size + "):");
                 return [2 /*return*/];
         }
