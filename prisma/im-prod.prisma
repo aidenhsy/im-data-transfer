@@ -45,16 +45,15 @@ model base_dimension_ratio {
 }
 
 model big_org {
-  id                   Int                    @id @default(autoincrement())
-  name                 String?                @db.VarChar
-  access_id            String?                @db.VarChar
-  access_secret        String?                @db.VarChar
-  scm_order            scm_order[]
-  scm_order_details    scm_order_details[]
-  scm_shop             scm_shop[]
-  scm_shop_account     scm_shop_account[]
-  scm_shop_brand       scm_shop_brand[]
-  scm_shop_brand_copy1 scm_shop_brand_copy1[]
+  id                Int                 @id @default(autoincrement())
+  name              String?             @db.VarChar
+  access_id         String?             @db.VarChar
+  access_secret     String?             @db.VarChar
+  scm_order         scm_order[]
+  scm_order_details scm_order_details[]
+  scm_shop          scm_shop[]
+  scm_shop_account  scm_shop_account[]
+  scm_shop_brand    scm_shop_brand[]
 }
 
 model cities {
@@ -161,6 +160,18 @@ model ingredients_goods_supplier {
   create_id                String?   @db.Uuid
   modify_time              DateTime? @db.Timestamp(6)
   modify_id                String?   @db.Uuid
+}
+
+model outbox_events {
+  id             String    @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  aggregate_type String    @db.VarChar(255)
+  aggregate_id   String    @db.VarChar(255)
+  event_type     String    @db.VarChar(255)
+  payload        Json
+  created_at     DateTime  @default(now()) @db.Timestamp(6)
+  processed_at   DateTime? @db.Timestamp(6)
+  published_at   DateTime? @db.Timestamp(6)
+  retry_count    Int       @default(0)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -330,22 +341,20 @@ model scm_inventory_detail {
   scm_inventory_single scm_inventory_single? @relation(fields: [single_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "single_id_fk")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model scm_inventory_detail_copy {
-  id            Int?
-  single_id     Int?
-  goods_id      Int?
-  goods_name    String?  @db.VarChar(60)
-  qty           Decimal? @db.Decimal(10, 2)
-  inventory_qty Decimal? @db.Decimal(10, 2)
-  user_id       Int?
-  price         Decimal? @db.Decimal(12, 6)
-  sale_unit     String?  @db.VarChar(10)
-  letter_name   String?  @db.VarChar
-  balance_qty   Decimal? @db.Decimal(10, 2)
-  balance_price Decimal? @db.Decimal(12, 6)
-
-  @@ignore
+  id                        Int                        @id
+  single_id                 Int?
+  goods_id                  Int?
+  goods_name                String?                    @db.VarChar(60)
+  qty                       Decimal?                   @db.Decimal(10, 2)
+  inventory_qty             Decimal?                   @db.Decimal(10, 2)
+  user_id                   Int?
+  price                     Decimal?                   @db.Decimal(12, 6)
+  sale_unit                 String?                    @db.VarChar(10)
+  letter_name               String?                    @db.VarChar
+  balance_qty               Decimal?                   @db.Decimal(10, 2)
+  balance_price             Decimal?                   @db.Decimal(12, 6)
+  scm_inventory_single_copy scm_inventory_single_copy? @relation(fields: [single_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_details")
 }
 
 model scm_inventory_single {
@@ -362,19 +371,17 @@ model scm_inventory_single {
   scm_shop_account     scm_shop_account?      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_inventory_user_shop_account")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model scm_inventory_single_copy {
-  id          Int?
-  shop_id     Int?
-  start_date  DateTime? @db.Date
-  end_date    DateTime? @db.Date
-  create_time DateTime? @db.Timestamp(6)
-  status      Int?      @db.SmallInt
-  user_id     Int?
-  last_amount Decimal?  @db.Decimal(12, 6)
-  submit_time DateTime? @db.Timestamp(6)
-
-  @@ignore
+  id                        Int                         @id
+  shop_id                   Int?
+  start_date                DateTime?                   @db.Date
+  end_date                  DateTime?                   @db.Date
+  create_time               DateTime?                   @db.Timestamp(6)
+  status                    Int?                        @db.SmallInt
+  user_id                   Int?
+  last_amount               Decimal?                    @db.Decimal(12, 6)
+  submit_time               DateTime?                   @db.Timestamp(6)
+  scm_inventory_detail_copy scm_inventory_detail_copy[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -399,7 +406,7 @@ model scm_order {
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_order_507 {
+model scm_order_708 {
   id                   Int?
   shop_id              Int?
   delivery_time        DateTime? @db.Timestamp(6)
@@ -446,7 +453,7 @@ model scm_order_details {
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_order_details_507 {
+model scm_order_details_708 {
   id              Int?
   goods_name      String?   @db.VarChar(60)
   num             Decimal?  @db.Decimal
@@ -458,12 +465,12 @@ model scm_order_details_507 {
   create_time     DateTime? @db.Timestamp(6)
   total_price     Decimal?  @db.Decimal(12, 6)
   sale_unit       String?   @db.VarChar(10)
-  goods_id        Int?
+  goods_id        String?   @db.VarChar(50)
   delivery_qty    Decimal?  @db.Decimal(10, 2)
-  letter_name     String?   @db.VarChar
-  spg_id          String?   @db.VarChar
+  letter_name     String?   @db.VarChar(50)
+  spg_id          String?   @db.VarChar(50)
   pg_id           Int?
-  reference_id    String?   @db.VarChar
+  reference_id    String?   @db.VarChar(50)
   supplier_org_id Int?
   pd_goods_id     Int?
 
@@ -611,26 +618,13 @@ model scm_shop_brand {
   scm_shop                                                       scm_shop[]
   big_org                                                        big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
   scm_supply_plan_scm_shop_brand_supply_plan_idToscm_supply_plan scm_supply_plan?        @relation("scm_shop_brand_supply_plan_idToscm_supply_plan", fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_supply_plan                                                scm_supply_plan[]
+  scm_supply_plan_scm_supply_plan_brand_idToscm_shop_brand       scm_supply_plan[]       @relation("scm_supply_plan_brand_idToscm_shop_brand")
   st_daily_sales                                                 st_daily_sales[]
   st_ingredient                                                  st_ingredient[]
   st_kitchen_department                                          st_kitchen_department[]
   st_sales_plan                                                  st_sales_plan[]
 
   @@index([tcsl_id], map: "idx_sc_shop_brand_tcsl_id")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model scm_shop_brand_copy1 {
-  id          Int       @id @default(autoincrement())
-  brand_name  String    @db.VarChar
-  create_time DateTime? @default(now()) @db.Timestamp(6)
-  tcsl_id     String?   @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  big_org_id  Int?      @default(3)
-  is_enabled  Boolean?  @default(false)
-  big_org     big_org?  @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([tcsl_id], map: "idx_sc_shop_brand_tcsl_id_copy1")
 }
 
 model scm_shop_scm_shop_account {
@@ -656,7 +650,7 @@ model scm_supply_plan {
   scm_shop                                                      scm_shop[]
   scm_shop_brand_scm_shop_brand_supply_plan_idToscm_supply_plan scm_shop_brand[]            @relation("scm_shop_brand_supply_plan_idToscm_supply_plan")
   client_tier                                                   client_tier?                @relation(fields: [client_tier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_client_tier")
-  scm_shop_brand                                                scm_shop_brand?             @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_supply_plan_brand_id_fkey29")
+  scm_shop_brand_scm_supply_plan_brand_idToscm_shop_brand       scm_shop_brand?             @relation("scm_supply_plan_brand_idToscm_shop_brand", fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_supply_plan_brand_id_fkey29")
   scm_supply_plan_scm_goods                                     scm_supply_plan_scm_goods[]
   st_ingredient                                                 st_ingredient[]
   st_sales_plan                                                 st_sales_plan[]
@@ -1271,50 +1265,6 @@ model user_roles {
   scm_shop_account scm_shop_account @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([user_id, role_id])
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_order_611 {
-  id                   Int?
-  shop_id              Int?
-  delivery_time        DateTime? @db.Timestamp(6)
-  address              String?   @db.VarChar(200)
-  status               Int?      @db.SmallInt
-  create_time          DateTime? @db.Timestamp(6)
-  update_time          DateTime? @db.Timestamp(6)
-  remarks              String?   @db.VarChar
-  receival_time        DateTime? @db.Timestamp(6)
-  delivery_day_info_id String?   @db.VarChar
-  reference_id         String?   @db.VarChar
-  supplier_org_id      Int?
-  automatic            Int?
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model scm_order_details_611 {
-  id              Int?
-  goods_name      String?   @db.VarChar(60)
-  num             Decimal?  @db.Decimal
-  price           Decimal?  @db.Decimal(12, 6)
-  spec_text       String?   @db.VarChar(60)
-  ratio           Int?
-  status          Int?      @db.SmallInt
-  order_id        Int?
-  create_time     DateTime? @db.Timestamp(6)
-  total_price     Decimal?  @db.Decimal(12, 6)
-  sale_unit       String?   @db.VarChar(10)
-  goods_id        String?   @db.VarChar(50)
-  delivery_qty    Decimal?  @db.Decimal(10, 2)
-  letter_name     String?   @db.VarChar(50)
-  spg_id          String?   @db.VarChar(50)
-  pg_id           Int?
-  reference_id    String?   @db.VarChar(50)
-  supplier_org_id Int?
-  pd_goods_id     Int?
-
-  @@ignore
 }
 
 enum pricing_strategy_type {

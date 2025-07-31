@@ -12,12 +12,12 @@ const run = async () => {
   await imInventory.shop_item_weighted_price.deleteMany();
   await imInventory.inventory_count_details.deleteMany();
   await imInventory.inventory_count.deleteMany();
-  const oldCounts = await imProd.scm_inventory_single.findMany({
+  const oldCounts = await imProd.scm_inventory_single_copy.findMany({
     where: {
-      end_date: new Date('2025-05-31'),
+      end_date: new Date('2025-06-30'),
     },
     include: {
-      scm_inventory_detail: true,
+      scm_inventory_detail_copy: true,
     },
   });
 
@@ -37,25 +37,25 @@ const run = async () => {
     const city_id = shop.city_id;
     const tier_id = shop.client_tier_id!;
 
-    const newCount = await imInventory.inventory_count.create({
-      data: {
-        id: oldCount.id.toString(),
-        shop_id: oldCount.shop_id,
-        type: 1,
-        status: 1,
-        count_amount: oldCount.last_amount,
-        finished_at: oldCount.end_date!,
-        created_at: oldCount.end_date!,
-        updated_at: oldCount.end_date!,
-      },
-    });
+    // const newCount = await imInventory.inventory_count.create({
+    //   data: {
+    //     id: oldCount.id.toString(),
+    //     shop_id: oldCount.shop_id,
+    //     type: 1,
+    //     status: 1,
+    //     count_amount: oldCount.last_amount,
+    //     finished_at: oldCount.end_date!,
+    //     created_at: oldCount.end_date!,
+    //     updated_at: oldCount.end_date!,
+    //   },
+    // });
 
-    for (const detail of oldCount.scm_inventory_detail) {
+    for (const detail of oldCount.scm_inventory_detail_copy) {
       const good_id = detail.goods_id;
       const supplier_item = await imInventory.supplier_items.findFirst({
         where: {
           supplier_reference_id: {
-            startsWith: `20250730-${tier_id}-${good_id}-${city_id}`,
+            startsWith: `20250731-${tier_id}-${good_id}-${city_id}`,
           },
         },
       });
@@ -77,7 +77,7 @@ const run = async () => {
             supplier_id: 1,
             photo_url: scmGood?.photo_url!,
             price: Number(detail.price),
-            supplier_reference_id: `20250730-${tier_id}-${good_id}-${city_id}-${scmGood?.order_good_unit_id}`,
+            supplier_reference_id: `20250731-${tier_id}-${good_id}-${city_id}-${scmGood?.order_good_unit_id}`,
             cut_off_time: '14:00:00',
             base_unit_id: scmGood?.standard_base_unit,
             package_unit_name:
@@ -97,31 +97,31 @@ const run = async () => {
         continue;
       }
 
-      await imInventory.inventory_count_details.create({
-        data: {
-          id: detail.id.toString(),
-          hypo_qty: null,
-          count_qty: detail.qty,
-          weighted_price: Number(detail.price),
-          supplier_item_id: supplier_item.id,
-          inventory_count_id: newCount.id,
-          updated_at: oldCount.end_date!,
-          created_at: oldCount.end_date!,
-        },
-      });
+      // await imInventory.inventory_count_details.create({
+      //   data: {
+      //     id: detail.id.toString(),
+      //     hypo_qty: null,
+      //     count_qty: detail.qty,
+      //     weighted_price: Number(detail.price),
+      //     supplier_item_id: supplier_item.id,
+      //     inventory_count_id: newCount.id,
+      //     updated_at: oldCount.end_date!,
+      //     created_at: oldCount.end_date!,
+      //   },
+      // });
 
-      await imInventory.shop_item_weighted_price.create({
-        data: {
-          shop_id: Number(shop.id),
-          supplier_item_id: supplier_item.id,
-          weighted_price: Number(detail.price),
-          total_qty: Number(detail.qty),
-          total_value: Number(detail.price) * Number(detail.qty),
-          type: 'stock_count',
-          updated_at: oldCount.end_date!,
-          created_at: oldCount.end_date!,
-        },
-      });
+      // await imInventory.shop_item_weighted_price.create({
+      //   data: {
+      //     shop_id: Number(shop.id),
+      //     supplier_item_id: supplier_item.id,
+      //     weighted_price: Number(detail.price),
+      //     total_qty: Number(detail.qty),
+      //     total_value: Number(detail.price) * Number(detail.qty),
+      //     type: 'stock_count',
+      //     updated_at: oldCount.end_date!,
+      //     created_at: oldCount.end_date!,
+      //   },
+      // });
     }
   }
 
