@@ -7,7 +7,16 @@ const run = async () => {
   let skip = 0;
   let hasMoreOrders = true;
 
+  const total = await imInventory.supplier_orders.count({
+    where: {
+      status: {
+        in: [4, 5],
+      },
+    },
+  });
+
   while (hasMoreOrders) {
+    console.log(`Processing batch ${skip + 1} of ${total}`);
     const orders = await imInventory.supplier_orders.findMany({
       where: {
         status: {

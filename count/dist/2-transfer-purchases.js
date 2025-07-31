@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imInventory, batchSize, skip, hasMoreOrders, orders, _i, orders_1, order, _a, _b, detail, item, oldTotalQty, oldTotalValue, newTotalQty, newTotaValue, newWeightedPrice;
+    var imInventory, batchSize, skip, hasMoreOrders, total, orders, _i, orders_1, order, _a, _b, detail, item, oldTotalQty, oldTotalValue, newTotalQty, newTotaValue, newWeightedPrice;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
@@ -46,9 +46,19 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 batchSize = 100;
                 skip = 0;
                 hasMoreOrders = true;
-                _c.label = 1;
+                return [4 /*yield*/, imInventory.supplier_orders.count({
+                        where: {
+                            status: {
+                                "in": [4, 5]
+                            }
+                        }
+                    })];
             case 1:
-                if (!hasMoreOrders) return [3 /*break*/, 12];
+                total = _c.sent();
+                _c.label = 2;
+            case 2:
+                if (!hasMoreOrders) return [3 /*break*/, 13];
+                console.log("Processing batch " + (skip + 1) + " of " + total);
                 return [4 /*yield*/, imInventory.supplier_orders.findMany({
                         where: {
                             status: {
@@ -62,23 +72,23 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             receive_time: 'asc'
                         }
                     })];
-            case 2:
+            case 3:
                 orders = _c.sent();
                 if (orders.length < batchSize) {
                     hasMoreOrders = false;
                 }
                 if (orders.length === 0) {
-                    return [3 /*break*/, 12];
+                    return [3 /*break*/, 13];
                 }
                 _i = 0, orders_1 = orders;
-                _c.label = 3;
-            case 3:
-                if (!(_i < orders_1.length)) return [3 /*break*/, 11];
-                order = orders_1[_i];
-                _a = 0, _b = order.supplier_order_details;
                 _c.label = 4;
             case 4:
-                if (!(_a < _b.length)) return [3 /*break*/, 10];
+                if (!(_i < orders_1.length)) return [3 /*break*/, 12];
+                order = orders_1[_i];
+                _a = 0, _b = order.supplier_order_details;
+                _c.label = 5;
+            case 5:
+                if (!(_a < _b.length)) return [3 /*break*/, 11];
                 detail = _b[_a];
                 return [4 /*yield*/, imInventory.shop_item_weighted_price.findFirst({
                         where: {
@@ -89,9 +99,9 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             created_at: 'desc'
                         }
                     })];
-            case 5:
+            case 6:
                 item = _c.sent();
-                if (!item) return [3 /*break*/, 7];
+                if (!item) return [3 /*break*/, 8];
                 oldTotalQty = item.total_qty;
                 oldTotalValue = item.total_value;
                 newTotalQty = Number(oldTotalQty) + Number(detail.final_qty);
@@ -112,10 +122,10 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             total_value: newTotaValue
                         }
                     })];
-            case 6:
+            case 7:
                 _c.sent();
-                _c.label = 7;
-            case 7: return [4 /*yield*/, imInventory.shop_item_weighted_price.create({
+                _c.label = 8;
+            case 8: return [4 /*yield*/, imInventory.shop_item_weighted_price.create({
                     data: {
                         shop_id: order.shop_id,
                         supplier_item_id: detail.supplier_item_id,
@@ -129,19 +139,19 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         total_value: Number(detail.price) * Number(detail.final_qty)
                     }
                 })];
-            case 8:
-                _c.sent();
-                _c.label = 9;
             case 9:
-                _a++;
-                return [3 /*break*/, 4];
+                _c.sent();
+                _c.label = 10;
             case 10:
-                _i++;
-                return [3 /*break*/, 3];
+                _a++;
+                return [3 /*break*/, 5];
             case 11:
+                _i++;
+                return [3 /*break*/, 4];
+            case 12:
                 skip += batchSize;
-                return [3 /*break*/, 1];
-            case 12: return [2 /*return*/];
+                return [3 /*break*/, 2];
+            case 13: return [2 /*return*/];
         }
     });
 }); };
