@@ -112,6 +112,7 @@ model procurement_order_details {
 
   @@unique([reference_id, order_id], map: "unique_reference_order")
   @@index([reference_id, order_id], map: "idx_reference_order")
+  @@index([reference_id], map: "idx_procurement_order_details_reference_id")
 }
 
 model procurement_order_status_history {
@@ -140,6 +141,8 @@ model procurement_orders {
   order_amount                     Decimal?                           @db.Decimal(12, 4)
   actual_amount                    Decimal?                           @db.Decimal(12, 4)
   customer_receive_time            DateTime?                          @db.Timestamp(6)
+  sent_time                        DateTime?                          @db.Timestamp(6)
+  estimated_delivery_time          DateTime?                          @db.Timestamp(6)
   procurement_order_details        procurement_order_details[]
   procurement_order_status_history procurement_order_status_history[]
 }

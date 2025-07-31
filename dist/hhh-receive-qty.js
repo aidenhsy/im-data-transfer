@@ -12,14 +12,9 @@ const run = async () => {
     let hasMoreOrders = true;
     while (hasMoreOrders) {
         const orders = await orderDB.procurement_orders.findMany({
-            select: {
-                client_order_id: true,
-                procurement_order_details: {
-                    select: {
-                        reference_id: true,
-                        customer_receive_qty: true,
-                        id: true,
-                    },
+            where: {
+                status: {
+                    in: [4, 5, 20],
                 },
             },
             take: batchSize,
@@ -37,16 +32,6 @@ const run = async () => {
                     in: orders.map((order) => order.client_order_id),
                 },
             },
-            select: {
-                id: true,
-                supplier_order_details: {
-                    select: {
-                        id: true,
-                        supplier_reference_id: true,
-                        confirm_delivery_qty: true,
-                    },
-                },
-            },
         });
         for (const order of orders) {
             const procurementOrder = procurementOrders.find((o) => o.id === order.client_order_id);
@@ -54,25 +39,38 @@ const run = async () => {
                 console.log(`${order.client_order_id} not found`);
                 continue;
             }
-            for (const orderDetail of order.procurement_order_details) {
-                const procurementDetail = procurementOrder.supplier_order_details.find((d) => d.supplier_reference_id === orderDetail.reference_id);
-                if (!procurementDetail) {
-                    console.log(`${orderDetail.reference_id} not found`);
-                    continue;
-                }
-                if (Number(procurementDetail.confirm_delivery_qty) !==
-                    Number(orderDetail.customer_receive_qty)) {
-                    await orderDB.procurement_order_details.update({
-                        where: {
-                            id: orderDetail.id,
-                        },
-                        data: {
-                            customer_receive_qty: procurementDetail.confirm_delivery_qty,
-                        },
-                    });
-                    console.log(`${orderDetail.reference_id} difference ${procurementDetail.confirm_delivery_qty} ${orderDetail.customer_receive_qty} \n id: ${order.client_order_id} \n `);
-                    console.log('-----------');
-                }
+            if (procurementOrder.receive_time && order.customer_receive_time) {
+                continue;
+            }
+            console.log(`${order.client_order_id} \n ${order.status} \n ${procurementOrder.receive_time} \n ${order.customer_receive_time}`);
+            console.log('-----------');
+            if (procurementOrder?.receive_time) {
+                await orderDB.procurement_orders.update({
+                    where: {
+                        id: order.id,
+                    },
+                    data: {
+                        customer_receive_time: procurementOrder.receive_time,
+                    },
+                });
+            }
+            if (procurementOrder.receive_time === null) {
+                await procurementDB.supplier_orders.update({
+                    where: {
+                        id: procurementOrder.id,
+                    },
+                    data: {
+                        receive_time: order.delivery_time,
+                    },
+                });
+                await orderDB.procurement_orders.update({
+                    where: {
+                        id: order.id,
+                    },
+                    data: {
+                        customer_receive_time: order.delivery_time,
+                    },
+                });
             }
         }
         // Move to the next batch

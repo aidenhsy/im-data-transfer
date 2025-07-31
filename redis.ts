@@ -211,7 +211,11 @@ const run = async () => {
     if (typeof value === 'string') {
       try {
         const json = JSON.parse(value);
-        console.log('Parsed JSON:', json);
+        console.log('Parsed JSON:', json.map(item => ({
+          supply_plan_item_id:item.supply_plan_item_id,
+          qty: item.qty,
+          supplier_item_id:item.supplier_item_id
+        })));
       } catch (e) {
         console.log('Value is not valid JSON string:', value);
       }
