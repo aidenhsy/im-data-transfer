@@ -36,17 +36,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
 var im_prod_1 = require("../prisma/clients/im-prod");
 var im_procurement_prod_1 = require("../prisma/clients/im-procurement-prod");
 var scm_pricing_prod_1 = require("../prisma/clients/scm-pricing-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imInventory, imProd, imProcurement, scmPricing, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, tier_id, _a, _b, detail, good_id, scmGood, supplier_reference_id, supplier_item;
+    var imProd, imProcurement, scmPricing, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, tier_id, _a, _b, detail, good_id, scmGood, supplier_reference_id, supplier_item;
     var _c, _d;
     return __generator(this, function (_e) {
         switch (_e.label) {
             case 0:
-                imInventory = new im_inventory_prod_1.PrismaClient();
                 imProd = new im_prod_1.PrismaClient();
                 imProcurement = new im_procurement_prod_1.PrismaClient();
                 scmPricing = new scm_pricing_prod_1.PrismaClient();
@@ -67,7 +65,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
             case 2:
                 if (!(_i < oldCounts_1.length)) return [3 /*break*/, 12];
                 oldCount = oldCounts_1[_i];
-                return [4 /*yield*/, imInventory.scm_shop.findFirst({
+                return [4 /*yield*/, imProcurement.scm_shop.findFirst({
                         where: {
                             id: Number(oldCount.shop_id)
                         }
@@ -99,7 +97,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 supplier_reference_id = scmGood
                     ? "20250731-" + tier_id + "-" + good_id + "-" + city_id + "-" + (scmGood === null || scmGood === void 0 ? void 0 : scmGood.order_good_unit_id)
                     : "20250731-" + tier_id + "-" + good_id + "-" + city_id;
-                return [4 /*yield*/, imInventory.supplier_items.findFirst({
+                return [4 /*yield*/, imProcurement.supplier_items.findFirst({
                         where: {
                             supplier_reference_id: supplier_reference_id
                         }

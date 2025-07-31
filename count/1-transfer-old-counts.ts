@@ -4,7 +4,7 @@ import { PrismaClient as ImProcurement } from '../prisma/clients/im-procurement-
 import { PrismaClient as ScmPricing } from '../prisma/clients/scm-pricing-prod';
 
 const run = async () => {
-  const imInventory = new ImInventory();
+  // const imInventory = new ImInventory();
   const imProd = new ImProd();
   const imProcurement = new ImProcurement();
   const scmPricing = new ScmPricing();
@@ -25,7 +25,7 @@ const run = async () => {
   console.log(oldCounts.length);
 
   for (const oldCount of oldCounts) {
-    const shop = await imInventory.scm_shop.findFirst({
+    const shop = await imProcurement.scm_shop.findFirst({
       where: {
         id: Number(oldCount.shop_id),
       },
@@ -68,8 +68,8 @@ const run = async () => {
         ? `20250731-${tier_id}-${good_id}-${city_id}-${scmGood?.order_good_unit_id}`
         : `20250731-${tier_id}-${good_id}-${city_id}`;
 
-      // Check if supplier item already exists with the exact reference ID
-      const supplier_item = await imInventory.supplier_items.findFirst({
+      // Check if supplier item already exists with the exact reference ID in the procurement database
+      const supplier_item = await imProcurement.supplier_items.findFirst({
         where: {
           supplier_reference_id: supplier_reference_id,
         },
