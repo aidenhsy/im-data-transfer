@@ -69,13 +69,35 @@ const run = async () => {
             scm_good_units_scm_goods_order_good_unit_idToscm_good_units: true,
           },
         });
+        if (!scmGood) {
+          await imProcurement.supplier_items.create({
+            data: {
+              name: detail.goods_name!,
+              status: 0,
+              letter_name: null,
+              supplier_id: 1,
+              photo_url: null,
+              price: Number(detail.price),
+              supplier_reference_id: `20250731-${tier_id}-${good_id}-${city_id}`,
+              cut_off_time: '14:00:00',
+              base_unit_id: 1,
+              package_unit_name: null,
+              package_unit_to_base_ratio: 1,
+              city_id: city_id,
+              weighing: 1,
+              tier_id: tier_id,
+            },
+          });
+          continue;
+        }
+
         await imProcurement.supplier_items.create({
           data: {
-            name: scmGood?.name!,
+            name: scmGood.name!,
             status: 0,
-            letter_name: scmGood?.letter_name!,
+            letter_name: scmGood.letter_name!,
             supplier_id: 1,
-            photo_url: scmGood?.photo_url!,
+            photo_url: scmGood.photo_url!,
             price: Number(detail.price),
             supplier_reference_id: `20250731-${tier_id}-${good_id}-${city_id}-${scmGood?.order_good_unit_id}`,
             cut_off_time: '14:00:00',
