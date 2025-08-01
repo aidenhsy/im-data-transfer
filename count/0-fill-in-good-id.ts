@@ -7,14 +7,8 @@ const run = async () => {
   const inventory = new ImInventory();
 
   const procurementSupplierItems = await procurement.supplier_items.findMany();
-  console.log('Procurement supplier items:', procurementSupplierItems.length);
 
   const inventorySupplierItems = await inventory.supplier_items.findMany();
-  console.log('Inventory supplier items:', inventorySupplierItems.length);
-
-  // Debug: Let's see some sample data
-  console.log('Sample procurement item:', procurementSupplierItems[0]);
-  console.log('Sample inventory item:', inventorySupplierItems[0]);
 
   const missingInventorySupplierItems = procurementSupplierItems.filter(
     (item) => !inventorySupplierItems.some((i) => i.id === item.id.toString())

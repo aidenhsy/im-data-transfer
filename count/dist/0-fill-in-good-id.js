@@ -48,14 +48,9 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 return [4 /*yield*/, procurement.supplier_items.findMany()];
             case 1:
                 procurementSupplierItems = _a.sent();
-                console.log('Procurement supplier items:', procurementSupplierItems.length);
                 return [4 /*yield*/, inventory.supplier_items.findMany()];
             case 2:
                 inventorySupplierItems = _a.sent();
-                console.log('Inventory supplier items:', inventorySupplierItems.length);
-                // Debug: Let's see some sample data
-                console.log('Sample procurement item:', procurementSupplierItems[0]);
-                console.log('Sample inventory item:', inventorySupplierItems[0]);
                 missingInventorySupplierItems = procurementSupplierItems.filter(function (item) { return !inventorySupplierItems.some(function (i) { return i.id === item.id.toString(); }); });
                 console.log('Missing items found:', missingInventorySupplierItems.length);
                 if (!(missingInventorySupplierItems.length > 0)) return [3 /*break*/, 7];
