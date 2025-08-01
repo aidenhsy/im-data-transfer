@@ -79,8 +79,29 @@ const run = async () => {
         missingItems.add(good_id);
 
         if (!scmGood) {
-          await imProcurement.supplier_items.create({
+          const newSupplierItem = await imProcurement.supplier_items.create({
             data: {
+              name: detail.goods_name!,
+              status: 0,
+              letter_name: null,
+              supplier_id: 1,
+              photo_url: null,
+              price: Number(detail.price),
+              supplier_reference_id: supplier_reference_id,
+              cut_off_time: '14:00:00',
+              base_unit_id: 1,
+              package_unit_name: null,
+              package_unit_to_base_ratio: 1,
+              city_id: city_id,
+              weighing: 1,
+              tier_id: tier_id,
+            },
+          });
+
+          // Also create in imInventory database
+          await imInventory.supplier_items.create({
+            data: {
+              id: newSupplierItem.id, // Use same ID to maintain consistency
               name: detail.goods_name!,
               status: 0,
               letter_name: null,
@@ -100,8 +121,36 @@ const run = async () => {
           continue;
         }
 
-        await imProcurement.supplier_items.create({
+        const newSupplierItem = await imProcurement.supplier_items.create({
           data: {
+            name: scmGood.name!,
+            status: 0,
+            letter_name: scmGood.letter_name!,
+            supplier_id: 1,
+            photo_url: scmGood.photo_url!,
+            price: Number(detail.price),
+            supplier_reference_id: supplier_reference_id,
+            cut_off_time: '14:00:00',
+            base_unit_id: scmGood?.standard_base_unit,
+            package_unit_name:
+              scmGood
+                ?.scm_good_units_scm_goods_order_good_unit_idToscm_good_units
+                ?.name,
+            package_unit_to_base_ratio: Number(
+              scmGood
+                ?.scm_good_units_scm_goods_order_good_unit_idToscm_good_units
+                ?.ratio_to_base
+            ),
+            city_id: city_id,
+            weighing: 1,
+            tier_id: tier_id,
+          },
+        });
+
+        // Also create in imInventory database
+        await imInventory.supplier_items.create({
+          data: {
+            id: newSupplierItem.id, // Use same ID to maintain consistency
             name: scmGood.name!,
             status: 0,
             letter_name: scmGood.letter_name!,
