@@ -7,8 +7,10 @@ const run = async () => {
   const inventory = new ImInventory();
 
   const procurementSupplierItems = await procurement.supplier_items.findMany();
+  console.log(procurementSupplierItems.length);
 
   const inventorySupplierItems = await inventory.supplier_items.findMany();
+  console.log(inventorySupplierItems.length);
 
   const missingInventorySupplierItems = inventorySupplierItems.filter(
     (item) =>
