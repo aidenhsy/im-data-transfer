@@ -12,9 +12,9 @@ const run = async () => {
   const inventorySupplierItems = await inventory.supplier_items.findMany();
   console.log(inventorySupplierItems.length);
 
-  const missingInventorySupplierItems = inventorySupplierItems.filter(
+  const missingInventorySupplierItems = procurementSupplierItems.filter(
     (item) =>
-      !procurementSupplierItems.some((i) => i.supplier_id === item.supplier_id)
+      !inventorySupplierItems.some((i) => i.supplier_id === item.supplier_id)
   );
 
   if (missingInventorySupplierItems.length > 0) {
