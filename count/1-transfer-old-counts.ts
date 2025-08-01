@@ -14,7 +14,7 @@ const run = async () => {
   // await imInventory.inventory_count.deleteMany();
   const oldCounts = await imProd.scm_inventory_single_copy.findMany({
     where: {
-      end_date: new Date('2025-06-30'),
+      end_date: new Date('2025-05-31'),
     },
     include: {
       scm_inventory_detail_copy: true,
@@ -38,18 +38,18 @@ const run = async () => {
     const city_id = shop.city_id;
     const tier_id = shop.client_tier_id!;
 
-    const newCount = await imInventory.inventory_count.create({
-      data: {
-        id: oldCount.id.toString(),
-        shop_id: oldCount.shop_id,
-        type: 1,
-        status: 1,
-        count_amount: oldCount.last_amount,
-        finished_at: oldCount.end_date!,
-        created_at: oldCount.end_date!,
-        updated_at: oldCount.end_date!,
-      },
-    });
+    // const newCount = await imInventory.inventory_count.create({
+    //   data: {
+    //     id: oldCount.id.toString(),
+    //     shop_id: oldCount.shop_id,
+    //     type: 1,
+    //     status: 1,
+    //     count_amount: oldCount.last_amount,
+    //     finished_at: oldCount.end_date!,
+    //     created_at: oldCount.end_date!,
+    //     updated_at: oldCount.end_date!,
+    //   },
+    // });
 
     for (const detail of oldCount.scm_inventory_detail_copy) {
       const good_id = detail.goods_id;
@@ -128,18 +128,18 @@ const run = async () => {
         continue;
       }
 
-      await imInventory.inventory_count_details.create({
-        data: {
-          id: detail.id.toString(),
-          hypo_qty: null,
-          count_qty: detail.qty,
-          weighted_price: Number(detail.price),
-          supplier_item_id: supplier_item.id,
-          inventory_count_id: newCount.id,
-          updated_at: oldCount.end_date!,
-          created_at: oldCount.end_date!,
-        },
-      });
+      // await imInventory.inventory_count_details.create({
+      //   data: {
+      //     id: detail.id.toString(),
+      //     hypo_qty: null,
+      //     count_qty: detail.qty,
+      //     weighted_price: Number(detail.price),
+      //     supplier_item_id: supplier_item.id,
+      //     inventory_count_id: newCount.id,
+      //     updated_at: oldCount.end_date!,
+      //     created_at: oldCount.end_date!,
+      //   },
+      // });
 
       await imInventory.shop_item_weighted_price.create({
         data: {
