@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,24 +50,24 @@ exports.__esModule = true;
 var im_procurement_prod_1 = require("../prisma/clients/im-procurement-prod");
 var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var procurement, inventory, procurementSupplierItems, inventorySupplierItems, missingInventorySupplierItems, _i, missingInventorySupplierItems_1, item;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var procurement, inventory, procurementSupplierItems, inventorySupplierItems, missingInventorySupplierItems, _i, missingInventorySupplierItems_1, item, _a, procurementSupplierItems_1, item;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 procurement = new im_procurement_prod_1.PrismaClient();
                 inventory = new im_inventory_prod_1.PrismaClient();
                 return [4 /*yield*/, procurement.supplier_items.findMany()];
             case 1:
-                procurementSupplierItems = _a.sent();
+                procurementSupplierItems = _b.sent();
                 return [4 /*yield*/, inventory.supplier_items.findMany()];
             case 2:
-                inventorySupplierItems = _a.sent();
+                inventorySupplierItems = _b.sent();
                 missingInventorySupplierItems = procurementSupplierItems.filter(function (item) { return !inventorySupplierItems.some(function (i) { return i.id === item.id.toString(); }); });
                 console.log('Missing items found:', missingInventorySupplierItems.length);
                 if (!(missingInventorySupplierItems.length > 0)) return [3 /*break*/, 7];
                 console.log("Missing inventory supplier items: " + missingInventorySupplierItems.length);
                 _i = 0, missingInventorySupplierItems_1 = missingInventorySupplierItems;
-                _a.label = 3;
+                _b.label = 3;
             case 3:
                 if (!(_i < missingInventorySupplierItems_1.length)) return [3 /*break*/, 6];
                 item = missingInventorySupplierItems_1[_i];
@@ -64,16 +75,34 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         data: item
                     })];
             case 4:
-                _a.sent();
-                _a.label = 5;
+                _b.sent();
+                _b.label = 5;
             case 5:
                 _i++;
                 return [3 /*break*/, 3];
-            case 6: return [3 /*break*/, 8];
+            case 6: return [3 /*break*/, 12];
             case 7:
+                _a = 0, procurementSupplierItems_1 = procurementSupplierItems;
+                _b.label = 8;
+            case 8:
+                if (!(_a < procurementSupplierItems_1.length)) return [3 /*break*/, 11];
+                item = procurementSupplierItems_1[_a];
+                return [4 /*yield*/, inventory.supplier_items.update({
+                        where: {
+                            id: item.id
+                        },
+                        data: __assign({}, item)
+                    })];
+            case 9:
+                _b.sent();
+                _b.label = 10;
+            case 10:
+                _a++;
+                return [3 /*break*/, 8];
+            case 11:
                 console.log('No missing items found - all procurement items already exist in inventory');
-                _a.label = 8;
-            case 8: return [2 /*return*/];
+                _b.label = 12;
+            case 12: return [2 /*return*/];
         }
     });
 }); };
