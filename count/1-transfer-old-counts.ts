@@ -4,7 +4,7 @@ import { PrismaClient as ImProcurement } from '../prisma/clients/im-procurement-
 import { PrismaClient as ScmPricing } from '../prisma/clients/scm-pricing-prod';
 
 const run = async () => {
-  // const imInventory = new ImInventory();
+  const imInventory = new ImInventory();
   const imProd = new ImProd();
   const imProcurement = new ImProcurement();
   const scmPricing = new ScmPricing();
@@ -38,18 +38,18 @@ const run = async () => {
     const city_id = shop.city_id;
     const tier_id = shop.client_tier_id!;
 
-    // const newCount = await imInventory.inventory_count.create({
-    //   data: {
-    //     id: oldCount.id.toString(),
-    //     shop_id: oldCount.shop_id,
-    //     type: 1,
-    //     status: 1,
-    //     count_amount: oldCount.last_amount,
-    //     finished_at: oldCount.end_date!,
-    //     created_at: oldCount.end_date!,
-    //     updated_at: oldCount.end_date!,
-    //   },
-    // });
+    const newCount = await imInventory.inventory_count.create({
+      data: {
+        id: oldCount.id.toString(),
+        shop_id: oldCount.shop_id,
+        type: 1,
+        status: 1,
+        count_amount: oldCount.last_amount,
+        finished_at: oldCount.end_date!,
+        created_at: oldCount.end_date!,
+        updated_at: oldCount.end_date!,
+      },
+    });
 
     for (const detail of oldCount.scm_inventory_detail_copy) {
       const good_id = detail.goods_id;
@@ -128,31 +128,31 @@ const run = async () => {
         continue;
       }
 
-      // await imInventory.inventory_count_details.create({
-      //   data: {
-      //     id: detail.id.toString(),
-      //     hypo_qty: null,
-      //     count_qty: detail.qty,
-      //     weighted_price: Number(detail.price),
-      //     supplier_item_id: supplier_item.id,
-      //     inventory_count_id: newCount.id,
-      //     updated_at: oldCount.end_date!,
-      //     created_at: oldCount.end_date!,
-      //   },
-      // });
+      await imInventory.inventory_count_details.create({
+        data: {
+          id: detail.id.toString(),
+          hypo_qty: null,
+          count_qty: detail.qty,
+          weighted_price: Number(detail.price),
+          supplier_item_id: supplier_item.id,
+          inventory_count_id: newCount.id,
+          updated_at: oldCount.end_date!,
+          created_at: oldCount.end_date!,
+        },
+      });
 
-      // await imInventory.shop_item_weighted_price.create({
-      //   data: {
-      //     shop_id: Number(shop.id),
-      //     supplier_item_id: supplier_item.id,
-      //     weighted_price: Number(detail.price),
-      //     total_qty: Number(detail.qty),
-      //     total_value: Number(detail.price) * Number(detail.qty),
-      //     type: 'stock_count',
-      //     updated_at: oldCount.end_date!,
-      //     created_at: oldCount.end_date!,
-      //   },
-      // });
+      await imInventory.shop_item_weighted_price.create({
+        data: {
+          shop_id: Number(shop.id),
+          supplier_item_id: supplier_item.id,
+          weighted_price: Number(detail.price),
+          total_qty: Number(detail.qty),
+          total_value: Number(detail.price) * Number(detail.qty),
+          type: 'stock_count',
+          updated_at: oldCount.end_date!,
+          created_at: oldCount.end_date!,
+        },
+      });
     }
   }
 

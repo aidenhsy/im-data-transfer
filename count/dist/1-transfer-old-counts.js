@@ -36,15 +36,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
+var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
 var im_prod_1 = require("../prisma/clients/im-prod");
 var im_procurement_prod_1 = require("../prisma/clients/im-procurement-prod");
 var scm_pricing_prod_1 = require("../prisma/clients/scm-pricing-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imProd, imProcurement, scmPricing, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, tier_id, _a, _b, detail, good_id, scmGood, supplier_reference_id, supplier_item;
+    var imInventory, imProd, imProcurement, scmPricing, oldCounts, missingItems, _i, oldCounts_1, oldCount, shop, city_id, tier_id, newCount, _a, _b, detail, good_id, scmGood, supplier_reference_id, supplier_item;
     var _c, _d;
     return __generator(this, function (_e) {
         switch (_e.label) {
             case 0:
+                imInventory = new im_inventory_prod_1.PrismaClient();
                 imProd = new im_prod_1.PrismaClient();
                 imProcurement = new im_procurement_prod_1.PrismaClient();
                 scmPricing = new scm_pricing_prod_1.PrismaClient();
@@ -63,7 +65,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 _i = 0, oldCounts_1 = oldCounts;
                 _e.label = 2;
             case 2:
-                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 12];
+                if (!(_i < oldCounts_1.length)) return [3 /*break*/, 16];
                 oldCount = oldCounts_1[_i];
                 return [4 /*yield*/, imProcurement.scm_shop.findFirst({
                         where: {
@@ -74,14 +76,28 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 shop = _e.sent();
                 if (!shop) {
                     console.log("shop not found: " + oldCount.shop_id);
-                    return [3 /*break*/, 11];
+                    return [3 /*break*/, 15];
                 }
                 city_id = shop.city_id;
                 tier_id = shop.client_tier_id;
-                _a = 0, _b = oldCount.scm_inventory_detail_copy;
-                _e.label = 4;
+                return [4 /*yield*/, imInventory.inventory_count.create({
+                        data: {
+                            id: oldCount.id.toString(),
+                            shop_id: oldCount.shop_id,
+                            type: 1,
+                            status: 1,
+                            count_amount: oldCount.last_amount,
+                            finished_at: oldCount.end_date,
+                            created_at: oldCount.end_date,
+                            updated_at: oldCount.end_date
+                        }
+                    })];
             case 4:
-                if (!(_a < _b.length)) return [3 /*break*/, 11];
+                newCount = _e.sent();
+                _a = 0, _b = oldCount.scm_inventory_detail_copy;
+                _e.label = 5;
+            case 5:
+                if (!(_a < _b.length)) return [3 /*break*/, 15];
                 detail = _b[_a];
                 good_id = detail.goods_id;
                 return [4 /*yield*/, scmPricing.scm_goods.findFirst({
@@ -92,7 +108,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             scm_good_units_scm_goods_order_good_unit_idToscm_good_units: true
                         }
                     })];
-            case 5:
+            case 6:
                 scmGood = _e.sent();
                 supplier_reference_id = scmGood
                     ? "20250731-" + tier_id + "-" + good_id + "-" + city_id + "-" + (scmGood === null || scmGood === void 0 ? void 0 : scmGood.order_good_unit_id)
@@ -102,11 +118,11 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             supplier_reference_id: supplier_reference_id
                         }
                     })];
-            case 6:
+            case 7:
                 supplier_item = _e.sent();
-                if (!!supplier_item) return [3 /*break*/, 10];
+                if (!!supplier_item) return [3 /*break*/, 11];
                 missingItems.add(good_id);
-                if (!!scmGood) return [3 /*break*/, 8];
+                if (!!scmGood) return [3 /*break*/, 9];
                 return [4 /*yield*/, imProcurement.supplier_items.create({
                         data: {
                             name: detail.goods_name,
@@ -125,10 +141,10 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                             tier_id: tier_id
                         }
                     })];
-            case 7:
+            case 8:
                 _e.sent();
-                return [3 /*break*/, 10];
-            case 8: return [4 /*yield*/, imProcurement.supplier_items.create({
+                return [3 /*break*/, 14];
+            case 9: return [4 /*yield*/, imProcurement.supplier_items.create({
                     data: {
                         name: scmGood.name,
                         status: 0,
@@ -146,16 +162,45 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         tier_id: tier_id
                     }
                 })];
-            case 9:
-                _e.sent();
-                return [3 /*break*/, 10];
             case 10:
+                _e.sent();
+                return [3 /*break*/, 14];
+            case 11: return [4 /*yield*/, imInventory.inventory_count_details.create({
+                    data: {
+                        id: detail.id.toString(),
+                        hypo_qty: null,
+                        count_qty: detail.qty,
+                        weighted_price: Number(detail.price),
+                        supplier_item_id: supplier_item.id,
+                        inventory_count_id: newCount.id,
+                        updated_at: oldCount.end_date,
+                        created_at: oldCount.end_date
+                    }
+                })];
+            case 12:
+                _e.sent();
+                return [4 /*yield*/, imInventory.shop_item_weighted_price.create({
+                        data: {
+                            shop_id: Number(shop.id),
+                            supplier_item_id: supplier_item.id,
+                            weighted_price: Number(detail.price),
+                            total_qty: Number(detail.qty),
+                            total_value: Number(detail.price) * Number(detail.qty),
+                            type: 'stock_count',
+                            updated_at: oldCount.end_date,
+                            created_at: oldCount.end_date
+                        }
+                    })];
+            case 13:
+                _e.sent();
+                _e.label = 14;
+            case 14:
                 _a++;
-                return [3 /*break*/, 4];
-            case 11:
+                return [3 /*break*/, 5];
+            case 15:
                 _i++;
                 return [3 /*break*/, 2];
-            case 12:
+            case 16:
                 console.log("\nDistinct missing items (" + missingItems.size + "):");
                 return [2 /*return*/];
         }

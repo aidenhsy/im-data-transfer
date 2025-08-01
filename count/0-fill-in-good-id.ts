@@ -1,40 +1,28 @@
 import { PrismaClient as ImProd } from '../prisma/clients/im-prod';
+import { PrismaClient as ImProcurement } from '../prisma/clients/im-procurement-prod';
+import { PrismaClient as ImInventory } from '../prisma/clients/im-inventory-prod';
 
 const run = async () => {
-  const imProd = new ImProd();
+  const procurement = new ImProcurement();
+  const inventory = new ImInventory();
 
-  const details = await imProd.scm_inventory_detail_copy.findMany({
-    where: {
-      goods_id: null,
-    },
-  });
+  const procurementSupplierItems = await procurement.supplier_items.findMany();
 
-  let id = 9999900;
-  for (const detail of details) {
-    const otherDetailSameName =
-      await imProd.scm_inventory_detail_copy.findFirst({
-        where: {
-          goods_name: detail.goods_name,
-        },
-      });
+  const inventorySupplierItems = await inventory.supplier_items.findMany();
 
-    if (otherDetailSameName) {
-      await imProd.scm_inventory_detail_copy.update({
-        where: {
-          id: detail.id,
-        },
-        data: {
-          goods_id: otherDetailSameName.goods_id,
-        },
-      });
-    } else {
-      await imProd.scm_inventory_detail_copy.update({
-        where: {
-          id: detail.id,
-        },
-        data: {
-          goods_id: id++,
-        },
+  const missingInventorySupplierItems = procurementSupplierItems.filter(
+    (item) =>
+      !inventorySupplierItems.some((i) => i.supplier_id === item.supplier_id)
+  );
+
+  if (missingInventorySupplierItems.length > 0) {
+    console.log(
+      `Missing inventory supplier items: ${missingInventorySupplierItems.length}`
+    );
+
+    for (const item of missingInventorySupplierItems) {
+      await inventory.supplier_items.create({
+        data: item,
       });
     }
   }

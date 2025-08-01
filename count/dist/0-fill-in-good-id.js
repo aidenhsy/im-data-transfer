@@ -36,60 +36,41 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var im_prod_1 = require("../prisma/clients/im-prod");
+var im_procurement_prod_1 = require("../prisma/clients/im-procurement-prod");
+var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imProd, details, id, _i, details_1, detail, otherDetailSameName;
+    var procurement, inventory, procurementSupplierItems, inventorySupplierItems, missingInventorySupplierItems, _i, missingInventorySupplierItems_1, item;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                imProd = new im_prod_1.PrismaClient();
-                return [4 /*yield*/, imProd.scm_inventory_detail_copy.findMany({
-                        where: {
-                            goods_id: null
-                        }
-                    })];
+                procurement = new im_procurement_prod_1.PrismaClient();
+                inventory = new im_inventory_prod_1.PrismaClient();
+                return [4 /*yield*/, procurement.supplier_items.findMany()];
             case 1:
-                details = _a.sent();
-                id = 9999900;
-                _i = 0, details_1 = details;
-                _a.label = 2;
+                procurementSupplierItems = _a.sent();
+                return [4 /*yield*/, inventory.supplier_items.findMany()];
             case 2:
-                if (!(_i < details_1.length)) return [3 /*break*/, 8];
-                detail = details_1[_i];
-                return [4 /*yield*/, imProd.scm_inventory_detail_copy.findFirst({
-                        where: {
-                            goods_name: detail.goods_name
-                        }
-                    })];
+                inventorySupplierItems = _a.sent();
+                missingInventorySupplierItems = procurementSupplierItems.filter(function (item) {
+                    return !inventorySupplierItems.some(function (i) { return i.supplier_id === item.supplier_id; });
+                });
+                if (!(missingInventorySupplierItems.length > 0)) return [3 /*break*/, 6];
+                console.log("Missing inventory supplier items: " + missingInventorySupplierItems.length);
+                _i = 0, missingInventorySupplierItems_1 = missingInventorySupplierItems;
+                _a.label = 3;
             case 3:
-                otherDetailSameName = _a.sent();
-                if (!otherDetailSameName) return [3 /*break*/, 5];
-                return [4 /*yield*/, imProd.scm_inventory_detail_copy.update({
-                        where: {
-                            id: detail.id
-                        },
-                        data: {
-                            goods_id: otherDetailSameName.goods_id
-                        }
+                if (!(_i < missingInventorySupplierItems_1.length)) return [3 /*break*/, 6];
+                item = missingInventorySupplierItems_1[_i];
+                return [4 /*yield*/, inventory.supplier_items.create({
+                        data: item
                     })];
             case 4:
                 _a.sent();
-                return [3 /*break*/, 7];
-            case 5: return [4 /*yield*/, imProd.scm_inventory_detail_copy.update({
-                    where: {
-                        id: detail.id
-                    },
-                    data: {
-                        goods_id: id++
-                    }
-                })];
-            case 6:
-                _a.sent();
-                _a.label = 7;
-            case 7:
+                _a.label = 5;
+            case 5:
                 _i++;
-                return [3 /*break*/, 2];
-            case 8: return [2 /*return*/];
+                return [3 /*break*/, 3];
+            case 6: return [2 /*return*/];
         }
     });
 }); };
