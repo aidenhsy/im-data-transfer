@@ -50,12 +50,12 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 imProd = new im_prod_1.PrismaClient();
                 imProcurement = new im_procurement_prod_1.PrismaClient();
                 scmPricing = new scm_pricing_prod_1.PrismaClient();
-                return [4 /*yield*/, imProd.scm_inventory_single_copy.findMany({
+                return [4 /*yield*/, imProd.scm_inventory_single.findMany({
                         where: {
                             end_date: new Date('2025-05-31')
                         },
                         include: {
-                            scm_inventory_detail_copy: true
+                            scm_inventory_detail: true
                         }
                     })];
             case 1:
@@ -80,7 +80,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 }
                 city_id = shop.city_id;
                 tier_id = shop.client_tier_id;
-                _a = 0, _b = oldCount.scm_inventory_detail_copy;
+                _a = 0, _b = oldCount.scm_inventory_detail;
                 _e.label = 4;
             case 4:
                 if (!(_a < _b.length)) return [3 /*break*/, 13];
