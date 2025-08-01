@@ -28,6 +28,7 @@ const run = async () => {
     }
   } else {
     for (const item of procurementSupplierItems) {
+      console.log('updating', item);
       await inventory.supplier_items.update({
         where: {
           id: item.id,

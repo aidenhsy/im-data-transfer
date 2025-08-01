@@ -87,6 +87,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
             case 8:
                 if (!(_a < procurementSupplierItems_1.length)) return [3 /*break*/, 11];
                 item = procurementSupplierItems_1[_a];
+                console.log('updating', item);
                 return [4 /*yield*/, inventory.supplier_items.update({
                         where: {
                             id: item.id
