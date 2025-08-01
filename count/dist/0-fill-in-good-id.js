@@ -51,8 +51,8 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 return [4 /*yield*/, inventory.supplier_items.findMany()];
             case 2:
                 inventorySupplierItems = _a.sent();
-                missingInventorySupplierItems = procurementSupplierItems.filter(function (item) {
-                    return !inventorySupplierItems.some(function (i) { return i.supplier_id === item.supplier_id; });
+                missingInventorySupplierItems = inventorySupplierItems.filter(function (item) {
+                    return !procurementSupplierItems.some(function (i) { return i.supplier_id === item.supplier_id; });
                 });
                 if (!(missingInventorySupplierItems.length > 0)) return [3 /*break*/, 6];
                 console.log("Missing inventory supplier items: " + missingInventorySupplierItems.length);
