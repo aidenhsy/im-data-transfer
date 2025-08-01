@@ -7,15 +7,21 @@ const run = async () => {
   const inventory = new ImInventory();
 
   const procurementSupplierItems = await procurement.supplier_items.findMany();
-  console.log(procurementSupplierItems.length);
+  console.log('Procurement supplier items:', procurementSupplierItems.length);
 
   const inventorySupplierItems = await inventory.supplier_items.findMany();
-  console.log(inventorySupplierItems.length);
+  console.log('Inventory supplier items:', inventorySupplierItems.length);
+
+  // Debug: Let's see some sample data
+  console.log('Sample procurement item:', procurementSupplierItems[0]);
+  console.log('Sample inventory item:', inventorySupplierItems[0]);
 
   const missingInventorySupplierItems = procurementSupplierItems.filter(
     (item) =>
       !inventorySupplierItems.some((i) => i.supplier_id === item.supplier_id)
   );
+
+  console.log('Missing items found:', missingInventorySupplierItems.length);
 
   if (missingInventorySupplierItems.length > 0) {
     console.log(
@@ -27,6 +33,10 @@ const run = async () => {
         data: item,
       });
     }
+  } else {
+    console.log(
+      'No missing items found - all procurement items already exist in inventory'
+    );
   }
 };
 
