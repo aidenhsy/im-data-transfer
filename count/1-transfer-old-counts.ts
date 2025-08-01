@@ -12,12 +12,12 @@ const run = async () => {
   // await imInventory.shop_item_weighted_price.deleteMany();
   // await imInventory.inventory_count_details.deleteMany();
   // await imInventory.inventory_count.deleteMany();
-  const oldCounts = await imProd.scm_inventory_single_copy.findMany({
+  const oldCounts = await imProd.scm_inventory_single.findMany({
     where: {
       end_date: new Date('2025-05-31'),
     },
     include: {
-      scm_inventory_detail_copy: true,
+      scm_inventory_detail: true,
     },
   });
 
@@ -51,7 +51,7 @@ const run = async () => {
     //   },
     // });
 
-    for (const detail of oldCount.scm_inventory_detail_copy) {
+    for (const detail of oldCount.scm_inventory_detail) {
       const good_id = detail.goods_id;
       // First, check if we need to create a supplier item
       const scmGood = await scmPricing.scm_goods.findFirst({
