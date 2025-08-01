@@ -18,7 +18,9 @@ const run = async () => {
 
   const missingInventorySupplierItems = procurementSupplierItems.filter(
     (item) =>
-      !inventorySupplierItems.some((i) => i.supplier_id === item.supplier_id)
+      !inventorySupplierItems.some(
+        (i) => i.supplier_reference_id === item.supplier_reference_id
+      )
   );
 
   console.log('Missing items found:', missingInventorySupplierItems.length);

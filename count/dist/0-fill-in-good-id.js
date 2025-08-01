@@ -57,7 +57,7 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 console.log('Sample procurement item:', procurementSupplierItems[0]);
                 console.log('Sample inventory item:', inventorySupplierItems[0]);
                 missingInventorySupplierItems = procurementSupplierItems.filter(function (item) {
-                    return !inventorySupplierItems.some(function (i) { return i.supplier_id === item.supplier_id; });
+                    return !inventorySupplierItems.some(function (i) { return i.supplier_reference_id === item.supplier_reference_id; });
                 });
                 console.log('Missing items found:', missingInventorySupplierItems.length);
                 if (!(missingInventorySupplierItems.length > 0)) return [3 /*break*/, 7];
