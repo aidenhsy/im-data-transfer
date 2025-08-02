@@ -28,7 +28,20 @@ const run = async () => {
   });
 
   for (const scmOrder of scmOrders) {
+    let misMatch = 0;
+    const total = scmOrder.procurement_order_details.reduce(
+      (acc, item) =>
+        acc + Number(item.customer_receive_qty) * Number(item.price),
+      0
+    );
+    const rounded = Math.round(total * 100) / 100;
+
     for (const scmDetail of scmOrder.procurement_order_details) {
+      if (
+        Number(scmDetail.customer_receive_qty) !== Number(scmDetail.final_qty)
+      ) {
+        misMatch++;
+      }
       const procurementDetail =
         await procurement.supplier_order_details.findFirst({
           where: {
@@ -81,6 +94,28 @@ const run = async () => {
         data: {
           deliver_qty: scmDetail.customer_receive_qty,
           final_qty: scmDetail.customer_receive_qty,
+        },
+      });
+    }
+
+    if (misMatch > 0) {
+      await order.procurement_orders.update({
+        where: {
+          id: scmOrder.id,
+        },
+        data: {
+          status: 5,
+          actual_amount: rounded,
+        },
+      });
+    } else {
+      await order.procurement_orders.update({
+        where: {
+          id: scmOrder.id,
+        },
+        data: {
+          status: 4,
+          actual_amount: rounded,
         },
       });
     }
