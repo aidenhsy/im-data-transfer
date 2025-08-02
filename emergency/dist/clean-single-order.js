@@ -49,14 +49,14 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                 order = new scm_order_prod_1.PrismaClient();
                 return [4 /*yield*/, procurement.supplier_order_details.findMany({
                         where: {
-                            order_id: 'ca96d197-4220-486f-b8c0-fc305fadf33c'
+                            order_id: '2f705d26-2366-4864-b78a-4f70155b593f'
                         }
                     })];
             case 1:
                 items = _a.sent();
                 return [4 /*yield*/, order.procurement_orders.findFirst({
                         where: {
-                            client_order_id: 'ca96d197-4220-486f-b8c0-fc305fadf33c'
+                            client_order_id: '2f705d26-2366-4864-b78a-4f70155b593f'
                         }
                     })];
             case 2:
