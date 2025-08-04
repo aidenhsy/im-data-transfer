@@ -13,7 +13,9 @@ const run = async () => {
       ).toFixed(4)
     );
 
-    if (Number(pricing.weighted_average_cost) !== Number(baseCost)) {
+    if (
+      Math.abs(Number(pricing.weighted_average_cost) - Number(baseCost)) > 0.01
+    ) {
       console.log(pricing.weighted_average_cost, baseCost);
     }
   }
