@@ -6,6 +6,9 @@ const run = async () => {
     const pricings = await scmPricing.scm_good_pricing.findMany({
         where: {
             weighted_average_cost: null,
+            locked_after: {
+                gt: new Date(),
+            },
         },
     });
     for (const pricing of pricings) {
