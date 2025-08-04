@@ -93,22 +93,23 @@ model private_client_goods {
 }
 
 model procurement_order_details {
-  id                   String             @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  name                 String?            @db.VarChar
-  reference_id         String?            @db.VarChar
-  order_qty            Decimal?           @db.Decimal(12, 4)
-  price                Decimal?           @db.Decimal(12, 4)
-  cut_off_time         String?            @db.VarChar
-  order_id             String             @db.VarChar
-  created_at           DateTime?          @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  updated_at           DateTime?          @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  deliver_qty          Decimal?           @db.Decimal(12, 4)
-  customer_receive_qty Decimal?           @db.Decimal(12, 4)
-  good_id              Int?
-  unit_id              String?            @db.VarChar
-  pricing_id           String?            @db.VarChar
-  final_qty            Decimal?           @db.Decimal(12, 4)
-  procurement_orders   procurement_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                    String             @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  name                  String?            @db.VarChar
+  reference_id          String?            @db.VarChar
+  order_qty             Decimal?           @db.Decimal(12, 4)
+  price                 Decimal?           @db.Decimal(12, 4)
+  cut_off_time          String?            @db.VarChar
+  order_id              String             @db.VarChar
+  created_at            DateTime?          @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at            DateTime?          @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  deliver_qty           Decimal?           @db.Decimal(12, 4)
+  customer_receive_qty  Decimal?           @db.Decimal(12, 4)
+  good_id               Int?
+  unit_id               String?            @db.VarChar
+  pricing_id            String?            @db.VarChar
+  final_qty             Decimal?           @db.Decimal(12, 4)
+  weighted_average_cost Decimal?           @db.Decimal(12, 4)
+  procurement_orders    procurement_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([reference_id, order_id], map: "unique_reference_order")
   @@index([reference_id, order_id], map: "idx_reference_order")
