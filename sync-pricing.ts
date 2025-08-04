@@ -3,24 +3,19 @@ import { PrismaClient as ScmPricing } from './prisma/clients/scm-pricing-prod';
 const run = async () => {
   const scmPricing = new ScmPricing();
 
-  const pricings = await scmPricing.scm_good_pricing.findMany({
-    where: {
-      weighted_average_cost: null,
-    },
-  });
+  const pricings = await scmPricing.scm_good_pricing.findMany();
 
   for (const pricing of pricings) {
-    const baseCost =
-      Number(pricing.sale_price) / (1 + Number(pricing.profit_margin) / 100);
+    const baseCost = Number(
+      (
+        Number(pricing.sale_price) /
+        (1 + Number(pricing.profit_margin) / 100)
+      ).toFixed(4)
+    );
 
-    await scmPricing.scm_good_pricing.update({
-      where: {
-        id: pricing.id,
-      },
-      data: {
-        weighted_average_cost: baseCost,
-      },
-    });
+    if (Number(pricing.weighted_average_cost) !== Number(baseCost)) {
+      console.log(pricing.weighted_average_cost, baseCost);
+    }
   }
 };
 
