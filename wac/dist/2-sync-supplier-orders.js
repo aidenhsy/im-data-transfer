@@ -37,47 +37,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
-var im_prod_1 = require("../prisma/clients/im-prod");
 var im_procurement_prod_1 = require("../prisma/clients/im-procurement-prod");
-var scm_pricing_prod_1 = require("../prisma/clients/scm-pricing-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imInventory, imProd, imProcurement, scmPricing, counts, _i, counts_1, count;
+    var imInventory, imProcurement, orders;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 imInventory = new im_inventory_prod_1.PrismaClient();
-                imProd = new im_prod_1.PrismaClient();
                 imProcurement = new im_procurement_prod_1.PrismaClient();
-                scmPricing = new scm_pricing_prod_1.PrismaClient();
-                return [4 /*yield*/, imInventory.inventory_count.findMany({
-                        where: {
-                            created_at: {
-                                gt: new Date('2025-07-30')
-                            }
-                        }
+                return [4 /*yield*/, imInventory.supplier_orders.findMany({
+                        where: {}
                     })];
             case 1:
-                counts = _a.sent();
-                _i = 0, counts_1 = counts;
-                _a.label = 2;
-            case 2:
-                if (!(_i < counts_1.length)) return [3 /*break*/, 5];
-                count = counts_1[_i];
-                return [4 /*yield*/, imInventory.inventory_count.update({
-                        where: {
-                            id: count.id
-                        },
-                        data: {
-                            created_at: new Date('2025-07-31T21:00:00.000Z')
-                        }
-                    })];
-            case 3:
-                _a.sent();
-                _a.label = 4;
-            case 4:
-                _i++;
-                return [3 /*break*/, 2];
-            case 5: return [2 /*return*/];
+                orders = _a.sent();
+                return [2 /*return*/];
         }
     });
 }); };

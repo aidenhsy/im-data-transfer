@@ -17,7 +17,6 @@ const run = async () => {
     },
   });
 
-  console.log(counts.map((i) => i.created_at));
   for (const count of counts) {
     await imInventory.inventory_count.update({
       where: {
