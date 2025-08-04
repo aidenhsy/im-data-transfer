@@ -36,56 +36,49 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
+var im_inventory_prod_1 = require("../prisma/clients/im-inventory-prod");
+var im_prod_1 = require("../prisma/clients/im-prod");
 var im_procurement_prod_1 = require("../prisma/clients/im-procurement-prod");
-var scm_prod_1 = require("../prisma/clients/scm-prod");
-var scm_order_prod_1 = require("../prisma/clients/scm-order-prod");
+var scm_pricing_prod_1 = require("../prisma/clients/scm-pricing-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var procurement, basic, order, items, orderId, _i, items_1, item, good_id, unit_id;
+    var imInventory, imProd, imProcurement, scmPricing, counts, _i, counts_1, count;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                procurement = new im_procurement_prod_1.PrismaClient();
-                basic = new scm_prod_1.PrismaClient();
-                order = new scm_order_prod_1.PrismaClient();
-                return [4 /*yield*/, procurement.supplier_order_details.findMany({
+                imInventory = new im_inventory_prod_1.PrismaClient();
+                imProd = new im_prod_1.PrismaClient();
+                imProcurement = new im_procurement_prod_1.PrismaClient();
+                scmPricing = new scm_pricing_prod_1.PrismaClient();
+                return [4 /*yield*/, imInventory.inventory_count.findMany({
                         where: {
-                            order_id: '698c760d-005e-415a-aa58-1f44d8007da7'
+                            created_at: {
+                                gt: new Date('2025-07-30')
+                            }
                         }
                     })];
             case 1:
-                items = _a.sent();
-                return [4 /*yield*/, order.procurement_orders.findFirst({
-                        where: {
-                            client_order_id: '698c760d-005e-415a-aa58-1f44d8007da7'
-                        }
-                    })];
+                counts = _a.sent();
+                console.log(counts.map(function (i) { return i.created_at; }));
+                _i = 0, counts_1 = counts;
+                _a.label = 2;
             case 2:
-                orderId = _a.sent();
-                _i = 0, items_1 = items;
-                _a.label = 3;
-            case 3:
-                if (!(_i < items_1.length)) return [3 /*break*/, 6];
-                item = items_1[_i];
-                good_id = (item.supplier_reference_id.split('-')[2], 'good id');
-                unit_id = (item.supplier_reference_id.split('-').slice(4).join('-'), 'unit id');
-                return [4 /*yield*/, order.procurement_order_details.create({
+                if (!(_i < counts_1.length)) return [3 /*break*/, 5];
+                count = counts_1[_i];
+                return [4 /*yield*/, imInventory.inventory_count.update({
+                        where: {
+                            id: count.id
+                        },
                         data: {
-                            order_id: orderId.id,
-                            reference_id: item.supplier_reference_id,
-                            name: item.supplier_item_name,
-                            order_qty: item.order_qty,
-                            cut_off_time: item.cut_off_time,
-                            good_id: Number(good_id),
-                            unit_id: unit_id
+                            created_at: new Date('2025-07-31T21:00:00.000Z')
                         }
                     })];
-            case 4:
+            case 3:
                 _a.sent();
-                _a.label = 5;
-            case 5:
+                _a.label = 4;
+            case 4:
                 _i++;
-                return [3 /*break*/, 3];
-            case 6: return [2 /*return*/];
+                return [3 /*break*/, 2];
+            case 5: return [2 /*return*/];
         }
     });
 }); };

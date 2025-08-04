@@ -113,7 +113,7 @@ const run = async () => {
 
         dataToInsert.push({
           shop_id: order.shop_id,
-          supplier_item_id: detail.supplier_item_id!,
+          supplier_item_id: detail.supplier_item_id,
           type: 'order_in',
           source_order_id: order.id,
           source_detail_id: detail.id,
@@ -156,4 +156,4 @@ const run = async () => {
   console.log('Processing completed successfully');
 };
 
-run().catch(console.error);
+run();
