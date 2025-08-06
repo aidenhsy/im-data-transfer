@@ -9,13 +9,13 @@ const run = async () => {
 
   const items = await procurement.supplier_order_details.findMany({
     where: {
-      order_id: 'ecb0cc9e-cfb5-4400-a650-85cd1bda63fe',
+      order_id: '128a5f8c-b985-4882-ab1c-6eb8d9963dd5',
     },
   });
 
   const orderId = await order.procurement_orders.findFirst({
     where: {
-      client_order_id: 'ecb0cc9e-cfb5-4400-a650-85cd1bda63fe',
+      client_order_id: '128a5f8c-b985-4882-ab1c-6eb8d9963dd5',
     },
   });
 
