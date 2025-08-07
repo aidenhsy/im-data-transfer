@@ -5,8 +5,8 @@ const run = async () => {
   const imInventory = new ImInventoryDB();
   const imProcurement = new ImProcurementDB();
 
-  const shopId = 32;
-  const countId = '5db992fc-0af9-40fa-831f-02276b9f7096';
+  const shopId = 104;
+  const countId = 'e293a5d1-81a9-4e17-bde3-42f4e96fc710';
 
   await imInventory.supplier_order_details.deleteMany({
     where: {
