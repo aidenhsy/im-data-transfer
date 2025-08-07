@@ -287,6 +287,7 @@ model inventory_count_details {
   inventory_count_id     String                   @db.VarChar
   created_at             DateTime                 @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
   updated_at             DateTime                 @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  count_value            Decimal?                 @default(dbgenerated("round((count_qty * weighted_price), 2)")) @db.Decimal(12, 2)
   inventory_count_counts inventory_count_counts[]
   inventory_count        inventory_count          @relation(fields: [inventory_count_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_items         supplier_items           @relation(fields: [supplier_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
