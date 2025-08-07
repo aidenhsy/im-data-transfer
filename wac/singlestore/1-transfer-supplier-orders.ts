@@ -64,6 +64,11 @@ const run = async () => {
 
   const supplierOrderDetails =
     await imInventory.supplier_order_details.findMany({
+      where: {
+        supplier_orders: {
+          shop_id: shopId,
+        },
+      },
       orderBy: {
         supplier_orders: {
           receive_time: 'asc',
@@ -73,6 +78,7 @@ const run = async () => {
         supplier_orders: true,
       },
     });
+  console.log(supplierOrderDetails.length, 'supplierOrderDetails length');
 
   for (const detail of supplierOrderDetails) {
     const existingItem = await imInventory.shop_item_weighted_price.findFirst({
