@@ -109,6 +109,8 @@ model procurement_order_details {
   pricing_id            String?            @db.VarChar
   final_qty             Decimal?           @db.Decimal(12, 4)
   weighted_average_cost Decimal?           @db.Decimal(12, 4)
+  total_cost_amount     Decimal?           @default(dbgenerated("round((final_qty * weighted_average_cost), 2)")) @db.Decimal(12, 2)
+  total_sale_amount     Decimal?           @default(dbgenerated("round((final_qty * price), 2)")) @db.Decimal(12, 2)
   procurement_orders    procurement_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([reference_id, order_id], map: "unique_reference_order")
