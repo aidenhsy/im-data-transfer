@@ -265,6 +265,19 @@ model inventory_count {
   inventory_count_details inventory_count_details[]
 }
 
+model inventory_count_counts {
+  id                        String                  @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  inventory_count_detail_id String                  @db.VarChar
+  unit_id                   Int
+  unit_name                 String                  @db.VarChar(50)
+  qty                       Decimal                 @db.Decimal(12, 4)
+  created_at                DateTime                @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at                DateTime                @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  inventory_count_details   inventory_count_details @relation(fields: [inventory_count_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([inventory_count_detail_id, unit_id])
+}
+
 model inventory_count_details {
   id                     String                   @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
   hypo_qty               Decimal?                 @db.Decimal(12, 4)
@@ -1128,19 +1141,6 @@ model user_roles {
   scm_shop_account scm_shop_account @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([user_id, role_id])
-}
-
-model inventory_count_counts {
-  id                        String                  @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  inventory_count_detail_id String                  @db.VarChar
-  unit_id                   Int
-  unit_name                 String                  @db.VarChar(50)
-  qty                       Decimal                 @db.Decimal(12, 4)
-  created_at                DateTime                @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  updated_at                DateTime                @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  inventory_count_details   inventory_count_details @relation(fields: [inventory_count_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([inventory_count_detail_id, unit_id])
 }
 
 enum pricing_strategy_type {

@@ -24,6 +24,9 @@ const run = async () => {
   const supplierOrders = await imProcurement.supplier_orders.findMany({
     where: {
       shop_id: shopId,
+      status: {
+        in: [4, 5],
+      },
     },
     include: {
       supplier_order_details: true,
@@ -32,23 +35,21 @@ const run = async () => {
 
   for (const supplierOrder of supplierOrders) {
     const { supplier_order_details, ...rest } = supplierOrder;
-    console.log(rest);
     await imInventory.supplier_orders.create({
       data: {
         ...rest,
       },
     });
 
-    for (const detail of supplierOrder.supplier_order_details) {
-      const { total_final_amount, total_order_amount, ...rest } = detail;
-
-      await imInventory.supplier_order_details.create({
-        data: {
+    await imInventory.supplier_order_details.createMany({
+      data: supplier_order_details.map((detail) => {
+        const { total_final_amount, total_order_amount, ...rest } = detail;
+        return {
           ...rest,
           order_id: supplierOrder.id,
-        },
-      });
-    }
+        };
+      }),
+    });
   }
 };
 

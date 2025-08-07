@@ -61,9 +61,9 @@ exports.__esModule = true;
 var im_inventory_prod_1 = require("../../prisma/clients/im-inventory-prod");
 var im_procurement_prod_1 = require("../../prisma/clients/im-procurement-prod");
 var run = function () { return __awaiter(void 0, void 0, void 0, function () {
-    var imInventory, imProcurement, shopId, supplierOrders, _i, supplierOrders_1, supplierOrder, supplier_order_details, rest, _a, _b, detail, total_final_amount, total_order_amount, rest_1;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
+    var imInventory, imProcurement, shopId, supplierOrders, _loop_1, _i, supplierOrders_1, supplierOrder;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
             case 0:
                 imInventory = new im_inventory_prod_1.PrismaClient();
                 imProcurement = new im_procurement_prod_1.PrismaClient();
@@ -76,55 +76,63 @@ var run = function () { return __awaiter(void 0, void 0, void 0, function () {
                         }
                     })];
             case 1:
-                _c.sent();
+                _a.sent();
                 return [4 /*yield*/, imInventory.supplier_orders.deleteMany({
                         where: {
                             shop_id: shopId
                         }
                     })];
             case 2:
-                _c.sent();
+                _a.sent();
                 return [4 /*yield*/, imProcurement.supplier_orders.findMany({
                         where: {
-                            shop_id: shopId
+                            shop_id: shopId,
+                            status: {
+                                "in": [4, 5]
+                            }
                         },
                         include: {
                             supplier_order_details: true
                         }
                     })];
             case 3:
-                supplierOrders = _c.sent();
+                supplierOrders = _a.sent();
+                _loop_1 = function (supplierOrder) {
+                    var supplier_order_details, rest;
+                    return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0:
+                                supplier_order_details = supplierOrder.supplier_order_details, rest = __rest(supplierOrder, ["supplier_order_details"]);
+                                return [4 /*yield*/, imInventory.supplier_orders.create({
+                                        data: __assign({}, rest)
+                                    })];
+                            case 1:
+                                _a.sent();
+                                return [4 /*yield*/, imInventory.supplier_order_details.createMany({
+                                        data: supplier_order_details.map(function (detail) {
+                                            var total_final_amount = detail.total_final_amount, total_order_amount = detail.total_order_amount, rest = __rest(detail, ["total_final_amount", "total_order_amount"]);
+                                            return __assign(__assign({}, rest), { order_id: supplierOrder.id });
+                                        })
+                                    })];
+                            case 2:
+                                _a.sent();
+                                return [2 /*return*/];
+                        }
+                    });
+                };
                 _i = 0, supplierOrders_1 = supplierOrders;
-                _c.label = 4;
+                _a.label = 4;
             case 4:
-                if (!(_i < supplierOrders_1.length)) return [3 /*break*/, 10];
+                if (!(_i < supplierOrders_1.length)) return [3 /*break*/, 7];
                 supplierOrder = supplierOrders_1[_i];
-                supplier_order_details = supplierOrder.supplier_order_details, rest = __rest(supplierOrder, ["supplier_order_details"]);
-                console.log(rest);
-                return [4 /*yield*/, imInventory.supplier_orders.create({
-                        data: __assign({}, rest)
-                    })];
+                return [5 /*yield**/, _loop_1(supplierOrder)];
             case 5:
-                _c.sent();
-                _a = 0, _b = supplierOrder.supplier_order_details;
-                _c.label = 6;
+                _a.sent();
+                _a.label = 6;
             case 6:
-                if (!(_a < _b.length)) return [3 /*break*/, 9];
-                detail = _b[_a];
-                total_final_amount = detail.total_final_amount, total_order_amount = detail.total_order_amount, rest_1 = __rest(detail, ["total_final_amount", "total_order_amount"]);
-                return [4 /*yield*/, imInventory.supplier_order_details.create({
-                        data: __assign(__assign({}, rest_1), { order_id: supplierOrder.id })
-                    })];
-            case 7:
-                _c.sent();
-                _c.label = 8;
-            case 8:
-                _a++;
-                return [3 /*break*/, 6];
-            case 9:
                 _i++;
                 return [3 /*break*/, 4];
-            case 10: return [2 /*return*/];
+            case 7: return [2 /*return*/];
         }
     });
 }); };
