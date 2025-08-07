@@ -159,6 +159,7 @@ const run = async () => {
 
     if (!lastWeightedPrice) {
       console.log('!!! no last weighted price');
+      console.log(detail);
       continue;
     }
     await imInventory.inventory_count_details.update({
