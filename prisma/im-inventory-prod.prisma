@@ -985,19 +985,6 @@ model stock_category {
   generic_items generic_items[]
 }
 
-model submit_cart_attempts {
-  id              String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  shop_id         Int?
-  type            String?         @db.VarChar
-  items_num       Int?
-  is_successful   Boolean?        @default(false)
-  created_at      DateTime?       @default(now()) @db.Timestamp(6)
-  updated_at      DateTime?       @default(now()) @db.Timestamp(6)
-  last_error      String?
-  order_id        String          @db.VarChar
-  supplier_orders supplier_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model supplier {
   id                    Int                     @id @default(autoincrement())
@@ -1088,39 +1075,27 @@ model supplier_order_details {
   @@unique([supplier_reference_id, order_id], map: "unique_reference_order")
 }
 
-model supplier_order_status_history {
-  id              String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  order_id        String          @db.VarChar
-  status          Int
-  try_count       Int             @default(0)
-  notified_at     DateTime?       @db.Timestamp(6)
-  created_at      DateTime        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  supplier_orders supplier_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model supplier_orders {
-  id                            String                          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  shop_id                       Int
-  supplier_id                   Int?
-  irregular_items               Int?                            @default(0)
-  status                        Int                             @default(0)
-  order_date                    String                          @db.VarChar(50)
-  delivery_date                 String                          @db.VarChar(50)
-  type                          Int
-  created_at                    DateTime                        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  updated_at                    DateTime?                       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  delivery_time                 DateTime?                       @db.Timestamp(6)
-  supplier_note                 String?
-  order_amount                  Decimal?                        @db.Decimal(12, 4)
-  actual_amount                 Decimal?                        @db.Decimal(12, 4)
-  receive_time                  DateTime?                       @db.Timestamp(6)
-  sent_time                     DateTime?                       @db.Timestamp(6)
-  estimated_delivery_time       DateTime?                       @db.Timestamp(6)
-  submit_cart_attempts          submit_cart_attempts[]
-  supplier_order_details        supplier_order_details[]
-  supplier_order_status_history supplier_order_status_history[]
-  scm_shop                      scm_shop                        @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_supplier_orders_shop")
-  supplier                      supplier?                       @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                      String                   @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  shop_id                 Int
+  supplier_id             Int?
+  irregular_items         Int?                     @default(0)
+  status                  Int                      @default(0)
+  order_date              String                   @db.VarChar(50)
+  delivery_date           String                   @db.VarChar(50)
+  type                    Int
+  created_at              DateTime                 @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at              DateTime?                @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  delivery_time           DateTime?                @db.Timestamp(6)
+  supplier_note           String?
+  order_amount            Decimal?                 @db.Decimal(12, 4)
+  actual_amount           Decimal?                 @db.Decimal(12, 4)
+  receive_time            DateTime?                @db.Timestamp(6)
+  sent_time               DateTime?                @db.Timestamp(6)
+  estimated_delivery_time DateTime?                @db.Timestamp(6)
+  supplier_order_details  supplier_order_details[]
+  scm_shop                scm_shop                 @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_supplier_orders_shop")
+  supplier                supplier?                @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model supplier_pull_records {
