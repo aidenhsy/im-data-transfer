@@ -163,6 +163,23 @@ const run = async () => {
         weighted_price: Number(lastWeightedPrice.weighted_price),
       },
     });
+
+    const newCounts = await imInventory.inventory_count_details.aggregate({
+      where: {
+        inventory_count_id: countId,
+      },
+      _sum: {
+        count_value: true,
+      },
+    });
+    await imInventory.inventory_count.update({
+      where: {
+        id: countId,
+      },
+      data: {
+        count_amount: newCounts._sum.count_value,
+      },
+    });
   }
 };
 
