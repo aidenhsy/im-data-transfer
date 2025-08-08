@@ -1055,6 +1055,7 @@ model supplier_items {
   city_id                    Int?
   weighing                   Int?
   tier_id                    Int
+  category_name              String?                    @db.VarChar(50)
   inventory_count_details    inventory_count_details[]
   plan_item_supplier_good    plan_item_supplier_good[]
   shop_item_weighted_price   shop_item_weighted_price[]

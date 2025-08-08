@@ -1011,6 +1011,7 @@ model supplier_items {
   city_id                    Int?
   weighing                   Int?
   tier_id                    Int
+  category_name              String?                   @db.VarChar(50)
   plan_item_supplier_good    plan_item_supplier_good[]
   supplier                   supplier?                 @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_supplier_items_supplier")
   standard_units             standard_units?           @relation(fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
