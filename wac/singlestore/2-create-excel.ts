@@ -31,6 +31,7 @@ const run = async () => {
       created_at: '2025-06-30T00:00:00.000000Z',
     },
   });
+
   const finalCount = await imInventory.inventory_count.findFirst({
     include: {
       inventory_count_details: {
@@ -54,6 +55,20 @@ const run = async () => {
     process.exit(0);
   }
 
+  const lastCountTotal = lastCount.inventory_count_details.reduce(
+    (acc, curr) => acc + Number(curr.count_value),
+    0
+  );
+
+  const finalCountTotal = finalCount.inventory_count_details.reduce(
+    (acc, curr) => acc + Number(curr.count_value),
+    0
+  );
+
+  console.log(
+    `期初盘点金额: ${lastCountTotal}\n期末盘点金额: ${finalCountTotal}`
+  );
+
   const orderDetails = await imProcurement.supplier_order_details.findMany({
     include: {
       supplier_orders: true,
@@ -61,7 +76,6 @@ const run = async () => {
       generic_items: {
         include: {
           standard_units: true,
-          scm_goods_category: true,
         },
       },
     },
@@ -84,56 +98,63 @@ const run = async () => {
     },
   });
 
-  const orderInAmount = orderDetails.reduce((acc, curr) => {
-    return acc + Number(curr.total_final_amount);
-  }, 0);
-
-  const roundedLastCountAmount =
-    Math.round(Number(lastCount?.count_amount) * 100) / 100;
-
-  const roundedFinalCountAmount =
-    Math.round(Number(finalCount?.count_amount) * 100) / 100;
-
-  const roundedOrderInAmount = Math.round(orderInAmount * 100) / 100;
-
-  console.log(
-    `${shop?.shop_name} \n 期初时间: ${lastCount?.count_amount}\n 期末时间: ${finalCount?.count_amount}\n`
-  );
-
-  console.log(
-    `期初盘点详情数量: ${lastCount?.inventory_count_details?.length || 0}`
-  );
-  console.log(
-    `期末盘点详情数量: ${finalCount?.inventory_count_details?.length || 0}`
-  );
-  console.log(`采购订单详情数量: ${orderDetails?.length || 0}`);
-
   const workbook = new ExcelJS.Workbook();
-  const worksheetSummary = workbook.addWorksheet('汇总表');
 
   // 汇总表
+  const worksheetSummary = workbook.addWorksheet('汇总表');
+
   const headersSummary = [
+    '品项类别',
     '期初时间',
     '期初金额',
+    '本期入库金额',
     '期末时间',
     '期末金额',
-    '本期入库金额',
     '本期使用金额',
   ];
   worksheetSummary.addRow(headersSummary).commit();
+  const categorys = orderDetails.map(
+    (item) => item.supplier_items?.category_name
+  );
+  const uniqueCategorys = [...new Set(categorys)];
 
-  worksheetSummary
-    .addRow([
-      lastCount?.created_at,
-      Number(roundedLastCountAmount),
-      finalCount?.created_at,
-      Number(roundedFinalCountAmount),
-      Number(roundedOrderInAmount),
-      Number(roundedLastCountAmount) +
-        Number(roundedOrderInAmount) -
-        Number(roundedFinalCountAmount),
-    ])
-    .commit();
+  for (const category of uniqueCategorys) {
+    const categoryOrderDetails = orderDetails.filter(
+      (item) => item.supplier_items?.category_name === category
+    );
+
+    const categoryOrderInAmount = categoryOrderDetails.reduce((acc, curr) => {
+      return acc + Number(curr.total_final_amount);
+    }, 0);
+
+    const categoryLastCount = lastCount.inventory_count_details.filter(
+      (item) => item.supplier_items?.category_name === category
+    );
+
+    const categoryLastCountAmount = categoryLastCount.reduce((acc, curr) => {
+      return acc + Number(curr.count_value);
+    }, 0);
+
+    const categoryFinalCount = finalCount.inventory_count_details.filter(
+      (item) => item.supplier_items?.category_name === category
+    );
+
+    const categoryFinalCountAmount = categoryFinalCount.reduce((acc, curr) => {
+      return acc + Number(curr.count_value);
+    }, 0);
+
+    worksheetSummary
+      .addRow([
+        category,
+        lastCount?.created_at,
+        Number(categoryLastCountAmount),
+        Number(categoryOrderInAmount),
+        finalCount?.created_at,
+        Number(categoryFinalCountAmount),
+        Number(categoryOrderInAmount - categoryFinalCountAmount),
+      ])
+      .commit();
+  }
 
   // 采购明细表
   const worksheetOrderDetails = workbook.addWorksheet('入库明细表');
@@ -168,7 +189,7 @@ const run = async () => {
     worksheetOrderDetails
       .addRow([
         orderDetail.supplier_items?.name,
-        orderDetail.generic_items.scm_goods_category.name,
+        orderDetail.supplier_items?.category_name,
         orderDetail.order_id,
         orderDetail.id,
         orderDetail.supplier_item_id,
@@ -196,8 +217,8 @@ const run = async () => {
   const worksheetInitialInventory = workbook.addWorksheet('期初盘点表');
 
   const headersInitialInventory = [
-    '产品名称',
     '产品ID',
+    '产品名称',
     '产品类别',
     '盘点加权品均单价',
     '盘点单位',
@@ -210,9 +231,9 @@ const run = async () => {
   for (const detail of lastCount.inventory_count_details) {
     worksheetInitialInventory
       .addRow([
-        detail.supplier_items?.name,
         detail.supplier_items?.id,
-        detail.supplier_items?.scm_goods_category.name,
+        detail.supplier_items?.name,
+        detail.supplier_items?.category_name,
         Number(detail.weighted_price),
         detail.supplier_items?.package_unit_name,
         Number(detail.count_qty),
@@ -224,8 +245,8 @@ const run = async () => {
   // 期末盘点表
   const worksheetFinalInventory = workbook.addWorksheet('期末盘点表');
   const headersFinalInventory = [
-    '产品名称',
     '产品ID',
+    '产品名称',
     '产品类别',
     '盘点加权品均单价',
     '盘点单位',
@@ -237,8 +258,9 @@ const run = async () => {
   for (const detail of finalCount.inventory_count_details) {
     worksheetFinalInventory
       .addRow([
-        detail.supplier_items?.name,
         detail.supplier_items?.id,
+        detail.supplier_items?.name,
+        detail.supplier_items?.category_name,
         Number(detail.weighted_price),
         detail.supplier_items?.package_unit_name,
         Number(detail.count_qty),
@@ -264,13 +286,11 @@ const run = async () => {
     },
   });
 
-  console.log(`加权平均计算数量: ${wac?.length || 0}`);
-
   const worksheetWeightedAverage = workbook.addWorksheet('加权平均计算表');
 
   const headersWeightedAverage = [
-    '产品名称',
     '产品ID',
+    '产品名称',
     '产品类别',
     '类型', // 采购入库, 盘点
     '创建时间时间',
@@ -286,8 +306,9 @@ const run = async () => {
   for (const item of wac) {
     worksheetWeightedAverage
       .addRow([
-        item.supplier_items?.name,
         item.supplier_items?.id,
+        item.supplier_items?.name,
+        item.supplier_items?.category_name,
         wacType(item.type),
         item.created_at,
         item.source_order_id,
@@ -300,7 +321,7 @@ const run = async () => {
   }
 
   await workbook.xlsx.writeFile(`${shop?.shop_name}-7月盘点明细.xlsx`);
-  console.log('done');
+  console.log(`${shop?.shop_name}-7月盘点明细.xlsx 已生成`);
   process.exit(0);
 };
 
