@@ -27,6 +27,22 @@ const run = async () => {
       console.log(item.supplier_reference_id);
       continue;
     }
+    await imProcurement.supplier_items.update({
+      where: {
+        id: item.id,
+      },
+      data: {
+        category_name: prodGood.scm_goods_category.name,
+      },
+    });
+    await imInventory.supplier_items.update({
+      where: {
+        id: item.id,
+      },
+      data: {
+        category_name: prodGood.scm_goods_category.name,
+      },
+    });
   }
   console.log('done');
   process.exit(0);
