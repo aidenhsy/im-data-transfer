@@ -22,13 +22,16 @@ const run = async () => {
     include: {
       inventory_count_details: {
         include: {
-          supplier_items: true,
+          supplier_items: {
+            include: {
+              standard_units: true,
+            },
+          },
         },
       },
     },
     where: {
-      shop_id: shopId,
-      created_at: '2025-06-30T21:00:00.000000Z',
+      id: '3724',
     },
   });
 
@@ -116,7 +119,20 @@ const run = async () => {
   const categorys = orderDetails.map(
     (item) => item.supplier_items?.category_name
   );
-  const uniqueCategorys = [...new Set(categorys)];
+  const lastCountCategorys = lastCount.inventory_count_details.map(
+    (item) => item.supplier_items?.category_name
+  );
+  const finalCountCategorys = finalCount.inventory_count_details.map(
+    (item) => item.supplier_items?.category_name
+  );
+
+  // Combine all categories and remove duplicates
+  const allCategorys = [
+    ...orderCategorys,
+    ...lastCountCategorys,
+    ...finalCountCategorys,
+  ];
+  const uniqueCategorys = [...new Set(allCategorys)].filter(Boolean); // Filter out null/undefined
 
   for (const category of uniqueCategorys) {
     const categoryOrderDetails = orderDetails.filter(
@@ -151,7 +167,11 @@ const run = async () => {
         Number(categoryOrderInAmount),
         finalCount?.created_at,
         Number(categoryFinalCountAmount),
-        Number(categoryOrderInAmount - categoryFinalCountAmount),
+        Number(
+          categoryLastCountAmount +
+            categoryOrderInAmount -
+            categoryFinalCountAmount
+        ),
       ])
       .commit();
   }
@@ -269,6 +289,109 @@ const run = async () => {
       .commit();
   }
 
+  // 盘点汇总明细表
+  // const worksheetInventorySummary = workbook.addWorksheet('盘点汇总明细表');
+  // const headersInventorySummary = [
+  //   '产品类别',
+  //   '产品名称',
+  //   '产品ID',
+  //   '规格',
+  //   '单位',
+  //   '期初数量',
+  //   '期初加权平均价格',
+  //   '期初库存金额',
+  //   '本期入库数量',
+  //   '本期入库金额',
+  //   '期末数量',
+  //   '期末加权平均价格',
+  //   '期末库存金额',
+  //   '本期使用数量',
+  //   '本期使用金额',
+  // ];
+  // worksheetInventorySummary.addRow(headersInventorySummary).commit();
+  // // Collect all supplier_item ids from lastCount, orderDetails, and finalCount
+  // const lastCountIds = lastCount.inventory_count_details
+  //   .map((detail) => detail.supplier_items?.id)
+  //   .filter((id) => !!id);
+
+  // const orderDetailsIds = orderDetails
+  //   .map((detail) => detail.supplier_items?.id)
+  //   .filter((id) => !!id);
+
+  // const finalCountIds = finalCount.inventory_count_details
+  //   .map((detail) => detail.supplier_items?.id)
+  //   .filter((id) => !!id);
+
+  // // Combine and get unique ids
+  // const allSupplierItemIds = Array.from(
+  //   new Set([...lastCountIds, ...orderDetailsIds, ...finalCountIds])
+  // );
+
+  // for (const id of allSupplierItemIds) {
+  //   const supplierItem = await imInventory.supplier_items.findFirst({
+  //     where: {
+  //       id,
+  //     },
+  //     include: {
+  //       standard_units: true,
+  //     },
+  //   });
+
+  //   if (!supplierItem) {
+  //     console.log(`${id} 未找到`);
+  //     continue;
+  //   }
+
+  //   const lastCountSupplierItem = lastCount.inventory_count_details.find(
+  //     (item) => item.supplier_items?.id === id
+  //   );
+  //   const finalCountSupplierItem = finalCount.inventory_count_details.find(
+  //     (item) => item.supplier_items?.id === id
+  //   );
+  //   const orderDetailsSupplierItem = orderDetails.find(
+  //     (item) => item.supplier_items?.id === id
+  //   );
+
+  //   const supplierItemCategory = supplierItem.category_name;
+  //   const supplierItemName = supplierItem.name;
+  //   const supplierItemId = supplierItem.id;
+  //   const supplierItemSpecification = `1 ${supplierItem.package_unit_name} = ${supplierItem?.package_unit_to_base_ratio} ${supplierItem.standard_units?.name}`;
+  //   const unit = supplierItem.package_unit_name;
+  //   const lastCountQty = lastCountSupplierItem?.count_qty || 0;
+  //   const lastCountPrice = lastCountSupplierItem?.weighted_price || 0;
+  //   const lastCountValue = Number(lastCountQty) * Number(lastCountPrice);
+  //   const orderDetailsQty = orderDetailsSupplierItem?.order_qty || 0;
+  //   const orderDetailsValue =
+  //     Number(orderDetailsQty) * Number(orderDetailsSupplierItem?.price);
+  //   const finalCountQty = finalCountSupplierItem?.count_qty || 0;
+  //   const finalCountPrice = finalCountSupplierItem?.weighted_price || 0;
+  //   const finalCountValue = Number(finalCountQty) * Number(finalCountPrice);
+  //   const usedQty = Number(orderDetailsQty) - Number(finalCountQty);
+  //   const usedValue =
+  //     Number(lastCountValue) +
+  //     Number(orderDetailsValue) -
+  //     Number(finalCountValue);
+
+  //   worksheetInventorySummary
+  //     .addRow([
+  //       supplierItemCategory,
+  //       supplierItemName,
+  //       supplierItemId,
+  //       supplierItemSpecification,
+  //       unit,
+  //       lastCountQty,
+  //       lastCountPrice,
+  //       lastCountValue,
+  //       orderDetailsQty,
+  //       orderDetailsValue,
+  //       finalCountQty,
+  //       finalCountPrice,
+  //       finalCountValue,
+  //       usedQty,
+  //       usedValue,
+  //     ])
+  //     .commit();
+  // }
   // 加权平均计算表
   const wac = await imInventory.shop_item_weighted_price.findMany({
     include: {

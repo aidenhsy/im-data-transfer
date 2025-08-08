@@ -48,7 +48,7 @@ const run = async () => {
     const supplierItem = await imInventory.supplier_items.findFirst({
       where: {
         supplier_reference_id: {
-          contains: `20250807-${lastCount.scm_shop?.client_tier_id}-${item.goods_id}-${lastCount.scm_shop?.cities?.id}`,
+          contains: `20250808-${lastCount.scm_shop?.client_tier_id}-${item.goods_id}-${lastCount.scm_shop?.cities?.id}`,
         },
       },
     });
