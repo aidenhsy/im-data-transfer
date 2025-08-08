@@ -7,7 +7,7 @@ const run = async () => {
   const imInventory = new ImInventory();
   const imProcurement = new ImProcurement();
 
-  const shopId = 104;
+  const shopId = 3;
 
   const shop = await imInventory.scm_shop.findFirst({
     where: {
@@ -28,7 +28,7 @@ const run = async () => {
     },
     where: {
       shop_id: shopId,
-      created_at: '2025-06-30T00:00:00.000000Z',
+      created_at: '2025-06-30T21:00:00.000000Z',
     },
   });
 
@@ -91,7 +91,7 @@ const run = async () => {
         },
         shop_id: shopId,
         receive_time: {
-          gt: '2025-06-30T00:00:00.000000Z',
+          gt: '2025-06-30T21:00:00.000000Z',
           lt: '2025-07-31T21:00:00.000000Z',
         },
       },
@@ -294,8 +294,8 @@ const run = async () => {
     '产品类别',
     '类型', // 采购入库, 盘点
     '创建时间时间',
-    '订单ID',
-    '订单详情ID',
+    '来源ID',
+    '来源详情ID',
     '盘点加权品均单价',
     '库存总数量',
     '库存总金额',
@@ -311,7 +311,7 @@ const run = async () => {
         item.supplier_items?.category_name,
         wacType(item.type),
         item.created_at,
-        item.source_order_id,
+        item.source_id,
         item.source_detail_id,
         Number(item.weighted_price),
         Number(item.total_qty),

@@ -5,8 +5,8 @@ const run = async () => {
   const imInventory = new ImInventory();
   const imProd = new ImProd();
 
-  const countid = 3739;
-  const shopid = 104;
+  const countid = 3724;
+  const shopid = 3;
 
   const imProdInventory = await imProd.scm_inventory_detail_copy.findMany({
     where: {

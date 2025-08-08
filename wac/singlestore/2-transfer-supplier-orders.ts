@@ -5,8 +5,8 @@ const run = async () => {
   const imInventory = new ImInventoryDB();
   const imProcurement = new ImProcurementDB();
 
-  const shopId = 104;
-  const countId = 'e293a5d1-81a9-4e17-bde3-42f4e96fc710';
+  const shopId = 3;
+  const countId = '48b29252-aec0-41da-aa69-bbae91b26fcd';
 
   await imInventory.supplier_order_details.deleteMany({
     where: {
@@ -104,7 +104,7 @@ const run = async () => {
           shop_id: shopId,
           supplier_item_id: detail.supplier_item_id!,
           type: 'order_in',
-          source_order_id: detail.order_id,
+          source_id: detail.order_id,
           source_detail_id: detail.id,
           created_at: detail.supplier_orders.receive_time!,
           updated_at: detail.supplier_orders.receive_time!,
@@ -119,7 +119,7 @@ const run = async () => {
           shop_id: shopId,
           supplier_item_id: detail.supplier_item_id!,
           type: 'order_in',
-          source_order_id: detail.order_id,
+          source_id: detail.order_id,
           source_detail_id: detail.id,
           created_at: detail.supplier_orders.receive_time!,
           updated_at: detail.supplier_orders.receive_time!,
