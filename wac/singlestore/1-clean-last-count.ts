@@ -6,6 +6,7 @@ const run = async () => {
   const imProd = new ImProd();
 
   const countid = 3739;
+  const shopid = 104;
 
   const imProdInventory = await imProd.scm_inventory_detail_copy.findMany({
     where: {
@@ -39,9 +40,7 @@ const run = async () => {
 
   await imInventory.shop_item_weighted_price.deleteMany({
     where: {
-      created_at: '2025-06-30T00:00:00.000000Z',
-      shop_id: 104,
-      type: 'stock_count',
+      source_id: lastCount.id,
     },
   });
 
@@ -58,6 +57,21 @@ const run = async () => {
       console.log(`${item.goods_name}, ${item.qty} 未找到`);
       continue;
     }
+
+    await imInventory.shop_item_weighted_price.create({
+      data: {
+        shop_id: shopid,
+        supplier_item_id: supplierItem.id,
+        weighted_price: Number(item.price),
+        total_qty: Number(item.inventory_qty),
+        total_value: Number(item.price) * Number(item.inventory_qty),
+        source_id: lastCount.id,
+        source_detail_id: item.id.toString(),
+        type: 'stock_count',
+        created_at: '2025-06-30T21:00:00.000000Z',
+        updated_at: '2025-06-30T21:00:00.000000Z',
+      },
+    });
 
     await imInventory.inventory_count_details.create({
       data: {

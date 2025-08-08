@@ -610,7 +610,7 @@ model shop_item_weighted_price {
   weighted_price   Decimal?                   @db.Decimal(12, 4)
   total_qty        Decimal?                   @db.Decimal(12, 4)
   total_value      Decimal?                   @db.Decimal(12, 4)
-  source_order_id  String?                    @db.VarChar
+  source_id        String?                    @db.VarChar
   source_detail_id String?                    @db.VarChar
   type             shop_item_price_event_type
   created_at       DateTime                   @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
