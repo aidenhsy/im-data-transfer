@@ -61,7 +61,7 @@ const run = async () => {
 
     await imInventory.inventory_count_details.create({
       data: {
-        count_qty: Number(item.qty),
+        count_qty: Number(item.inventory_qty),
         weighted_price: Number(item.price),
         supplier_item_id: supplierItem.id,
         inventory_count_id: lastCount.id,
