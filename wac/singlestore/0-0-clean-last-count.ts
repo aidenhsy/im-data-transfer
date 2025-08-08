@@ -58,6 +58,17 @@ const run = async () => {
       console.log(`${item.goods_name}, ${item.qty} 未找到`);
       continue;
     }
+
+    await imInventory.inventory_count_details.create({
+      data: {
+        count_qty: Number(item.qty),
+        weighted_price: Number(item.price),
+        supplier_item_id: supplierItem.id,
+        inventory_count_id: lastCount.id,
+        created_at: '2025-06-30T21:00:00.000000Z',
+        updated_at: '2025-06-30T21:00:00.000000Z',
+      },
+    });
   }
 
   console.log('done');
