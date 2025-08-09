@@ -63,10 +63,14 @@ const run = async () => {
             },
             AND: [
               {
-                supplier_reference_id: `20250808-${lastCount.scm_shop?.client_tier_id}-`,
+                supplier_reference_id: {
+                  contains: `20250808-${lastCount.scm_shop?.client_tier_id}-`,
+                },
               },
               {
-                supplier_reference_id: `-${lastCount.scm_shop?.city_id}-`,
+                supplier_reference_id: {
+                  contains: `-${lastCount.scm_shop?.city_id}-`,
+                },
               },
             ],
           },
