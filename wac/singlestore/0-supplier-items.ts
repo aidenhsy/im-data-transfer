@@ -20,6 +20,21 @@ const run = async () => {
       },
     });
   }
+  const genericItems = await imProcurement.generic_items.findMany();
+
+  for (const item of genericItems) {
+    await imInventory.generic_items.upsert({
+      where: {
+        id: item.id,
+      },
+      update: {
+        ...item,
+      },
+      create: {
+        ...item,
+      },
+    });
+  }
 };
 
 run();

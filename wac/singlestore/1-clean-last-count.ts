@@ -80,7 +80,7 @@ const run = async () => {
         });
         if (!supplierItem) {
           console.error(
-            `${item.goods_name}, ${item.qty} 未找到, ${item.id}\n20250808-${lastCount.scm_shop?.client_tier_id}-  -${lastCount.scm_shop?.cities?.id}`
+            `${item.goods_name}, ${item.qty} 未找到, ${item.id}\n20250809-${lastCount.scm_shop?.client_tier_id}-  -${lastCount.scm_shop?.cities?.id}`
           );
         } else {
           supplierItemId = supplierItem.id;
