@@ -47,6 +47,7 @@ const run = async () => {
     });
 
     for (const item of imProdInventory) {
+      let supplierItemId: string;
       const supplierItem = await imInventory.supplier_items.findFirst({
         where: {
           supplier_reference_id: {
@@ -55,7 +56,9 @@ const run = async () => {
         },
       });
 
-      if (!supplierItem) {
+      if (supplierItem) {
+        supplierItemId = supplierItem.id;
+      } else {
         const supplierItem = await imInventory.supplier_items.findFirst({
           where: {
             name: {
@@ -79,6 +82,7 @@ const run = async () => {
           console.error(`${item.goods_name}, ${item.qty} 未找到`);
         } else {
           console.log(`${item.goods_name}, ${item.qty} 找到`);
+          supplierItemId = supplierItem.id;
         }
         continue;
       }
@@ -86,7 +90,7 @@ const run = async () => {
       await imInventory.shop_item_weighted_price.create({
         data: {
           shop_id: shopid,
-          supplier_item_id: supplierItem.id,
+          supplier_item_id: supplierItemId,
           weighted_price: Number(item.price),
           total_qty: Number(item.inventory_qty),
           total_value: Number(item.price) * Number(item.inventory_qty),
@@ -102,7 +106,7 @@ const run = async () => {
         data: {
           count_qty: Number(item.inventory_qty),
           weighted_price: Number(item.price),
-          supplier_item_id: supplierItem.id,
+          supplier_item_id: supplierItemId,
           inventory_count_id: lastCount.id,
           created_at: '2025-06-30T21:00:00.000000Z',
           updated_at: '2025-06-30T21:00:00.000000Z',
