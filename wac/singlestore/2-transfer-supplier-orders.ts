@@ -10,6 +10,7 @@ const run = async () => {
     if (!shop.count_2) {
       continue;
     }
+    console.log(`shop_id: ${shop.shop_id}`);
     const shopId = Number(shop.shop_id);
     const countId = shop.count_2;
 
@@ -83,7 +84,6 @@ const run = async () => {
           supplier_orders: true,
         },
       });
-    console.log(supplierOrderDetails.length, 'supplierOrderDetails length');
 
     for (const detail of supplierOrderDetails) {
       const existingItem = await imInventory.shop_item_weighted_price.findFirst(
