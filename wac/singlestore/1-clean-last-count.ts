@@ -10,6 +10,7 @@ const run = async () => {
     if (!shop.count_1) {
       continue;
     }
+    console.log(`shop_id: ${shop.shop_id}`);
     const countid = shop.count_1;
     const shopid = Number(shop.shop_id);
 
