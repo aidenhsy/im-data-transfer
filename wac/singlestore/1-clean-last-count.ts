@@ -79,9 +79,8 @@ const run = async () => {
           },
         });
         if (!supplierItem) {
-          console.error(`${item.goods_name}, ${item.qty} 未找到`);
+          console.error(`${item.goods_name}, ${item.qty} 未找到, ${item.id}`);
         } else {
-          console.log(`${item.goods_name}, ${item.qty} 找到`);
           supplierItemId = supplierItem.id;
         }
         continue;
