@@ -1,88 +1,91 @@
 import { PrismaClient as ImInventory } from '../../prisma/clients/im-inventory-prod';
 import { PrismaClient as ImProd } from '../../prisma/clients/im-prod';
+import tempCount from './temp-count.json';
 
 const run = async () => {
   const imInventory = new ImInventory();
   const imProd = new ImProd();
 
-  const countid = 3724;
-  const shopid = 3;
+  for (const shop of tempCount) {
+    const countid = shop.count_1;
+    const shopid = Number(shop.shop_id);
 
-  const imProdInventory = await imProd.scm_inventory_detail_copy.findMany({
-    where: {
-      single_id: countid,
-    },
-  });
-
-  const lastCount = await imInventory.inventory_count.findFirst({
-    where: {
-      id: countid.toString(),
-    },
-    include: {
-      scm_shop: {
-        include: {
-          cities: true,
-        },
-      },
-    },
-  });
-
-  if (!lastCount || imProdInventory.length === 0) {
-    console.error('No inventory count found with id 3739');
-    return;
-  }
-
-  await imInventory.inventory_count_details.deleteMany({
-    where: {
-      inventory_count_id: lastCount.id,
-    },
-  });
-
-  await imInventory.shop_item_weighted_price.deleteMany({
-    where: {
-      source_id: lastCount.id,
-    },
-  });
-
-  for (const item of imProdInventory) {
-    const supplierItem = await imInventory.supplier_items.findFirst({
+    const imProdInventory = await imProd.scm_inventory_detail_copy.findMany({
       where: {
-        supplier_reference_id: {
-          contains: `20250808-${lastCount.scm_shop?.client_tier_id}-${item.goods_id}-${lastCount.scm_shop?.cities?.id}`,
+        single_id: Number(countid),
+      },
+    });
+
+    const lastCount = await imInventory.inventory_count.findFirst({
+      where: {
+        id: countid!.toString(),
+      },
+      include: {
+        scm_shop: {
+          include: {
+            cities: true,
+          },
         },
       },
     });
 
-    if (!supplierItem) {
-      console.log(`${item.goods_name}, ${item.qty} 未找到`);
-      continue;
+    if (!lastCount || imProdInventory.length === 0) {
+      console.error('No inventory count found with id 3739');
+      return;
     }
 
-    await imInventory.shop_item_weighted_price.create({
-      data: {
-        shop_id: shopid,
-        supplier_item_id: supplierItem.id,
-        weighted_price: Number(item.price),
-        total_qty: Number(item.inventory_qty),
-        total_value: Number(item.price) * Number(item.inventory_qty),
-        source_id: lastCount.id,
-        source_detail_id: item.id.toString(),
-        type: 'stock_count',
-        created_at: '2025-06-30T21:00:00.000000Z',
-        updated_at: '2025-06-30T21:00:00.000000Z',
+    await imInventory.inventory_count_details.deleteMany({
+      where: {
+        inventory_count_id: lastCount.id,
       },
     });
 
-    await imInventory.inventory_count_details.create({
-      data: {
-        count_qty: Number(item.inventory_qty),
-        weighted_price: Number(item.price),
-        supplier_item_id: supplierItem.id,
-        inventory_count_id: lastCount.id,
-        created_at: '2025-06-30T21:00:00.000000Z',
-        updated_at: '2025-06-30T21:00:00.000000Z',
+    await imInventory.shop_item_weighted_price.deleteMany({
+      where: {
+        source_id: lastCount.id,
       },
     });
+
+    for (const item of imProdInventory) {
+      const supplierItem = await imInventory.supplier_items.findFirst({
+        where: {
+          supplier_reference_id: {
+            contains: `20250808-${lastCount.scm_shop?.client_tier_id}-${item.goods_id}-${lastCount.scm_shop?.cities?.id}`,
+          },
+        },
+      });
+
+      if (!supplierItem) {
+        console.log(`${item.goods_name}, ${item.qty} 未找到`);
+        continue;
+      }
+
+      await imInventory.shop_item_weighted_price.create({
+        data: {
+          shop_id: shopid,
+          supplier_item_id: supplierItem.id,
+          weighted_price: Number(item.price),
+          total_qty: Number(item.inventory_qty),
+          total_value: Number(item.price) * Number(item.inventory_qty),
+          source_id: lastCount.id,
+          source_detail_id: item.id.toString(),
+          type: 'stock_count',
+          created_at: '2025-06-30T21:00:00.000000Z',
+          updated_at: '2025-06-30T21:00:00.000000Z',
+        },
+      });
+
+      await imInventory.inventory_count_details.create({
+        data: {
+          count_qty: Number(item.inventory_qty),
+          weighted_price: Number(item.price),
+          supplier_item_id: supplierItem.id,
+          inventory_count_id: lastCount.id,
+          created_at: '2025-06-30T21:00:00.000000Z',
+          updated_at: '2025-06-30T21:00:00.000000Z',
+        },
+      });
+    }
   }
 
   console.log('done');
