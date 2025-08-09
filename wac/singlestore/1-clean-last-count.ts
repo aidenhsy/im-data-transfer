@@ -7,6 +7,9 @@ const run = async () => {
   const imProd = new ImProd();
 
   for (const shop of tempCount) {
+    if (!shop.count_1) {
+      continue;
+    }
     const countid = shop.count_1;
     const shopid = Number(shop.shop_id);
 

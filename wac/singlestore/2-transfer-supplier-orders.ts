@@ -7,6 +7,9 @@ const run = async () => {
   const imProcurement = new ImProcurementDB();
 
   for (const shop of tempCount) {
+    if (!shop.count_2) {
+      continue;
+    }
     const shopId = Number(shop.shop_id);
     const countId = shop.count_2;
 

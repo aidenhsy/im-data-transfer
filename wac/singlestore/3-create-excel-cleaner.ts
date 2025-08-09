@@ -267,7 +267,7 @@ const run = async () => {
 
         ws.addRow([
           cat,
-          lastCount.created_at,
+          new Date(lastCount.created_at.getTime() + 24 * 60 * 60 * 1000),
           lastAmt,
           inAmt,
           finalCount.created_at,
