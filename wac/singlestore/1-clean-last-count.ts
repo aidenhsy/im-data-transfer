@@ -30,7 +30,7 @@ const run = async () => {
     });
 
     if (!lastCount || imProdInventory.length === 0) {
-      console.error('No inventory count found with id 3739');
+      console.error(`No inventory count found with id ${countid}`);
       return;
     }
 
@@ -56,7 +56,26 @@ const run = async () => {
       });
 
       if (!supplierItem) {
-        console.log(`${item.goods_name}, ${item.qty} 未找到`);
+        const supplierItem = await imInventory.supplier_items.findFirst({
+          where: {
+            name: {
+              contains: item.goods_name!,
+            },
+            AND: [
+              {
+                supplier_reference_id: `20250808-${lastCount.scm_shop?.client_tier_id}-`,
+              },
+              {
+                supplier_reference_id: `-${lastCount.scm_shop?.city_id}-`,
+              },
+            ],
+          },
+        });
+        if (!supplierItem) {
+          console.error(`${item.goods_name}, ${item.qty} 未找到`);
+        } else {
+          console.log(`${item.goods_name}, ${item.qty} 找到`);
+        }
         continue;
       }
 
