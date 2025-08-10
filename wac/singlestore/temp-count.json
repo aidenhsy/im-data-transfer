@@ -1,25 +1,5 @@
 [
   {
-    "shop_id": 8,
-    "count_1": null,
-    "count_2": "597edbbe-4d42-4c92-be4c-393277afb5d0"
-  },
-  {
-    "shop_id": 15,
-    "count_1": "3738",
-    "count_2": "a2689366-4da1-4cd5-a180-385bfdcbd9e1"
-  },
-  {
-    "shop_id": 19,
-    "count_1": "3704",
-    "count_2": "1d676ce8-c1bb-462a-91f1-174ab5d2ba8d"
-  },
-  {
-    "shop_id": 41,
-    "count_1": "3735",
-    "count_2": "92c4d706-f77a-4649-ab88-f3ea8877970d"
-  },
-  {
     "shop_id": 43,
     "count_1": "3758",
     "count_2": "6b4357b8-799c-4aa5-bc9f-1949f274ce9c"
