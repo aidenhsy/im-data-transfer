@@ -3,8 +3,8 @@ import { PrismaClient as Procurement } from './prisma/clients/im-procurement-pro
 const run = async () => {
   const procurement = new Procurement();
 
-  const fromShop = 39;
-  const toShop = 6;
+  const fromShop = 111;
+  const toShop = 142;
 
   const planSupplierItems = await procurement.plan_item_supplier_good.findMany({
     where: {
