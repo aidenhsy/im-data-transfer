@@ -20,7 +20,7 @@ const run = async () => {
       data: {
         shop_id: shopId,
         type: 1,
-        created_at: '2025-07-31T21:00:00.000Z',
+        created_at: '2025-07-31T23:59:59.999Z',
         status: 1,
         finished_at: getCurrentChinaTime(),
       },
@@ -32,7 +32,7 @@ const run = async () => {
           shop_id: shopId,
           supplier_item_id: supplierItem.supplier_item_id,
           created_at: {
-            lte: '2025-07-31T21:00:00.000Z',
+            lte: '2025-07-31T23:59:59.999Z',
           },
         },
         orderBy: {
