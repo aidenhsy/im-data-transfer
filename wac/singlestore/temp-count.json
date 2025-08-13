@@ -1,0 +1,44 @@
+[
+  {
+    "shop_id": 31,
+    "count_1": null,
+    "count_2": "db00f89a-84ad-468c-a0bf-7fd226095e2e"
+  },
+  {
+    "shop_id": 138,
+    "count_1": null,
+    "count_2": "b5a8e242-f5e3-4d27-9941-941231225875"
+  },
+  {
+    "shop_id": 139,
+    "count_1": null,
+    "count_2": "a256e462-19e4-46dd-be85-ffaac54bfebf"
+  },
+  {
+    "shop_id": 140,
+    "count_1": null,
+    "count_2": "dacdf2bc-6225-431e-9f98-df8185e0c76d"
+  },
+  {
+    "shop_id": 141,
+    "count_1": null,
+    "count_2": "b0e641c0-cc33-47eb-89c2-bcf6670f829d"
+  },
+  { "shop_id": 91, "count_1": null, "count_2": null },
+  { "shop_id": 100, "count_1": null, "count_2": null },
+  { "shop_id": 101, "count_1": null, "count_2": null },
+  { "shop_id": 105, "count_1": null, "count_2": null },
+  { "shop_id": 111, "count_1": null, "count_2": null },
+  { "shop_id": 112, "count_1": null, "count_2": null },
+  { "shop_id": 113, "count_1": null, "count_2": null },
+  { "shop_id": 117, "count_1": null, "count_2": null },
+  { "shop_id": 118, "count_1": null, "count_2": null },
+  { "shop_id": 119, "count_1": null, "count_2": null },
+  { "shop_id": 121, "count_1": null, "count_2": null },
+  { "shop_id": 122, "count_1": null, "count_2": null },
+  { "shop_id": 124, "count_1": null, "count_2": null },
+  { "shop_id": 125, "count_1": null, "count_2": null },
+  { "shop_id": 128, "count_1": null, "count_2": null },
+  { "shop_id": 129, "count_1": null, "count_2": null },
+  { "shop_id": 138, "count_1": null, "count_2": null }
+]

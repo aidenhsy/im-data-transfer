@@ -5,6 +5,8 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
+import cleanReceive from './clean-receive.json';
+
 // Configure dayjs with timezone support
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -14,47 +16,69 @@ const run = async () => {
   const scmOrderDB = new ScmOrder();
   const scmDB = new Scm();
 
-  const imDetails = await imProcurementDB.supplier_order_details.findMany({
-    where: {
-      confirm_delivery_qty: {
-        not: null,
+  for (const item of cleanReceive) {
+    const detail = await scmOrderDB.procurement_order_details.findUnique({
+      where: { id: item.detail_id },
+      include: {
+        procurement_orders: true,
       },
-    },
-    orderBy: {
-      created_at: 'desc',
-    },
-  });
-
-  for (const detail of imDetails) {
-    const scmOrderDetail = await scmOrderDB.procurement_order_details.findFirst(
-      {
-        where: {
-          reference_id: detail.supplier_reference_id,
-          procurement_orders: {
-            client_order_id: detail.order_id,
-          },
-        },
-      }
-    );
-    if (!scmOrderDetail) {
-      console.log('scmOrderDetail not found', detail.id);
+    });
+    if (!detail) {
+      console.log(`Detail ${item.detail_id} not found`);
       continue;
     }
-    if (
-      Number(scmOrderDetail.customer_receive_qty) !==
-      Number(detail.confirm_delivery_qty)
-    ) {
-      console.log(
-        `update ${scmOrderDetail.id} ${scmOrderDetail.customer_receive_qty} ${detail.confirm_delivery_qty}`
-      );
-      await scmOrderDB.procurement_order_details.update({
-        where: { id: scmOrderDetail.id },
-        data: {
-          customer_receive_qty: detail.confirm_delivery_qty,
+
+    const procurementRecord =
+      await imProcurementDB.supplier_order_details.findFirst({
+        where: {
+          order_id: detail.procurement_orders.client_order_id,
+          supplier_reference_id: detail.reference_id!,
         },
       });
+    if (!procurementRecord) {
+      console.log(`Procurement record ${item.detail_id} not found`);
+      continue;
     }
+
+    const prodRecord = await scmDB.scm_order_details.findFirst({
+      where: {
+        reference_order_id: detail.procurement_orders.client_order_id,
+        reference_id: detail.reference_id!,
+      },
+    });
+    if (!prodRecord) {
+      console.log(`Prod record ${item.detail_id} not found`);
+      continue;
+    }
+
+    await scmOrderDB.procurement_order_details.update({
+      where: { id: item.detail_id },
+      data: {
+        order_qty: item.order_qty,
+        deliver_qty: item.sent_qty,
+        customer_receive_qty: item.receive_qty,
+        final_qty: item.final_qty,
+      },
+    });
+    await scmDB.scm_order_details.update({
+      where: { id: prodRecord.id },
+      data: {
+        delivery_qty: item.final_qty,
+        deliver_goods_qty: item.sent_qty,
+      },
+    });
+
+    await imProcurementDB.supplier_order_details.update({
+      where: { id: procurementRecord.id },
+      data: {
+        order_qty: item.order_qty,
+        actual_delivery_qty: item.sent_qty,
+        confirm_delivery_qty: item.receive_qty,
+        final_qty: item.final_qty,
+      },
+    });
   }
+  console.log('done');
 };
 
 run();
