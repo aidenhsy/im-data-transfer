@@ -35,6 +35,7 @@ const run = async () => {
           delivery_qty: true,
           scm_order: {
             select: {
+              id: true,
               receival_time: true,
             },
           },
@@ -48,7 +49,14 @@ const run = async () => {
         scmItem?.scm_order?.receival_time! >
         new Date('2025-08-01T00:00:00.000Z')
       ) {
-        console.log(scmItem?.scm_order?.receival_time, 'receival_time');
+        await basic.scm_order.update({
+          where: {
+            id: scmItem?.scm_order?.id,
+          },
+          data: {
+            receival_time: order.receive_time,
+          },
+        });
       }
       if (order.receive_time! > new Date('2025-08-01T00:00:00.000Z')) {
         console.log(order.receive_time, 'receive_time');
