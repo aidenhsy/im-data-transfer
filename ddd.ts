@@ -44,8 +44,19 @@ const run = async () => {
         console.log(detail.supplier_reference_id, rest.id, 'not found');
       }
 
-      if (scmItem?.scm_order?.receival_time !== order.receive_time) {
-        console.log(scmItem?.scm_order?.receival_time, order.receive_time);
+      const receivalTime = scmItem?.scm_order?.receival_time
+        ? new Date(scmItem.scm_order.receival_time)
+        : null;
+      const receiveTime = order.receive_time
+        ? new Date(order.receive_time)
+        : null;
+
+      if (
+        receivalTime &&
+        receiveTime &&
+        receivalTime.getTime() !== receiveTime.getTime()
+      ) {
+        console.log(receivalTime.toISOString(), receiveTime.toISOString());
       }
 
       if (Number(scmItem?.delivery_qty) !== Number(final_qty)) {
