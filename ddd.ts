@@ -29,7 +29,7 @@ const run = async () => {
       const scmItem = await basic.scm_order_details.findFirst({
         where: {
           reference_id: detail.supplier_reference_id,
-          reference_order_id: rest.id,
+          reference_order_id: order.id,
         },
       });
       if (!scmItem) {
