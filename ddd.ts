@@ -31,9 +31,21 @@ const run = async () => {
           reference_id: detail.supplier_reference_id,
           reference_order_id: order.id,
         },
+        select: {
+          delivery_qty: true,
+          scm_order: {
+            select: {
+              receival_time: true,
+            },
+          },
+        },
       });
       if (!scmItem) {
         console.log(detail.supplier_reference_id, rest.id, 'not found');
+      }
+
+      if (scmItem?.scm_order?.receival_time !== order.receive_time) {
+        console.log(scmItem?.scm_order?.receival_time, order.receive_time);
       }
 
       if (Number(scmItem?.delivery_qty) !== Number(final_qty)) {
