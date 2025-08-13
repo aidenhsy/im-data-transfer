@@ -32,6 +32,9 @@ const run = async () => {
           reference_order_id: rest.id,
         },
       });
+      if (!scmItem) {
+        console.log(detail.supplier_reference_id, rest.id, 'not found');
+      }
 
       if (Number(scmItem?.delivery_qty) !== Number(final_qty)) {
         console.log(scmItem?.delivery_qty, final_qty);
