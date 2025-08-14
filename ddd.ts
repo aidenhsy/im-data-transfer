@@ -43,6 +43,7 @@ const run = async () => {
       });
       if (!scmItem) {
         console.log(detail.supplier_reference_id, rest.id, 'not found');
+        continue;
       }
 
       if (
