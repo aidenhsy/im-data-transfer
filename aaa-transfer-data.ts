@@ -27,7 +27,6 @@ const run = async () => {
       },
       status: 3,
     },
-    take: 10,
     include: {
       scm_order_details: {
         include: {
