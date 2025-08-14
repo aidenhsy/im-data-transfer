@@ -10,9 +10,9 @@ const run = async () => {
   const details = await procurementDB.supplier_order_details.findMany({
     where: {
       supplier_orders: {
-        type: 9,
+        type: 3,
         created_at: {
-          gt: new Date('2025-08-14T21:00:00.000Z'),
+          gt: new Date('2025-08-14T15:00:00.000Z'),
         },
       },
     },
