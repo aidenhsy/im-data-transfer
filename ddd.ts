@@ -67,6 +67,8 @@ const run = async () => {
       }
     }
   }
+  console.log('done');
+  process.exit(0);
 };
 
 run();
