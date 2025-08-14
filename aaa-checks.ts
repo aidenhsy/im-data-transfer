@@ -40,6 +40,7 @@ const run = async () => {
       );
     }
   }
+  console.log('done');
 };
 
 run();
