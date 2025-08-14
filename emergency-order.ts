@@ -6,9 +6,9 @@ const run = async () => {
 
   const orders = await prod.supplier_orders.findMany({
     where: {
-      type: 3,
+      type: 9,
       created_at: {
-        gt: new Date('2025-08-14T15:00:00.000Z'),
+        gt: new Date('2025-08-14T21:00:00.000Z'),
       },
     },
     include: {
@@ -21,7 +21,7 @@ const run = async () => {
     await axios.post(`https://scmms.shaihukeji.com/order/place-order`, {
       store_id: order.shop_id,
       client_order_id: order.id,
-      type: 3,
+      type: 9,
       items: order.supplier_order_details.map((item) => ({
         name: item.supplier_item_name,
         price: item.price.toString(),
