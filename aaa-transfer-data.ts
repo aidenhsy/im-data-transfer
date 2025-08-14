@@ -76,7 +76,6 @@ const run = async () => {
         delivery_date: delivery_date_string,
         type: 9,
         created_at: order.create_time!,
-        updated_at: new Date(),
         delivery_time: order.delivery_time,
         order_amount: order_amount,
         actual_amount: actual_amount,
@@ -85,6 +84,7 @@ const run = async () => {
         estimated_delivery_time: order.delivery_time,
       },
     });
+
     // orderDB creation
     await orderDB.procurement_orders.create({
       data: {
@@ -96,7 +96,6 @@ const run = async () => {
         order_date: order_date,
         delivery_date: delivery_date_string,
         created_at: order.create_time!,
-        updated_at: new Date(),
         client_order_id: order.id.toString(),
         delivery_time: order.delivery_time,
         order_amount: order_amount,
