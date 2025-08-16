@@ -69,7 +69,17 @@ async function main() {
 
   for (const row of mapped) {
     if (row.is_delted === 1) {
-      const supply_plan_item =
+      const supply_plan_item = await imBasicDataDB.supply_plan_items.findUnique(
+        {
+          where: {
+            supply_plan_id_item_id: {
+              item_id: Number(row.item_id),
+              supply_plan_id: 83,
+            },
+          },
+        }
+      );
+      const supply_plan_item_procurement =
         await imProcurementDB.supply_plan_items.findUnique({
           where: {
             supply_plan_id_item_id: {
@@ -79,23 +89,24 @@ async function main() {
           },
         });
       if (supply_plan_item) {
-        await imProcurementDB.plan_item_supplier_good.deleteMany({
-          where: {
-            plan_item_id: supply_plan_item.id,
-          },
-        });
-        await imProcurementDB.supply_plan_items.delete({
-          where: {
-            id: supply_plan_item.id,
-          },
-        });
-        console.log(row.item_id, 83);
         await imBasicDataDB.supply_plan_items.delete({
           where: {
             supply_plan_id_item_id: {
               item_id: Number(row.item_id),
               supply_plan_id: 83,
             },
+          },
+        });
+      }
+      if (supply_plan_item_procurement) {
+        await imProcurementDB.plan_item_supplier_good.deleteMany({
+          where: {
+            plan_item_id: supply_plan_item_procurement.id,
+          },
+        });
+        await imProcurementDB.supply_plan_items.delete({
+          where: {
+            id: supply_plan_item_procurement.id,
           },
         });
       }
