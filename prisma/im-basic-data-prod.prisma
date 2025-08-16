@@ -137,11 +137,9 @@ model generic_items {
   update_time        DateTime?           @default(now()) @db.Timestamp(6)
   letter_name        String?             @db.VarChar
   photo_url          String?             @db.VarChar
-  stock_category_id  Int?
   base_unit_id       Int?
   scm_goods_category scm_goods_category  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_category0")
   standard_units     standard_units?     @relation(fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  stock_category     stock_category?     @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_goods_stock_category_id_fkey")
   supply_plan_items  supply_plan_items[]
 }
 
@@ -383,6 +381,7 @@ model scm_shop {
   big_org_id                     Int?
   shop_pic_url                   String?                          @db.VarChar
   open_hours                     Json
+  client_tier_id                 Int?
   scm_order                      scm_order[]
   scm_shop_brand                 scm_shop_brand                   @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_brand_id38")
   big_org                        big_org?                         @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -909,9 +908,9 @@ model standard_units {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model stock_category {
-  id            Int             @id @default(autoincrement())
-  name          String?         @db.VarChar(50)
-  generic_items generic_items[]
+  id                Int                 @id @default(autoincrement())
+  name              String?             @db.VarChar(50)
+  supply_plan_items supply_plan_items[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -981,8 +980,10 @@ model supply_plan_items {
   id                      String                    @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
   supply_plan_id          Int?
   item_id                 Int?
+  stock_category_id       Int?
   plan_item_supplier_good plan_item_supplier_good[]
   generic_items           generic_items?            @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stock_category          stock_category?           @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "supply_plan_items_stock_category_fk")
   scm_supply_plan         scm_supply_plan?          @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([supply_plan_id, item_id], map: "unique_supply_plan_item")
