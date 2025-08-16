@@ -91,7 +91,10 @@ async function main() {
         });
         await imBasicDataDB.supply_plan_items.delete({
           where: {
-            id: supply_plan_item.id,
+            supply_plan_id_item_id: {
+              item_id: Number(row.item_id),
+              supply_plan_id: 83,
+            },
           },
         });
       }
