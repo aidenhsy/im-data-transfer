@@ -78,10 +78,29 @@ async function main() {
             },
           },
         });
+      const supply_plan_item_basic_data =
+        await imBasicDataDB.supply_plan_items.findUnique({
+          where: {
+            supply_plan_id_item_id: {
+              item_id: Number(row.item_id),
+              supply_plan_id: 83,
+            },
+          },
+        });
       if (supply_plan_item) {
         await imProcurementDB.supply_plan_items.update({
           where: {
             id: supply_plan_item.id,
+          },
+          data: {
+            stock_category_id: 2,
+          },
+        });
+      }
+      if (supply_plan_item_basic_data) {
+        await imBasicDataDB.supply_plan_items.update({
+          where: {
+            id: supply_plan_item_basic_data.id,
           },
           data: {
             stock_category_id: 2,
