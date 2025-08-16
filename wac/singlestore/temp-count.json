@@ -132,7 +132,7 @@
   {
     "shop_id": 35,
     "count_1": "3760",
-    "count_2": "75443284-3f86-466e-8f99-0dca97a96013"
+    "count_2": "75443284-3f86-466e-8d99-0dca97a96013"
   },
   {
     "shop_id": 36,
@@ -299,11 +299,6 @@
     "count_1": null,
     "count_2": "f276fc35-d4a9-420e-a14e-42b0ea90bc32"
   },
-  {
-    "shop_id": 141,
-    "count_1": null,
-    "count_2": "b0e641c0-cc33-47eb-89c2-bcf6670f829d"
-  },
   { "shop_id": 91, "count_1": null, "count_2": null },
   { "shop_id": 100, "count_1": null, "count_2": null },
   { "shop_id": 101, "count_1": null, "count_2": null },
@@ -319,10 +314,5 @@
   { "shop_id": 124, "count_1": null, "count_2": null },
   { "shop_id": 125, "count_1": null, "count_2": null },
   { "shop_id": 128, "count_1": null, "count_2": null },
-  { "shop_id": 129, "count_1": null, "count_2": null },
-  {
-    "shop_id": 138,
-    "count_1": null,
-    "count_2": "196be083-ef01-49a1-bad2-b65a4888d98e"
-  }
+  { "shop_id": 129, "count_1": null, "count_2": null }
 ]
