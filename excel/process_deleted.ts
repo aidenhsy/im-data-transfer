@@ -89,6 +89,7 @@ async function main() {
             id: supply_plan_item.id,
           },
         });
+        console.log(row.item_id, 83);
         await imBasicDataDB.supply_plan_items.delete({
           where: {
             supply_plan_id_item_id: {
