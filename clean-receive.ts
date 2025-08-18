@@ -18,62 +18,73 @@ const run = async () => {
   const scmDB = new Scm();
   const scmPricingDB = new ScmPricing();
 
-  const imProcurementDetails =
-    await imProcurementDB.supplier_order_details.findMany({
-      orderBy: {
-        created_at: 'desc',
+  const badOrders = await scmOrderDB.procurement_order_details.findMany({
+    where: {
+      procurement_orders: {
+        status: 3,
       },
-    });
-
-  for (const imDetail of imProcurementDetails) {
-    const scmOrderDetail = await scmOrderDB.procurement_order_details.findFirst(
-      {
-        where: {
-          reference_id: imDetail.supplier_reference_id,
-          procurement_orders: {
-            client_order_id: imDetail.order_id,
-          },
-        },
+      deliver_qty: null,
+    },
+    select: {
+      id: true,
+      reference_id: true,
+      name: true,
+      order_qty: true,
+      good_id: true,
+      price: true,
+      procurement_orders: {
         select: {
-          id: true,
+          client_order_id: true,
+          shop_id: true,
         },
-      }
-    );
-    const scmOrder = await scmOrderDB.procurement_orders.findFirst({
+      },
+    },
+  });
+  console.log(badOrders.length);
+
+  for (const badOrder of badOrders) {
+    const scmProd = await scmDB.scm_order_details.findFirst({
       where: {
-        client_order_id: imDetail.order_id,
+        reference_id: badOrder.reference_id,
+        reference_order_id: badOrder.procurement_orders.client_order_id,
       },
     });
-    const scmPricing = await scmPricingDB.scm_good_pricing.findFirst({
-      where: {
-        external_reference_id: imDetail.supplier_reference_id,
-      },
-    });
-    if (!scmOrder) {
-      console.log(imDetail.order_id, 'order not found');
-      continue;
-    }
-    if (!scmPricing) {
-      console.log(imDetail.supplier_reference_id, 'pricing not found');
-      continue;
-    }
-    if (!scmOrderDetail) {
-      await scmOrderDB.procurement_order_details.create({
-        data: {
-          name: imDetail.supplier_item_name,
-          reference_id: imDetail.supplier_reference_id,
-          order_qty: imDetail.order_qty,
-          price: imDetail.price,
-          cut_off_time: imDetail.cut_off_time,
-          order_id: scmOrder.id,
-          deliver_qty: null,
-          good_id: scmPricing.goods_id,
-          unit_id: scmPricing.good_unit_id,
-          pricing_id: scmPricing.id,
-          weighted_average_cost: scmPricing.weighted_average_cost,
+    if (!scmProd) {
+      const otherRecord = await scmDB.scm_order_details.findFirst({
+        where: {
+          reference_order_id: badOrder.procurement_orders.client_order_id,
         },
       });
-      console.log(imDetail.supplier_reference_id, 'created');
+      if (!otherRecord) {
+        console.log('dfsdf');
+        continue;
+      }
+      const newRecord = await scmDB.scm_order_details.create({
+        data: {
+          goods_name: badOrder.name,
+          num: Number(badOrder.order_qty),
+          price: badOrder.price,
+          goods_id: badOrder.good_id,
+          status: 2,
+          deliver_goods_qty: Number(badOrder.order_qty),
+          order_id: otherRecord.order_id!,
+          reference_id: badOrder.reference_id,
+          reference_order_id: otherRecord.reference_order_id,
+        },
+      });
+      console.log(newRecord.id);
+      continue;
+    }
+    if (scmProd.deliver_goods_qty !== null) {
+      console.log('updated');
+      await scmOrderDB.procurement_order_details.update({
+        where: {
+          id: badOrder.id,
+        },
+        data: {
+          deliver_qty: scmProd.deliver_goods_qty,
+        },
+      });
     }
   }
 
