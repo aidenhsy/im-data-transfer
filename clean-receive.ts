@@ -18,6 +18,11 @@ const run = async () => {
 
   const imProcurementDetails =
     await imProcurementDB.supplier_order_details.findMany({
+      select: {
+        id: true,
+        supplier_reference_id: true,
+        order_id: true,
+      },
       orderBy: {
         created_at: 'desc',
       },
@@ -31,6 +36,9 @@ const run = async () => {
           procurement_orders: {
             client_order_id: imDetail.order_id,
           },
+        },
+        select: {
+          id: true,
         },
       }
     );
