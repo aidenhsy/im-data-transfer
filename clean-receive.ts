@@ -23,7 +23,6 @@ const run = async () => {
       orderBy: {
         created_at: 'desc',
       },
-      take: 10000,
     });
 
   for (const imDetail of imProcurementDetails) {
