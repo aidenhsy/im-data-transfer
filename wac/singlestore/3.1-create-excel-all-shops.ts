@@ -491,7 +491,7 @@ const run = async () => {
       const finPrice = toNumber(fin?.weighted_price);
       const finVal = finQty * finPrice;
 
-      const usedQty = inQty - finQty;
+      const usedQty = lastQty + inQty - finQty;
       const usedVal = lastVal + inVal - finVal;
 
       wsInvSummary.addRow([

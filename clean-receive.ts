@@ -16,68 +16,29 @@ const run = async () => {
   const scmOrderDB = new ScmOrder();
   const scmDB = new Scm();
 
-  for (const item of cleanReceive) {
-    const detail = await scmOrderDB.procurement_order_details.findUnique({
-      where: { id: item.detail_id },
-      include: {
-        procurement_orders: true,
+  const imProcurementDetails =
+    await imProcurementDB.supplier_order_details.findMany({
+      orderBy: {
+        created_at: 'desc',
       },
     });
-    if (!detail) {
-      console.log(`Detail ${item.detail_id} not found`);
-      continue;
-    }
 
-    const procurementRecord =
-      await imProcurementDB.supplier_order_details.findFirst({
+  for (const imDetail of imProcurementDetails) {
+    const scmOrderDetail = await scmOrderDB.procurement_order_details.findFirst(
+      {
         where: {
-          order_id: detail.procurement_orders.client_order_id,
-          supplier_reference_id: detail.reference_id!,
+          reference_id: imDetail.supplier_reference_id,
+          procurement_orders: {
+            client_order_id: imDetail.order_id,
+          },
         },
-      });
-    if (!procurementRecord) {
-      console.log(`Procurement record ${item.detail_id} not found`);
-      continue;
+      }
+    );
+    if (!scmOrderDetail) {
+      console.log(imDetail.supplier_reference_id);
     }
-
-    const prodRecord = await scmDB.scm_order_details.findFirst({
-      where: {
-        reference_order_id: detail.procurement_orders.client_order_id,
-        reference_id: detail.reference_id!,
-      },
-    });
-    if (!prodRecord) {
-      console.log(`Prod record ${item.detail_id} not found`);
-      continue;
-    }
-
-    await scmOrderDB.procurement_order_details.update({
-      where: { id: item.detail_id },
-      data: {
-        order_qty: item.order_qty,
-        deliver_qty: item.sent_qty,
-        customer_receive_qty: item.receive_qty,
-        final_qty: item.final_qty,
-      },
-    });
-    await scmDB.scm_order_details.update({
-      where: { id: prodRecord.id },
-      data: {
-        delivery_qty: item.final_qty,
-        deliver_goods_qty: item.sent_qty,
-      },
-    });
-
-    await imProcurementDB.supplier_order_details.update({
-      where: { id: procurementRecord.id },
-      data: {
-        order_qty: item.order_qty,
-        actual_delivery_qty: item.sent_qty,
-        confirm_delivery_qty: item.receive_qty,
-        final_qty: item.final_qty,
-      },
-    });
   }
+
   console.log('done');
 };
 
