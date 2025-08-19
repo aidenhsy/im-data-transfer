@@ -74,7 +74,7 @@ async function main() {
           where: {
             supply_plan_id_item_id: {
               item_id: Number(row.item_id),
-              supply_plan_id: 83,
+              supply_plan_id: 78,
             },
           },
         });
@@ -83,7 +83,7 @@ async function main() {
           where: {
             supply_plan_id_item_id: {
               item_id: Number(row.item_id),
-              supply_plan_id: 83,
+              supply_plan_id: 78,
             },
           },
         });
