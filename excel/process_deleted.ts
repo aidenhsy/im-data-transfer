@@ -89,6 +89,7 @@ async function main() {
           },
         });
       if (supply_plan_item) {
+        console.log('delete basic data supply_plan_items', supply_plan_item.id);
         await imBasicDataDB.supply_plan_items.delete({
           where: {
             supply_plan_id_item_id: {
@@ -99,6 +100,10 @@ async function main() {
         });
       }
       if (supply_plan_item_procurement) {
+        console.log(
+          'delete procurement plan_item_supplier_good',
+          supply_plan_item_procurement.id
+        );
         await imProcurementDB.plan_item_supplier_good.deleteMany({
           where: {
             plan_item_id: supply_plan_item_procurement.id,
