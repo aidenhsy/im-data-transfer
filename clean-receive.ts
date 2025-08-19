@@ -56,6 +56,45 @@ const run = async () => {
         `orderId: ${order.reference_order_id} \nscm: ${a} scmOrder: ${b} procurement: ${c}\n------`
       );
     }
+
+    if (a > b) {
+    }
+    if (a < b) {
+      const procurementDetails =
+        await scmOrderDB.procurement_order_details.findMany({
+          where: {
+            procurement_orders: {
+              client_order_id: order.reference_order_id!,
+            },
+          },
+        });
+      for (const procurementDetail of procurementDetails) {
+        const scmDetail = await scmDB.scm_order_details.findFirst({
+          where: {
+            reference_order_id: procurementDetail.order_id,
+            reference_id: procurementDetail.reference_id,
+          },
+        });
+
+        if (!scmDetail) {
+          const newScmDetail = await scmDB.scm_order_details.create({
+            data: {
+              num: Number(procurementDetail.order_qty),
+              deliver_goods_qty: procurementDetail.deliver_qty,
+              delivery_qty: procurementDetail.final_qty ?? undefined,
+              order_id: order.order_id,
+              goods_id: procurementDetail.good_id,
+              goods_name: procurementDetail.name,
+              price: procurementDetail.price,
+              hide_price: procurementDetail.weighted_average_cost,
+              reference_id: procurementDetail.reference_id,
+              reference_order_id: order.reference_order_id,
+            },
+          });
+          console.log(newScmDetail.id);
+        }
+      }
+    }
   }
 
   console.log('done');
