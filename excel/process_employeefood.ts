@@ -88,6 +88,10 @@ async function main() {
           },
         });
       if (supply_plan_item) {
+        console.log(
+          'update procurement supply_plan_items',
+          supply_plan_item.id
+        );
         await imProcurementDB.supply_plan_items.update({
           where: {
             id: supply_plan_item.id,
@@ -98,6 +102,10 @@ async function main() {
         });
       }
       if (supply_plan_item_basic_data) {
+        console.log(
+          'update basic data supply_plan_items',
+          supply_plan_item_basic_data.id
+        );
         await imBasicDataDB.supply_plan_items.update({
           where: {
             id: supply_plan_item_basic_data.id,
