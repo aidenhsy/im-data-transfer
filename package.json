@@ -20,5 +20,8 @@
     "@types/xlsx": "^0.0.35",
     "prisma": "^6.4.1",
     "ts-node": "^10.9.2"
+  },
+  "scripts": {
+    "db:inventory": "npx prisma db pull --schema=prisma/im-inventory-prod.prisma && npx prisma generate --schema=prisma/im-inventory-prod.prisma"
   }
 }
