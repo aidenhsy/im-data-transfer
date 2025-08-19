@@ -24,6 +24,40 @@ const run = async () => {
 
   console.log(orderIds.length);
 
+  for (const order of orderIds) {
+    const orderDetails = await scmDB.scm_order_details.count({
+      where: {
+        reference_order_id: order.reference_order_id,
+      },
+    });
+    if (!order.reference_order_id) {
+      console.log('no reference order id');
+      continue;
+    }
+    const scmOrderDetails = await scmOrderDB.procurement_order_details.count({
+      where: {
+        procurement_orders: {
+          client_order_id: order.reference_order_id!,
+        },
+      },
+    });
+    const procurementOrderDetails =
+      await imProcurementDB.supplier_order_details.count({
+        where: {
+          order_id: order.reference_order_id!,
+        },
+      });
+    const a = Number(orderDetails);
+    const b = Number(scmOrderDetails);
+    const c = Number(procurementOrderDetails);
+
+    if (a !== b || b !== c || a !== c) {
+      console.log(
+        `orderId: ${order.reference_order_id} \nscm: ${a} scmOrder: ${b} procurement: ${c}\n------`
+      );
+    }
+  }
+
   console.log('done');
 };
 
