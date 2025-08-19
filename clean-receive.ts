@@ -51,54 +51,14 @@ const run = async () => {
     const b = Number(scmOrderDetails);
     const c = Number(procurementOrderDetails);
 
-    // if (a !== b || b !== c || a !== c) {
-    //   console.log(
-    //     `orderId: ${order.reference_order_id} \nscm: ${a} scmOrder: ${b} procurement: ${c}\n------`
-    //   );
+    if (a !== b || b !== c || a !== c) {
+      console.log(
+        `orderId: ${order.reference_order_id} \nscm: ${a} scmOrder: ${b} procurement: ${c}\n------`
+      );
+    }
+
+    // if (a > b) {
     // }
-
-    if (a > b) {
-    }
-    if (a < b) {
-      const procurementDetails =
-        await scmOrderDB.procurement_order_details.findMany({
-          where: {
-            procurement_orders: {
-              client_order_id: order.reference_order_id!,
-            },
-          },
-          include: {
-            procurement_orders: true,
-          },
-        });
-      for (const procurementDetail of procurementDetails) {
-        const scmDetail = await scmDB.scm_order_details.findFirst({
-          where: {
-            reference_order_id:
-              procurementDetail.procurement_orders.client_order_id,
-            reference_id: procurementDetail.reference_id,
-          },
-        });
-
-        if (!scmDetail) {
-          const newScmDetail = await scmDB.scm_order_details.create({
-            data: {
-              num: Number(procurementDetail.order_qty),
-              deliver_goods_qty: procurementDetail.deliver_qty,
-              delivery_qty: procurementDetail.final_qty ?? undefined,
-              order_id: order.order_id,
-              goods_id: procurementDetail.good_id,
-              goods_name: procurementDetail.name,
-              price: procurementDetail.price,
-              hide_price: procurementDetail.weighted_average_cost,
-              reference_id: procurementDetail.reference_id,
-              reference_order_id: order.reference_order_id,
-            },
-          });
-          console.log(newScmDetail.id);
-        }
-      }
-    }
   }
 
   console.log('done');
