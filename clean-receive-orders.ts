@@ -41,8 +41,10 @@ const run = async () => {
       status: {
         in: [3, 4, 5],
       },
+      created_at: {
+        gt: new Date('2025-08-01T00:00:00.000Z'),
+      },
     },
-    take: 100,
     select: {
       client_order_id: true,
       created_at: true,
@@ -79,6 +81,9 @@ const run = async () => {
           supplier_reference_id: detail.reference_id!,
         },
       });
+      if (im?.actual_delivery_qty === null) {
+        continue;
+      }
       if (!im) {
         logAndWrite(
           `order: ${order.client_order_id}\ndetail: ${detail.reference_id}`
