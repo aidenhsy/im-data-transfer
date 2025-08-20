@@ -20,7 +20,7 @@ const run = async () => {
   const orders = await scmOrderDB.procurement_orders.findMany({
     where: {
       status: {
-        in: [3, 4, 5, 6, 20],
+        in: [3, 4, 5],
       },
     },
     select: {
