@@ -28,27 +28,31 @@ const run = async () => {
   });
 
   for (const finishedOrder of finishedOrders) {
-    if (!finishedOrder.receive_time) {
-      console.log(finishedOrder.id, 'has no receive time');
-      continue;
-    }
-    const scmOrder = await scmOrderDB.procurement_orders.findFirst({
+    const scm = await scmDB.scm_order_details.findFirst({
       where: {
-        client_order_id: finishedOrder.id,
+        reference_order_id: finishedOrder.id,
+      },
+      select: {
+        scm_order: {
+          select: {
+            id: true,
+            status: true,
+          },
+        },
       },
     });
-    if (!scmOrder) {
+    if (!scm) {
       console.log(finishedOrder.id, 'has no scm order');
       continue;
     }
-    await scmOrderDB.procurement_orders.update({
-      where: {
-        id: scmOrder.id,
-      },
-      data: {
-        customer_receive_time: finishedOrder.receive_time,
-      },
-    });
+
+    if (scm.scm_order.status !== 3) {
+      console.log(
+        finishedOrder.id,
+        'scm order status is not 3',
+        scm.scm_order.id
+      );
+    }
   }
 
   console.log('done');
