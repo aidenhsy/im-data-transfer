@@ -55,6 +55,7 @@ const run = async () => {
           imOrderIds: [finishedOrder.id],
         }
       );
+      console.log(scm.scm_order.id);
     }
     break;
   }
