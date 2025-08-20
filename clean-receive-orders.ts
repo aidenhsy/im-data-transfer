@@ -27,6 +27,7 @@ const run = async () => {
       client_order_id: true,
       procurement_order_details: {
         select: {
+          id: true,
           deliver_qty: true,
           reference_id: true,
         },
@@ -68,6 +69,16 @@ const run = async () => {
         Number(detail.deliver_qty) !== Number(scm?.deliver_goods_qty) ||
         Number(im.actual_delivery_qty) !== Number(scm?.deliver_goods_qty)
       ) {
+        if (Number(im.actual_delivery_qty) === Number(scm?.deliver_goods_qty)) {
+          await scmOrderDB.procurement_order_details.update({
+            where: {
+              id: detail.id,
+            },
+            data: {
+              deliver_qty: Number(im.actual_delivery_qty),
+            },
+          });
+        }
         console.log(
           `order: ${order.client_order_id}\ndetail: ${detail.reference_id}\nim: ${im.actual_delivery_qty}\nscm: ${scm?.deliver_goods_qty}\nscmOrder: ${detail.deliver_qty}\n-----------------------------\n\n`
         );
