@@ -66,7 +66,7 @@ const run = async () => {
           });
         }
         console.log(
-          `client_id: ${order.client_order_id}\norder: ${detail.order_qty}\nprocurement: ${procurementOrderDetail?.order_qty}\nscm: ${scm?.num}\n\n-----------------------------\n\n`
+          `client_id: ${order.client_order_id}\nreference_id:${detail.reference_id}\norder: ${detail.order_qty}\nprocurement: ${procurementOrderDetail?.order_qty}\nscm: ${scm?.num}\n\n-----------------------------\n\n`
         );
       }
     }
