@@ -49,7 +49,15 @@ const run = async () => {
       if (
         Number(detail.order_qty) !== Number(procurementOrderDetail?.order_qty)
       ) {
-        console.log(procurementOrderDetail?.id);
+        const scm = await scmDB.scm_order_details.findFirst({
+          where: {
+            reference_order_id: procurementOrderDetail?.order_id,
+            reference_id: detail.reference_id,
+          },
+        });
+        console.log(
+          `order: ${detail.order_qty}\nprocurement: ${procurementOrderDetail?.order_qty}\nscm: ${scm?.num}`
+        );
       }
     }
   }
