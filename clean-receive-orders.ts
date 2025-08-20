@@ -28,7 +28,12 @@ const run = async () => {
         },
       },
     },
+    orderBy: {
+      created_at: 'desc',
+    },
   });
+
+  console.log(orders.length);
 
   for (const order of orders) {
     for (const detail of order.procurement_order_details) {
