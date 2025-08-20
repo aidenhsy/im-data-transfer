@@ -55,6 +55,16 @@ const run = async () => {
             reference_id: detail.reference_id,
           },
         });
+        if (Number(scm?.num) === Number(procurementOrderDetail?.order_qty)) {
+          await scmOrderDB.procurement_order_details.update({
+            where: {
+              id: detail.id,
+            },
+            data: {
+              order_qty: procurementOrderDetail?.order_qty,
+            },
+          });
+        }
         console.log(
           `order: ${detail.order_qty}\nprocurement: ${procurementOrderDetail?.order_qty}\nscm: ${scm?.num}\n\n-----------------------------\n\n`
         );
