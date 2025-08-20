@@ -23,6 +23,7 @@ const run = async () => {
       created_at: true,
       procurement_order_details: {
         select: {
+          id: true,
           order_qty: true,
           reference_id: true,
         },
@@ -48,7 +49,7 @@ const run = async () => {
       if (
         Number(detail.order_qty) !== Number(procurementOrderDetail?.order_qty)
       ) {
-        console.log(order.client_order_id, order.created_at);
+        console.log(procurementOrderDetail?.id);
       }
     }
   }
