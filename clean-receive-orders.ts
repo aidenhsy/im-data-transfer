@@ -47,11 +47,7 @@ const run = async () => {
     }
 
     if (scm.scm_order.status !== 3) {
-      console.log(
-        finishedOrder.id,
-        'scm order status is not 3',
-        scm.scm_order.id
-      );
+      console.log(finishedOrder.id);
     }
   }
 
