@@ -34,10 +34,10 @@ const run = async () => {
   console.log(orderIds.length);
 
   for (const order of orderIds) {
-    if (order.scm_order.arrival_time) {
+    if (order.scm_order.arrival_time && order.reference_order_id) {
       const procurementOrder = await imProcurementDB.supplier_orders.findFirst({
         where: {
-          id: order.reference_order_id!,
+          id: order.reference_order_id,
         },
       });
 
