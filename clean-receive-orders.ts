@@ -57,7 +57,6 @@ const run = async () => {
       );
       console.log(scm.scm_order.id);
     }
-    break;
   }
 
   console.log('done');
