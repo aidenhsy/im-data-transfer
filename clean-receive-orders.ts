@@ -16,36 +16,41 @@ const run = async () => {
   const scmDB = new Scm();
   const scmPricingDB = new ScmPricing();
 
-  const orderIds = await scmDB.scm_order_details.findMany({
-    distinct: ['reference_order_id'],
-    select: {
-      reference_order_id: true,
-      scm_order: {
-        select: {
-          arrival_time: true,
-        },
+  const finishedOrders = await imProcurementDB.supplier_orders.findMany({
+    where: {
+      status: {
+        in: [4, 5],
       },
     },
     orderBy: {
-      create_time: 'desc',
+      created_at: 'desc',
     },
   });
 
-  console.log(orderIds.length);
-
-  for (const order of orderIds) {
-    if (order.scm_order.arrival_time && order.reference_order_id) {
-      const procurementOrder = await imProcurementDB.supplier_orders.findFirst({
-        where: {
-          id: order.reference_order_id,
-        },
-      });
-
-      if (procurementOrder?.status === 1 || procurementOrder?.status === 0) {
-        console.log(order.reference_order_id);
-      }
+  for (const finishedOrder of finishedOrders) {
+    if (!finishedOrder.receive_time) {
+      console.log(finishedOrder.id, 'has no receive time');
+      continue;
     }
+    const scmOrder = await scmOrderDB.procurement_orders.findFirst({
+      where: {
+        client_order_id: finishedOrder.id,
+      },
+    });
+    if (!scmOrder) {
+      console.log(finishedOrder.id, 'has no scm order');
+      continue;
+    }
+    await scmOrderDB.procurement_orders.update({
+      where: {
+        id: scmOrder.id,
+      },
+      data: {
+        customer_receive_time: finishedOrder.receive_time,
+      },
+    });
   }
+
   console.log('done');
 };
 
