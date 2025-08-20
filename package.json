@@ -22,6 +22,7 @@
     "ts-node": "^10.9.2"
   },
   "scripts": {
-    "db:inventory": "npx prisma db pull --schema=prisma/im-inventory-prod.prisma && npx prisma generate --schema=prisma/im-inventory-prod.prisma"
+    "db:inventory": "npx prisma db pull --schema=prisma/im-inventory-prod.prisma && npx prisma generate --schema=prisma/im-inventory-prod.prisma",
+    "db:scm": "npx prisma db pull --schema=prisma/scm-prod.prisma && npx prisma generate --schema=prisma/scm-prod.prisma"
   }
 }

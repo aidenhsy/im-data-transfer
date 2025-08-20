@@ -1215,6 +1215,37 @@ model scm_order_details_708 {
   @@ignore
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model scm_order_details_1 {
+  id                 Int       @default(autoincrement())
+  stock_order_no     String?   @db.VarChar(60)
+  goods_name         String?   @db.VarChar(60)
+  num                Decimal?  @db.Decimal
+  price              Decimal?  @db.Decimal(12, 6)
+  spec_text          String?   @db.VarChar(60)
+  ratio              Int?
+  status             Int?      @db.SmallInt
+  order_id           Int?
+  create_time        DateTime? @db.Timestamp(6)
+  total_price        Decimal?  @db.Decimal(12, 6)
+  small_unit         String?   @db.VarChar(10)
+  sale_unit          String?   @db.VarChar(10)
+  goods_id           Int?
+  delivery_qty       Decimal?  @db.Decimal(10, 2)
+  letter_name        String?   @db.VarChar
+  hide_price         Decimal?  @db.Decimal(12, 6)
+  yu_price           Decimal?  @db.Decimal(12, 6)
+  item_total         Decimal?  @db.Decimal(12, 2)
+  remaining_quantity Decimal?  @db.Decimal(10, 4)
+  good_price_id      String?   @db.VarChar(50)
+  delivery_time      DateTime? @db.Timestamp(6)
+  reference_id       String?   @db.VarChar
+  reference_order_id String?   @db.VarChar
+  deliver_goods_qty  Decimal?  @db.Decimal(12, 6)
+
+  @@ignore
+}
+
 enum pricing_strategy_type {
   cost
   margin
