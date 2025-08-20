@@ -6,10 +6,29 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
 
 // Configure dayjs with timezone support
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
+const logFilePath = path.resolve(
+  process.cwd(),
+  'logs',
+  'clean-receive-orders.txt'
+);
+
+const logAndWrite = (message: string) => {
+  console.log(message);
+  try {
+    fs.mkdirSync(path.dirname(logFilePath), { recursive: true });
+    const content = message.endsWith('\n') ? message : message + '\n';
+    fs.appendFileSync(logFilePath, content, 'utf8');
+  } catch (error) {
+    console.error('Failed to write log file:', error);
+  }
+};
 
 const run = async () => {
   const imProcurementDB = new IMProcurement();
@@ -23,13 +42,16 @@ const run = async () => {
         in: [3, 4, 5],
       },
     },
+    take: 100,
     select: {
       client_order_id: true,
+      created_at: true,
       procurement_order_details: {
         select: {
           id: true,
           deliver_qty: true,
           reference_id: true,
+          name: true,
         },
       },
     },
@@ -47,7 +69,7 @@ const run = async () => {
         },
       });
       if (!scm) {
-        console.log(
+        logAndWrite(
           `order: ${order.client_order_id}\ndetail: ${detail.reference_id}`
         );
       }
@@ -58,7 +80,7 @@ const run = async () => {
         },
       });
       if (!im) {
-        console.log(
+        logAndWrite(
           `order: ${order.client_order_id}\ndetail: ${detail.reference_id}`
         );
         continue;
@@ -79,8 +101,8 @@ const run = async () => {
             },
           });
         }
-        console.log(
-          `order: ${order.client_order_id}\ndetail: ${detail.reference_id}\nim: ${im.actual_delivery_qty}\nscm: ${scm?.deliver_goods_qty}\nscmOrder: ${detail.deliver_qty}\n-----------------------------\n\n`
+        logAndWrite(
+          `order: ${order.client_order_id}\ndetail: ${detail.reference_id}\n下单时间: ${order.created_at}\n品名: ${detail.name}\nim小程序: ${im.actual_delivery_qty}\nscm订单: ${scm?.deliver_goods_qty}\n中心发货: ${detail.deliver_qty}\n-----------------------------\n\n`
         );
       }
     }
