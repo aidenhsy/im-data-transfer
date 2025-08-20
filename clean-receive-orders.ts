@@ -102,7 +102,15 @@ const run = async () => {
           });
         }
         logAndWrite(
-          `order: ${order.client_order_id}\ndetail: ${detail.reference_id}\n下单时间: ${order.created_at}\n品名: ${detail.name}\nim小程序: ${im.actual_delivery_qty}\nscm订单: ${scm?.deliver_goods_qty}\n中心发货: ${detail.deliver_qty}\n-----------------------------\n\n`
+          `order: ${order.client_order_id}\ndetail: ${
+            detail.reference_id
+          }\n下单时间: ${dayjs(order.created_at)
+            .utc()
+            .format('YYYY-MM-DD HH:mm')}\n品名: ${detail.name}\nim小程序: ${
+            im.actual_delivery_qty
+          }\nscm订单: ${scm?.deliver_goods_qty}\n中心发货: ${
+            detail.deliver_qty
+          }\n-----------------------------\n\n`
         );
       }
     }
