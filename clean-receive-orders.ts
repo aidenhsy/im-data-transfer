@@ -17,49 +17,36 @@ const run = async () => {
   const scmDB = new Scm();
   const scmPricingDB = new ScmPricing();
 
-  const finishedOrders = await imProcurementDB.supplier_orders.findMany({
-    where: {
-      status: {
-        in: [4, 5],
+  const orders = await scmOrderDB.procurement_orders.findMany({
+    select: {
+      client_order_id: true,
+      created_at: true,
+      procurement_order_details: {
+        select: {
+          order_qty: true,
+          reference_id: true,
+        },
       },
-    },
-    orderBy: {
-      created_at: 'desc',
     },
   });
 
-  for (const finishedOrder of finishedOrders) {
-    const scm = await scmDB.scm_order_details.findFirst({
-      where: {
-        reference_order_id: finishedOrder.id,
-      },
-      select: {
-        scm_order: {
-          select: {
-            id: true,
-            status: true,
+  for (const order of orders) {
+    for (const detail of order.procurement_order_details) {
+      const procurementOrderDetail =
+        await imProcurementDB.supplier_order_details.findFirst({
+          where: {
+            supplier_reference_id: detail.reference_id!,
+            order_id: order.client_order_id,
           },
-        },
-      },
-    });
-    if (!scm) {
-      console.log(finishedOrder.id, 'has no scm order');
-      continue;
-    }
+        });
 
-    if (scm.scm_order.status !== 3) {
-      console.log(finishedOrder.id);
-      await axios.post(
-        'https://apiscm.shaihukeji.com/public/order/signfororder',
-        {
-          imOrderIds: [finishedOrder.id],
-        }
-      );
-      console.log(scm.scm_order.id);
+      if (
+        Number(detail.order_qty) !== Number(procurementOrderDetail?.order_qty)
+      ) {
+        console.log(order.client_order_id, order.created_at);
+      }
     }
   }
-
-  console.log('done');
 };
 
 run();
