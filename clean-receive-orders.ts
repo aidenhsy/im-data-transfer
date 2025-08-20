@@ -5,6 +5,7 @@ import { PrismaClient as ScmPricing } from './prisma/clients/scm-pricing-prod';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import axios from 'axios';
 
 // Configure dayjs with timezone support
 dayjs.extend(utc);
@@ -48,7 +49,14 @@ const run = async () => {
 
     if (scm.scm_order.status !== 3) {
       console.log(finishedOrder.id);
+      await axios.post(
+        'https://apiscm.shaihukeji.com/public/order/signfororder',
+        {
+          imOrderIds: [finishedOrder.id],
+        }
+      );
     }
+    break;
   }
 
   console.log('done');
