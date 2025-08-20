@@ -18,55 +18,55 @@ const run = async () => {
   const scmPricingDB = new ScmPricing();
 
   const orders = await scmOrderDB.procurement_orders.findMany({
+    where: {
+      status: {
+        in: [4, 5],
+      },
+    },
     select: {
       client_order_id: true,
-      created_at: true,
       procurement_order_details: {
         select: {
-          id: true,
-          order_qty: true,
+          deliver_qty: true,
           reference_id: true,
         },
       },
     },
-    orderBy: {
-      created_at: 'desc',
-    },
   });
-
-  console.log(orders.length);
 
   for (const order of orders) {
     for (const detail of order.procurement_order_details) {
-      const procurementOrderDetail =
-        await imProcurementDB.supplier_order_details.findFirst({
-          where: {
-            supplier_reference_id: detail.reference_id!,
-            order_id: order.client_order_id,
-          },
-        });
+      const scm = await scmDB.scm_order_details.findFirst({
+        where: {
+          reference_order_id: order.client_order_id,
+          reference_id: detail.reference_id,
+        },
+      });
+      if (!scm) {
+        console.log(
+          `order: ${order.client_order_id}\ndetail: ${detail.reference_id}`
+        );
+      }
+      const im = await imProcurementDB.supplier_order_details.findFirst({
+        where: {
+          order_id: order.client_order_id,
+          supplier_reference_id: detail.reference_id!,
+        },
+      });
+      if (!im) {
+        console.log(
+          `order: ${order.client_order_id}\ndetail: ${detail.reference_id}`
+        );
+        continue;
+      }
 
       if (
-        Number(detail.order_qty) !== Number(procurementOrderDetail?.order_qty)
+        Number(detail.deliver_qty) !== Number(im.actual_delivery_qty) ||
+        Number(detail.deliver_qty) !== Number(scm?.deliver_goods_qty) ||
+        Number(im.actual_delivery_qty) !== Number(scm?.deliver_goods_qty)
       ) {
-        const scm = await scmDB.scm_order_details.findFirst({
-          where: {
-            reference_order_id: procurementOrderDetail?.order_id,
-            reference_id: detail.reference_id,
-          },
-        });
-        if (Number(scm?.num) === Number(procurementOrderDetail?.order_qty)) {
-          await scmOrderDB.procurement_order_details.update({
-            where: {
-              id: detail.id,
-            },
-            data: {
-              order_qty: procurementOrderDetail?.order_qty,
-            },
-          });
-        }
         console.log(
-          `client_id: ${order.client_order_id}\nreference_id:${detail.reference_id}\norder: ${detail.order_qty}\nprocurement: ${procurementOrderDetail?.order_qty}\nscm: ${scm?.num}\n\n-----------------------------\n\n`
+          `order: ${order.client_order_id}\ndetail: ${detail.reference_id}\nim: ${im.actual_delivery_qty}\nscm: ${scm?.deliver_goods_qty}\nscmOrder: ${detail.deliver_qty}\n-----------------------------\n\n`
         );
       }
     }

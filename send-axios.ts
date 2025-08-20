@@ -19,7 +19,7 @@ const run = async () => {
 
   const order = await imProcurementDB.supplier_orders.findFirst({
     where: {
-      id: '0fa86827-bf02-4c89-8237-e793c3f54815',
+      id: '0c20f7a4-9d92-4f9d-ae21-09fe0ed0836a',
     },
     include: {
       supplier_order_details: true,
