@@ -18,50 +18,62 @@ const run = async () => {
   const scmDB = new Scm();
   const scmPricingDB = new ScmPricing();
 
-  const orderIds = await scmDB.scm_order_details.findMany({
-    distinct: ['reference_order_id'],
+  const badOrders = await scmOrderDB.procurement_order_details.findMany({
+    where: {},
+    select: {
+      id: true,
+      order_qty: true,
+      reference_id: true,
+      procurement_orders: {
+        select: {
+          client_order_id: true,
+        },
+      },
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+    take: 10000,
   });
 
-  console.log(orderIds.length);
+  for (const badOrder of badOrders) {
+    const order = await imProcurementDB.supplier_order_details.findFirst({
+      where: {
+        order_id: badOrder.procurement_orders.client_order_id,
+        supplier_reference_id: badOrder.reference_id!,
+      },
+    });
 
-  for (const order of orderIds) {
-    const orderDetails = await scmDB.scm_order_details.count({
-      where: {
-        reference_order_id: order.reference_order_id,
-      },
-    });
-    if (!order.reference_order_id) {
-      console.log('no reference order id');
-      continue;
-    }
-    const scmOrderDetails = await scmOrderDB.procurement_order_details.count({
-      where: {
-        procurement_orders: {
-          client_order_id: order.reference_order_id!,
-        },
-      },
-    });
-    const procurementOrderDetails =
-      await imProcurementDB.supplier_order_details.count({
+    if (Number(badOrder.order_qty) !== Number(order?.order_qty)) {
+      const scm = await scmDB.scm_order_details.findFirst({
         where: {
-          order_id: order.reference_order_id!,
+          reference_id: badOrder.reference_id,
+          reference_order_id: badOrder.procurement_orders.client_order_id,
         },
       });
-    const a = Number(orderDetails);
-    const b = Number(scmOrderDetails);
-    const c = Number(procurementOrderDetails);
-
-    if (a !== b || b !== c || a !== c) {
-      console.log(
-        `orderId: ${order.reference_order_id} \nscm: ${a} scmOrder: ${b} procurement: ${c}\n------`
-      );
+      if (!scm) {
+        console.log(badOrder.id);
+        continue;
+      }
+      console.log(badOrder.id);
+      await scmOrderDB.procurement_order_details.update({
+        where: {
+          id: badOrder.id,
+        },
+        data: {
+          order_qty: order?.order_qty,
+        },
+      });
+      await scmDB.scm_order_details.update({
+        where: {
+          id: scm.id,
+        },
+        data: {
+          num: order?.order_qty,
+        },
+      });
     }
-
-    // if (a > b) {
-    // }
   }
-
-  console.log('done');
 };
 
 run();
