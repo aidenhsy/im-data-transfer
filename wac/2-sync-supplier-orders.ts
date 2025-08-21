@@ -13,6 +13,7 @@ const runJuneCount = async () => {
     where: {
       created_at: {
         gte: new Date('2025-06-15'),
+        lte: new Date('2025-07-03'),
       },
     },
     include: {
@@ -47,8 +48,10 @@ const runJuneCount = async () => {
   }
 };
 
-// runJuneCount();
+runJuneCount();
 
-const runOrders = async () => {};
+// const runOrders = async () => {
+//   const orders = await imProcurement;
+// };
 
-runOrders();
+// runOrders();
