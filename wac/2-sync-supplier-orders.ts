@@ -148,7 +148,7 @@ const runJulyCount = async () => {
         continue;
       }
 
-      console.log(movingRecords[0].id);
+      // console.log(movingRecords[0].id);
       // await imInventory.shop_item_weighted_price.create({
       //   data: {
       //     shop_id: Number(inventory.shop_id),
