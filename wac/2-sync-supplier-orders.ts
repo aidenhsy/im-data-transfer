@@ -39,6 +39,7 @@ const runJuneCount = async () => {
           source_detail_id: inventoryDetail.id,
           type: 'stock_count',
           status: 1,
+          created_at: inventory.created_at!,
           order_to_base_factor: Number(
             inventoryDetail.supplier_items.package_unit_to_base_ratio
           ),
@@ -48,7 +49,7 @@ const runJuneCount = async () => {
   }
 };
 
-// runJuneCount();
+runJuneCount();
 
 const runOrders = async () => {
   const orders = await imProcurement.supplier_orders.findMany({
@@ -58,10 +59,24 @@ const runOrders = async () => {
         lte: new Date('2025-07-31T00:00:00Z'),
       },
     },
-    include: {
+    orderBy: {
+      receive_time: 'asc',
+    },
+    select: {
+      id: true,
+      shop_id: true,
+      receive_time: true,
       supplier_order_details: {
-        include: {
-          supplier_items: true,
+        select: {
+          id: true,
+          supplier_item_id: true,
+          final_qty: true,
+          total_final_amount: true,
+          supplier_items: {
+            select: {
+              package_unit_to_base_ratio: true,
+            },
+          },
         },
       },
     },
@@ -84,10 +99,11 @@ const runOrders = async () => {
           order_to_base_factor: Number(
             detail.supplier_items?.package_unit_to_base_ratio
           ),
+          created_at: order.receive_time!,
         },
       });
     }
   }
 };
 
-runOrders();
+// runOrders();
