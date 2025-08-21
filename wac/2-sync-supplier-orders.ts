@@ -48,10 +48,46 @@ const runJuneCount = async () => {
   }
 };
 
-runJuneCount();
+// runJuneCount();
 
-// const runOrders = async () => {
-//   const orders = await imProcurement;
-// };
+const runOrders = async () => {
+  const orders = await imProcurement.supplier_orders.findMany({
+    where: {
+      receive_time: {
+        gte: new Date('2025-07-01T00:00:00Z'),
+        lte: new Date('2025-07-31T00:00:00Z'),
+      },
+    },
+    include: {
+      supplier_order_details: {
+        include: {
+          supplier_items: true,
+        },
+      },
+    },
+  });
 
-// runOrders();
+  console.log(orders.length);
+
+  for (const order of orders) {
+    for (const detail of order.supplier_order_details) {
+      await imInventory.shop_item_weighted_price.create({
+        data: {
+          shop_id: Number(order.shop_id),
+          supplier_item_id: detail.supplier_item_id!,
+          total_qty: detail.final_qty,
+          total_value: detail.total_final_amount,
+          source_id: order.id,
+          source_detail_id: detail.id,
+          type: 'order_in',
+          status: 1,
+          order_to_base_factor: Number(
+            detail.supplier_items?.package_unit_to_base_ratio
+          ),
+        },
+      });
+    }
+  }
+};
+
+runOrders();
