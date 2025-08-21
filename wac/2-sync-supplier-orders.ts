@@ -147,10 +147,10 @@ const runJulyCount = async () => {
       limit 1;`;
 
       if (!Array.isArray(movingRecords) || movingRecords.length === 0) {
-        console.log('No moving record found', {
-          supplierItemId: inventoryDetail.supplier_items.id,
-          shopId: Number(inventory.shop_id),
-        });
+        // console.log('No moving record found', {
+        //   supplierItemId: inventoryDetail.supplier_items.id,
+        //   shopId: Number(inventory.shop_id),
+        // });
         continue;
       }
 
@@ -158,8 +158,12 @@ const runJulyCount = async () => {
         Number(movingRecords[0].running_qty_base) -
         Number(inventoryDetail.count_qty);
 
+      if (diff === 0) {
+        console.log(inventoryDetail.count_qty);
+      }
+
       const inverted = diff === 0 ? 0 : -diff;
-      console.log(inverted);
+      // console.log(inverted);
 
       // await imInventory.shop_item_weighted_price.create({
       //   data: {
