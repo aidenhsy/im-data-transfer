@@ -136,14 +136,14 @@ const runJulyCount = async () => {
       >`select id
       from v_shop_item_running
       where supplier_item_id = ${inventoryDetail.supplier_items.id}
-        and shop_id = 103
+        and shop_id = ${Number(inventory.shop_id)}
       order by created_at desc
       limit 1;`;
 
       if (!Array.isArray(movingRecords) || movingRecords.length === 0) {
         console.log('No moving record found', {
           supplierItemId: inventoryDetail.supplier_items.id,
-          shopId: 103,
+          shopId: Number(inventory.shop_id),
         });
         continue;
       }
