@@ -131,24 +131,42 @@ const runJulyCount = async () => {
 
   for (const inventory of inventories) {
     for (const inventoryDetail of inventory.inventory_count_details) {
-      await imInventory.shop_item_weighted_price.create({
-        data: {
-          shop_id: Number(inventory.shop_id),
-          supplier_item_id: inventoryDetail.supplier_items.id,
-          total_qty: inventoryDetail.count_qty,
-          total_value:
-            Number(inventoryDetail.count_qty) *
-            Number(inventoryDetail.supplier_items.price),
-          source_id: inventory.id,
-          source_detail_id: inventoryDetail.id,
-          type: 'stock_count',
-          status: 1,
-          created_at: inventory.created_at!,
-          order_to_base_factor: Number(
-            inventoryDetail.supplier_items.package_unit_to_base_ratio
-          ),
-        },
-      });
+      const movingRecords = await imInventory.$queryRaw<
+        Array<{ id: string }>
+      >`select id
+      from v_shop_item_running
+      where supplier_item_id = ${inventoryDetail.supplier_items.id}
+        and shop_id = 103
+      order by created_at desc
+      limit 1;`;
+
+      if (!Array.isArray(movingRecords) || movingRecords.length === 0) {
+        console.log('No moving record found', {
+          supplierItemId: inventoryDetail.supplier_items.id,
+          shopId: 103,
+        });
+        continue;
+      }
+
+      console.log(movingRecords[0].id);
+      // await imInventory.shop_item_weighted_price.create({
+      //   data: {
+      //     shop_id: Number(inventory.shop_id),
+      //     supplier_item_id: inventoryDetail.supplier_items.id,
+      //     total_qty: inventoryDetail.count_qty,
+      //     total_value:
+      //       Number(inventoryDetail.count_qty) *
+      //       Number(inventoryDetail.supplier_items.price),
+      //     source_id: inventory.id,
+      //     source_detail_id: inventoryDetail.id,
+      //     type: 'stock_count',
+      //     status: 1,
+      //     created_at: inventory.created_at!,
+      //     order_to_base_factor: Number(
+      //       inventoryDetail.supplier_items.package_unit_to_base_ratio
+      //     ),
+      //   },
+      // });
     }
   }
 };
