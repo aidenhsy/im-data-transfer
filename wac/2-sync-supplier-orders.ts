@@ -139,30 +139,31 @@ const runJulyCount = async () => {
           supplier_item_id: string;
           running_qty_base: number;
         }>
-      >`select id, shop_id, supplier_item_id, running_qty_base
-      from v_shop_item_running
-      where supplier_item_id = ${inventoryDetail.supplier_items.id}
-        and shop_id = ${Number(inventory.shop_id)}
-      order by created_at desc
-      limit 1;`;
+      >`select id, shop_id, supplier_item_id, running_qty_base, running_avg_cost_base, created_at
+        from v_shop_item_running
+        where supplier_item_id = ${inventoryDetail.supplier_items.id}
+          and shop_id = ${Number(inventory.shop_id)}
+          and created_at <= ${inventory.created_at!}
+        order by created_at desc, id desc
+        limit 1;`;
 
       if (!Array.isArray(movingRecords) || movingRecords.length === 0) {
-        // await imInventory.shop_item_weighted_price.create({
-        //   data: {
-        //     shop_id: Number(inventory.shop_id),
-        //     supplier_item_id: inventoryDetail.supplier_items.id,
-        //     total_qty: inventoryDetail.count_qty,
-        //     total_value: inventoryDetail.count_value,
-        //     source_id: inventory.id,
-        //     source_detail_id: inventoryDetail.id,
-        //     type: 'stock_count',
-        //     created_at: inventory.created_at!,
-        //     status: 1,
-        //     order_to_base_factor: Number(
-        //       inventoryDetail.supplier_items.package_unit_to_base_ratio
-        //     ),
-        //   },
-        // });
+        await imInventory.shop_item_weighted_price.create({
+          data: {
+            shop_id: Number(inventory.shop_id),
+            supplier_item_id: inventoryDetail.supplier_items.id,
+            total_qty: inventoryDetail.count_qty,
+            total_value: inventoryDetail.count_value,
+            source_id: inventory.id,
+            source_detail_id: inventoryDetail.id,
+            type: 'stock_count',
+            created_at: inventory.created_at!,
+            status: 1,
+            order_to_base_factor: Number(
+              inventoryDetail.supplier_items.package_unit_to_base_ratio
+            ),
+          },
+        });
         continue;
       }
 
@@ -171,28 +172,25 @@ const runJulyCount = async () => {
         Number(inventoryDetail.count_qty_base);
 
       const inverted = diff === 0 ? 0 : -diff;
-      if (inverted > 0) {
-        console.log(inverted);
+
+      if (inverted === 0) {
+        continue;
       }
 
-      // await imInventory.shop_item_weighted_price.create({
-      //   data: {
-      //     shop_id: Number(inventory.shop_id),
-      //     supplier_item_id: inventoryDetail.supplier_items.id,
-      //     total_qty: inventoryDetail.count_qty,
-      //     total_value:
-      //       Number(inventoryDetail.count_qty) *
-      //       Number(inventoryDetail.supplier_items.price),
-      //     source_id: inventory.id,
-      //     source_detail_id: inventoryDetail.id,
-      //     type: 'stock_count',
-      //     status: 1,
-      //     created_at: inventory.created_at!,
-      //     order_to_base_factor: Number(
-      //       inventoryDetail.supplier_items.package_unit_to_base_ratio
-      //     ),
-      //   },
-      // });
+      await imInventory.shop_item_weighted_price.create({
+        data: {
+          shop_id: Number(inventory.shop_id),
+          supplier_item_id: inventoryDetail.supplier_items.id,
+          total_qty: inverted,
+          total_value: inventoryDetail.count_value,
+          source_id: inventory.id,
+          source_detail_id: inventoryDetail.id,
+          type: 'stock_count',
+          status: 1,
+          created_at: inventory.created_at!,
+          order_to_base_factor: 1,
+        },
+      });
     }
   }
 };
