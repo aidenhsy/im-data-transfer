@@ -147,23 +147,34 @@ const runJulyCount = async () => {
       limit 1;`;
 
       if (!Array.isArray(movingRecords) || movingRecords.length === 0) {
-        // console.log('No moving record found', {
-        //   supplierItemId: inventoryDetail.supplier_items.id,
-        //   shopId: Number(inventory.shop_id),
+        // await imInventory.shop_item_weighted_price.create({
+        //   data: {
+        //     shop_id: Number(inventory.shop_id),
+        //     supplier_item_id: inventoryDetail.supplier_items.id,
+        //     total_qty: inventoryDetail.count_qty,
+        //     total_value: inventoryDetail.count_value,
+        //     source_id: inventory.id,
+        //     source_detail_id: inventoryDetail.id,
+        //     type: 'stock_count',
+        //     created_at: inventory.created_at!,
+        //     status: 1,
+        //     order_to_base_factor: Number(
+        //       inventoryDetail.supplier_items.package_unit_to_base_ratio
+        //     ),
+        //   },
         // });
         continue;
       }
 
       const diff =
         Number(movingRecords[0].running_qty_base) -
-        Number(inventoryDetail.count_qty);
+        Number(inventoryDetail.count_qty_base);
 
       if (diff === 0) {
         console.log(inventoryDetail.count_qty);
       }
 
       const inverted = diff === 0 ? 0 : -diff;
-      // console.log(inverted);
 
       // await imInventory.shop_item_weighted_price.create({
       //   data: {
