@@ -153,7 +153,19 @@ const runJulyCount = async () => {
         continue;
       }
 
-      // console.log(movingRecords[0].id);
+      const diff =
+        Number(movingRecords[0].running_qty_base) -
+        Number(inventoryDetail.count_qty);
+
+      if (diff < 0) {
+        console.log('Diff is negative', {
+          diff,
+          supplierItemId: inventoryDetail.supplier_items.id,
+          shopId: Number(inventory.shop_id),
+        });
+        continue;
+      }
+
       // await imInventory.shop_item_weighted_price.create({
       //   data: {
       //     shop_id: Number(inventory.shop_id),
