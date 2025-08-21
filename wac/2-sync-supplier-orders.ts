@@ -171,7 +171,9 @@ const runJulyCount = async () => {
         Number(inventoryDetail.count_qty_base);
 
       const inverted = diff === 0 ? 0 : -diff;
-      console.log(inverted);
+      if (inverted > 0) {
+        console.log(inverted);
+      }
 
       // await imInventory.shop_item_weighted_price.create({
       //   data: {
