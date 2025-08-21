@@ -49,7 +49,7 @@ const runJuneCount = async () => {
   }
 };
 
-runJuneCount();
+// runJuneCount();
 
 const runOrders = async () => {
   const orders = await imProcurement.supplier_orders.findMany({
@@ -106,4 +106,4 @@ const runOrders = async () => {
   }
 };
 
-// runOrders();
+runOrders();
