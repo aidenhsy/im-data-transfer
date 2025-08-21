@@ -15,6 +15,7 @@ const run = async () => {
         select: {
           package_unit_to_base_ratio: true,
           package_unit_name: true,
+          standard_units: true,
         },
       },
     },
@@ -24,11 +25,7 @@ const run = async () => {
     await imInventory.inventory_count_details.update({
       where: { id: inventory.id },
       data: {
-        base_qty_per_count: Number(
-          inventory.supplier_items.package_unit_to_base_ratio
-        ),
-        count_unit: inventory.supplier_items.package_unit_name,
-        shop_id: inventory.inventory_count.shop_id,
+        base_unit: inventory.supplier_items.standard_units?.name,
       },
     });
   }
