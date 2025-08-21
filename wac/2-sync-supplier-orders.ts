@@ -132,8 +132,13 @@ const runJulyCount = async () => {
   for (const inventory of inventories) {
     for (const inventoryDetail of inventory.inventory_count_details) {
       const movingRecords = await imInventory.$queryRaw<
-        Array<{ id: string }>
-      >`select id
+        Array<{
+          id: string;
+          shop_id: number;
+          supplier_item_id: string;
+          running_qty_base: number;
+        }>
+      >`select id, shop_id, supplier_item_id, running_qty_base
       from v_shop_item_running
       where supplier_item_id = ${inventoryDetail.supplier_items.id}
         and shop_id = ${Number(inventory.shop_id)}
