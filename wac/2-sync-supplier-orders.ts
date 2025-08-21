@@ -170,11 +170,8 @@ const runJulyCount = async () => {
         Number(movingRecords[0].running_qty_base) -
         Number(inventoryDetail.count_qty_base);
 
-      if (diff === 0) {
-        console.log(inventoryDetail.count_qty);
-      }
-
       const inverted = diff === 0 ? 0 : -diff;
+      console.log(inverted);
 
       // await imInventory.shop_item_weighted_price.create({
       //   data: {
