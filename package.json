@@ -23,6 +23,8 @@
   },
   "scripts": {
     "db:inventory": "npx prisma db pull --schema=prisma/im-inventory-prod.prisma && npx prisma generate --schema=prisma/im-inventory-prod.prisma",
-    "db:scm": "npx prisma db pull --schema=prisma/scm-prod.prisma && npx prisma generate --schema=prisma/scm-prod.prisma"
+    "db:scm": "npx prisma db pull --schema=prisma/scm-prod.prisma && npx prisma generate --schema=prisma/scm-prod.prisma",
+    "db:improd": "npx prisma db pull --schema=prisma/im-prod.prisma && npx prisma generate --schema=prisma/im-prod.prisma",
+    "db:imbasic": "npx prisma db pull --schema=prisma/im-basic-data-prod.prisma && npx prisma generate --schema=prisma/im-basic-data-prod.prisma"
   }
 }
