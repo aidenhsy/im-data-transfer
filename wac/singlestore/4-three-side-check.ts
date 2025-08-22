@@ -24,6 +24,13 @@ const run = async () => {
       actual_delivery_qty: true,
       confirm_delivery_qty: true,
       final_qty: true,
+      supplier_orders: {
+        select: {
+          created_at: true,
+          sent_time: true,
+          receive_time: true,
+        },
+      },
       supplier_items: {
         select: {
           name: true,
@@ -44,6 +51,9 @@ const run = async () => {
   wsSummary.addRow([
     '客户订单ID',
     '参考ID',
+    '订单时间',
+    '发货时间',
+    '收货时间',
     '商品名称',
     '类型',
     '供应商名称',
@@ -121,6 +131,9 @@ const run = async () => {
     const obj = {
       client_order_id: orderDetail.order_id,
       reference_id: orderDetail.supplier_reference_id,
+      order_time: orderDetail.supplier_orders.created_at,
+      sent_time: orderDetail.supplier_orders.sent_time,
+      receive_time: orderDetail.supplier_orders.receive_time,
       item_name: orderDetail.supplier_items?.name,
       type: scmProdDetail.scm_goods?.direct === 0 ? '直配' : '统配',
       supplier_name:
@@ -148,6 +161,9 @@ const run = async () => {
     wsSummary.addRow([
       obj.client_order_id,
       obj.reference_id,
+      obj.order_time,
+      obj.sent_time,
+      obj.receive_time,
       obj.item_name,
       obj.type,
       obj.supplier_name,
