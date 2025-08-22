@@ -12,7 +12,6 @@ const run = async () => {
       supplier_orders: {
         created_at: {
           gt: '2025-08-21T00:00:00.000Z',
-          lt: '2025-08-21T23:59:59.999Z',
         },
       },
     },
