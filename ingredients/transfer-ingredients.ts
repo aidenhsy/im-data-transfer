@@ -8,6 +8,11 @@ const run = async () => {
   const ingredients = await imProd.st_ingredient.findMany();
 
   for (const ingredient of ingredients) {
+    if (ingredient.goods_id === null) {
+      console.log(`Ingredient ${ingredient.id} has no goods_id`);
+      continue;
+    }
+
     const genericItem = await imBasicData.generic_items.findUnique({
       where: {
         id: ingredient.goods_id!,
