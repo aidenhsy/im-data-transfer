@@ -130,20 +130,20 @@ const run = async () => {
           : scmProdDetail.scm_goods?.supplier_scm_goods_supplier_idTosupplier
               ?.supplier_name,
       // order qty
-      imOrderQty: orderDetail.order_qty,
-      scmOrderQty: scmOrderDetail.order_qty,
-      scmProdOrderQty: scmProdDetail.num,
+      imOrderQty: Number(orderDetail.order_qty),
+      scmOrderQty: Number(scmOrderDetail.order_qty),
+      scmProdOrderQty: Number(scmProdDetail.num),
       // sent qty
-      imSentQty: orderDetail.actual_delivery_qty,
-      orderSentQty: scmOrderDetail.deliver_qty,
-      scmSentQty: scmProdDetail.deliver_goods_qty,
+      imSentQty: Number(orderDetail.actual_delivery_qty),
+      orderSentQty: Number(scmOrderDetail.deliver_qty),
+      scmSentQty: Number(scmProdDetail.deliver_goods_qty),
       // receive qty
-      imReceiveQty: orderDetail.confirm_delivery_qty,
-      orderReceiveQty: scmOrderDetail.customer_receive_qty,
+      imReceiveQty: Number(orderDetail.confirm_delivery_qty),
+      orderReceiveQty: Number(scmOrderDetail.customer_receive_qty),
       // final qty
-      imFinalQty: orderDetail.final_qty,
-      orderFinalQty: scmOrderDetail.final_qty,
-      scmFinalQty: scmProdDetail.delivery_qty,
+      imFinalQty: Number(orderDetail.final_qty),
+      orderFinalQty: Number(scmOrderDetail.final_qty),
+      scmFinalQty: Number(scmProdDetail.delivery_qty),
     };
     wsSummary.addRow([
       obj.client_order_id,
