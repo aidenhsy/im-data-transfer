@@ -55,6 +55,7 @@ const run = async () => {
     }
 
     if (Number(scmProd.deliver_goods_qty) !== Number(scmDetail.deliver_qty)) {
+      console.log(imOrder.id);
       await orderDB.procurement_order_details.update({
         where: {
           id: scmDetail.id,
