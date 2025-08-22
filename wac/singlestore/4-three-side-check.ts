@@ -50,6 +50,7 @@ const run = async () => {
   const wsSummary = workbook.addWorksheet('三方对账');
   wsSummary.addRow([
     '客户订单ID',
+    'SCM订单ID',
     '参考ID',
     '订单时间',
     '发货时间',
@@ -130,6 +131,7 @@ const run = async () => {
 
     const obj = {
       client_order_id: orderDetail.order_id,
+      scm_order_id: scmOrderDetail.order_id,
       reference_id: orderDetail.supplier_reference_id,
       order_time: orderDetail.supplier_orders.created_at,
       sent_time: orderDetail.supplier_orders.sent_time,
@@ -160,6 +162,7 @@ const run = async () => {
     };
     wsSummary.addRow([
       obj.client_order_id,
+      obj.scm_order_id,
       obj.reference_id,
       obj.order_time,
       obj.sent_time,
