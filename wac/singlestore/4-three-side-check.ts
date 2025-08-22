@@ -14,7 +14,7 @@ const run = async () => {
   const orderDetails = await imProcurement.supplier_order_details.findMany({
     orderBy: {
       supplier_orders: {
-        receive_time: 'desc',
+        receive_time: 'asc',
       },
     },
     select: {
