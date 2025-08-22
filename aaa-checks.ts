@@ -7,40 +7,48 @@ const run = async () => {
   const basicDB = new Basic();
   const orderDB = new Order();
 
-  const orderDetails = await procurementDB.supplier_order_details.findMany({
+  const imOrders = await procurementDB.supplier_order_details.findMany({
     where: {
       supplier_orders: {
-        receive_time: {
-          gt: '2025-06-01T00:00:00.000Z',
-          lt: '2025-06-30T23:59:59.999Z',
+        created_at: {
+          gt: '2025-08-21T00:00:00.000Z',
+          lt: '2025-08-21T23:59:59.999Z',
         },
       },
     },
   });
 
-  for (const orderDetail of orderDetails) {
-    const scmLinkedRecord = await basicDB.scm_order_details.findFirst({
+  for (const imOrder of imOrders) {
+    const scmDetail = await orderDB.procurement_order_details.findFirst({
       where: {
-        reference_order_id: orderDetail.order_id,
-        reference_id: orderDetail.supplier_reference_id,
+        procurement_orders: {
+          client_order_id: imOrder.order_id,
+        },
+        reference_id: imOrder.supplier_reference_id,
       },
     });
-    if (!scmLinkedRecord) {
-      console.log(orderDetail.order_id, orderDetail.supplier_reference_id);
+
+    if (!scmDetail) {
+      console.log(imOrder.order_id, imOrder.supplier_reference_id);
       continue;
     }
 
-    if (
-      Number(orderDetail.final_qty) !== Number(scmLinkedRecord.delivery_qty)
-    ) {
-      console.log(
-        'not equal',
-        orderDetail.final_qty,
-        scmLinkedRecord.delivery_qty
-      );
+    const scmProd = await basicDB.scm_order_details.findFirst({
+      where: {
+        reference_id: imOrder.supplier_reference_id,
+        reference_order_id: imOrder.order_id,
+      },
+    });
+
+    if (!scmProd) {
+      console.log(imOrder.order_id, imOrder.supplier_reference_id);
+      continue;
+    }
+
+    if (Number(scmProd.deliver_goods_qty) !== Number(scmDetail.deliver_qty)) {
+      console.log(scmProd.deliver_goods_qty, scmDetail.deliver_qty);
     }
   }
-  console.log('done');
 };
 
 run();
