@@ -18,7 +18,16 @@ const run = async () => {
     },
   });
 
+  console.log(imOrders.length);
+  const length = imOrders.length;
+  let index = 0;
+
   for (const imOrder of imOrders) {
+    if (index % 100 === 0) {
+      console.log(`处理第 ${index} 条订单，${length - index} 条未处理`);
+    }
+    index++;
+
     const scmDetail = await orderDB.procurement_order_details.findFirst({
       where: {
         procurement_orders: {
