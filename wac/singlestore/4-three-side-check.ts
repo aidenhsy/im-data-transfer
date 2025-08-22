@@ -60,7 +60,16 @@ const run = async () => {
     '中心出库最终数量',
   ]);
 
+  let length = orderDetails.length;
+  let index = 0;
+  console.log(`开始处理 ${length} 条订单`);
+
   for (const orderDetail of orderDetails) {
+    if (index % 1000 === 0) {
+      console.log(`处理第 ${index} 条订单，${length - index} 条未处理`);
+    }
+    index++;
+
     const scmOrderDetail = await scmOrder.procurement_order_details.findFirst({
       where: {
         procurement_orders: {
