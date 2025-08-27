@@ -9,9 +9,11 @@ const run = async () => {
 
   const details = await procurementDB.supplier_order_details.findMany({
     where: {
-      confirm_delivery_qty: null,
       supplier_orders: {
-        status: 4,
+        receive_time: null,
+        status: {
+          in: [4, 5],
+        },
       },
     },
   });
@@ -37,6 +39,14 @@ const run = async () => {
         reference_id: scmOrderDetail.reference_id,
         reference_order_id: detail.order_id,
       },
+      select: {
+        delivery_qty: true,
+        scm_order: {
+          select: {
+            arrival_time: true,
+          },
+        },
+      },
     });
 
     if (!scmDetail) {
@@ -44,25 +54,23 @@ const run = async () => {
       continue;
     }
 
-    await procurementDB.supplier_order_details.update({
+    await procurementDB.supplier_orders.update({
       where: {
-        id: detail.id,
+        id: detail.order_id,
       },
       data: {
-        confirm_delivery_qty: scmDetail.delivery_qty,
-        actual_delivery_qty: scmDetail.delivery_qty,
-        final_qty: scmDetail.delivery_qty,
+        sent_time: scmDetail.scm_order.arrival_time,
+        receive_time: scmDetail.scm_order.arrival_time,
       },
     });
 
-    await orderDB.procurement_order_details.update({
+    await orderDB.procurement_orders.update({
       where: {
-        id: scmOrderDetail.id,
+        id: scmOrderDetail.order_id,
       },
       data: {
-        deliver_qty: scmDetail.delivery_qty,
-        customer_receive_qty: scmDetail.delivery_qty,
-        final_qty: scmDetail.delivery_qty,
+        customer_receive_time: scmDetail.scm_order.arrival_time,
+        sent_time: scmDetail.scm_order.arrival_time,
       },
     });
   }
