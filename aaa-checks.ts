@@ -7,74 +7,64 @@ const run = async () => {
   const basicDB = new Basic();
   const orderDB = new Order();
 
-  const imOrders = await procurementDB.supplier_order_details.findMany({
+  const details = await procurementDB.supplier_order_details.findMany({
     where: {
+      confirm_delivery_qty: null,
       supplier_orders: {
-        created_at: {
-          gt: '2025-08-21T00:00:00.000Z',
-        },
+        status: 4,
       },
     },
   });
 
-  console.log(imOrders.length);
-  const length = imOrders.length;
-  let index = 0;
+  console.log(details.length);
 
-  for (const imOrder of imOrders) {
-    if (index % 100 === 0) {
-      console.log(`处理第 ${index} 条订单，${length - index} 条未处理`);
-    }
-    index++;
-
-    const scmDetail = await orderDB.procurement_order_details.findFirst({
+  for (const detail of details) {
+    const scmOrderDetail = await orderDB.procurement_order_details.findFirst({
       where: {
+        reference_id: detail.supplier_reference_id,
         procurement_orders: {
-          client_order_id: imOrder.order_id,
+          client_order_id: detail.order_id,
         },
-        reference_id: imOrder.supplier_reference_id,
+      },
+    });
+    if (!scmOrderDetail) {
+      console.log(detail.supplier_reference_id);
+      continue;
+    }
+
+    const scmDetail = await basicDB.scm_order_details.findFirst({
+      where: {
+        reference_id: scmOrderDetail.reference_id,
+        reference_order_id: detail.order_id,
       },
     });
 
     if (!scmDetail) {
-      console.log(imOrder.order_id, imOrder.supplier_reference_id);
+      console.log(detail.supplier_reference_id);
       continue;
     }
 
-    const scmProd = await basicDB.scm_order_details.findFirst({
+    await procurementDB.supplier_order_details.update({
       where: {
-        reference_id: imOrder.supplier_reference_id,
-        reference_order_id: imOrder.order_id,
+        id: detail.id,
+      },
+      data: {
+        confirm_delivery_qty: scmDetail.delivery_qty,
+        actual_delivery_qty: scmDetail.delivery_qty,
+        final_qty: scmDetail.delivery_qty,
       },
     });
 
-    if (!scmProd) {
-      console.log(imOrder.order_id, imOrder.supplier_reference_id);
-      continue;
-    }
-
-    if (
-      Number(scmProd.deliver_goods_qty) !== Number(imOrder.actual_delivery_qty)
-    ) {
-      console.log(imOrder.id);
-      await orderDB.procurement_order_details.update({
-        where: {
-          id: scmDetail.id,
-        },
-        data: {
-          deliver_qty: scmProd.deliver_goods_qty,
-        },
-      });
-      await procurementDB.supplier_order_details.update({
-        where: {
-          id: imOrder.id,
-        },
-        data: {
-          actual_delivery_qty: scmProd.deliver_goods_qty,
-          confirm_delivery_qty: scmProd.deliver_goods_qty,
-        },
-      });
-    }
+    await orderDB.procurement_order_details.update({
+      where: {
+        id: scmOrderDetail.id,
+      },
+      data: {
+        deliver_qty: scmDetail.delivery_qty,
+        customer_receive_qty: scmDetail.delivery_qty,
+        final_qty: scmDetail.delivery_qty,
+      },
+    });
   }
 };
 
