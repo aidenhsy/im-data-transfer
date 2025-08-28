@@ -20,6 +20,7 @@ const run = async () => {
         supplier_reference_id: true,
         order_id: true,
         final_qty: true,
+        actual_delivery_qty: true,
       },
     });
 
