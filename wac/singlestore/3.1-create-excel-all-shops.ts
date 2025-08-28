@@ -287,7 +287,6 @@ const run = async () => {
           created_at: true,
           source_id: true,
           source_detail_id: true,
-          weighted_price: true,
           total_qty: true,
           total_value: true,
           supplier_items: {
@@ -527,7 +526,6 @@ const run = async () => {
         item.created_at,
         item.source_id,
         item.source_detail_id,
-        toNumber(item.weighted_price),
         toNumber(item.total_qty),
         toNumber(item.total_value),
       ]);
