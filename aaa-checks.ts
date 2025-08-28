@@ -9,7 +9,7 @@ const run = async () => {
 
   const details = await procurementDB.supplier_order_details.findMany({
     where: {
-      confirm_delivery_qty: null,
+      final_qty: null,
       supplier_orders: {
         status: 4,
       },
