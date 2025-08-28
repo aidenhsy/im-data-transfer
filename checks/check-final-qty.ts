@@ -56,6 +56,9 @@ const run = async () => {
       Number(detail.final_qty) !== Number(orderDetail.final_qty) &&
       Number(detail.final_qty) !== Number(basicDetail.delivery_qty)
     ) {
+      console.log(
+        `!!! not match: ${detail.final_qty}, ${orderDetail.final_qty}, ${basicDetail.delivery_qty}, ${detail.actual_delivery_qty}`
+      );
       await database.imProcurementProd.supplier_order_details.update({
         where: {
           id: detail.id,
