@@ -15,6 +15,12 @@ const run = async () => {
       orderBy: {
         created_at: 'desc',
       },
+      select: {
+        id: true,
+        supplier_reference_id: true,
+        order_id: true,
+        final_qty: true,
+      },
     });
 
   console.log(details.length);
@@ -50,9 +56,26 @@ const run = async () => {
       Number(detail.final_qty) !== Number(orderDetail.final_qty) &&
       Number(detail.final_qty) !== Number(basicDetail.delivery_qty)
     ) {
-      console.log(
-        `!!! not match: ${detail.final_qty}, ${orderDetail.final_qty}, ${basicDetail.delivery_qty}, ${detail.actual_delivery_qty}`
-      );
+      await database.imProcurementProd.supplier_order_details.update({
+        where: {
+          id: detail.id,
+        },
+        data: {
+          actual_delivery_qty: basicDetail.deliver_goods_qty,
+          confirm_delivery_qty: basicDetail.delivery_qty,
+          final_qty: basicDetail.delivery_qty,
+        },
+      });
+      await database.scmOrderProd.procurement_order_details.update({
+        where: {
+          id: orderDetail.id,
+        },
+        data: {
+          deliver_qty: basicDetail.deliver_goods_qty,
+          customer_receive_qty: basicDetail.delivery_qty,
+          final_qty: basicDetail.delivery_qty,
+        },
+      });
     }
   }
 };
