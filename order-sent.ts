@@ -4,9 +4,10 @@ const run = async () => {
   const database = new DatabaseService();
   const orders = await database.scmOrderProd.procurement_orders.findMany({
     where: {
-      status: 6,
+      status: 20,
     },
   });
+  console.log(orders.length);
 
   for (const o of orders) {
     const order = await database.scmOrderProd.procurement_orders.findUnique({
