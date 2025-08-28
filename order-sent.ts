@@ -4,7 +4,7 @@ const run = async () => {
   const database = new DatabaseService();
   const orders = await database.scmOrderProd.procurement_orders.findMany({
     where: {
-      status: 3,
+      status: 20,
     },
   });
   console.log(orders.length);
