@@ -4,6 +4,9 @@ const run = async () => {
   const db = new DatabaseService();
 
   const details = await db.scmOrderProd.procurement_order_details.findMany({
+    orderBy: {
+      created_at: 'desc',
+    },
     select: {
       id: true,
       reference_id: true,
