@@ -14,6 +14,7 @@ const run = async () => {
       },
     },
   });
+  console.log(details.length);
   for (const detail of details) {
     const proDetail =
       await db.imProcurementProd.supplier_order_details.findFirst({
