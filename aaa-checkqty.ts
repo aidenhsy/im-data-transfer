@@ -10,26 +10,7 @@ const run = async () => {
   const details = await procurementDB.supplier_order_details.findMany({
     where: {
       order_id: {
-        in: [
-          '2f060948-2ccd-4aba-92e9-007c87d40000',
-          '32630',
-          '32720',
-          '32832',
-          '32991',
-          '33073',
-          '33122',
-          '33157',
-          '33241',
-          '33333',
-          '33761',
-          '34477',
-          '34630',
-          '35152',
-          '5d090d5e-ed2f-4612-971c-43effd050bd7',
-          'ada1eab8-5f8b-4157-9a52-34b5512fa703',
-          'caab9465-65e5-4e52-abdc-54498491ea76',
-          'd763d54c-0dd5-4564-80c9-98a08b0787ea',
-        ],
+        in: ['63f33ef1-01e7-4025-8033-9af904fb2ca4'],
       },
     },
   });
