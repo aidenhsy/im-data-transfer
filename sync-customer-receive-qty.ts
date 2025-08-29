@@ -4,14 +4,6 @@ const run = async () => {
   const db = new DatabaseService();
 
   const details = await db.scmOrderProd.procurement_order_details.findMany({
-    where: {
-      customer_receive_qty: null,
-      procurement_orders: {
-        status: {
-          in: [4, 5],
-        },
-      },
-    },
     select: {
       id: true,
       reference_id: true,
@@ -38,7 +30,7 @@ const run = async () => {
 
     await db.scmOrderProd.procurement_order_details.update({
       where: { id: detail.id },
-      data: { customer_receive_qty: proDetail.actual_delivery_qty },
+      data: { customer_receive_qty: proDetail.confirm_delivery_qty },
     });
   }
 };
