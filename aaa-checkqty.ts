@@ -10,16 +10,7 @@ const run = async () => {
   const details = await procurementDB.supplier_order_details.findMany({
     where: {
       order_id: {
-        in: [
-          'f5579847-534c-4ae9-a237-c25be723f0aa',
-          '85ed7d21-efe6-4d07-87dd-1837fc872ec8',
-          'e1f4cd17-9100-4906-86d3-5e526ffc607c',
-          'f56526b9-5f8d-4dbe-9b84-fc7282e2e1a8',
-          '472ab316-a996-4f0d-9190-1e7ea6bf1d8e',
-          '094b6d33-e0a2-4892-878c-c4cac1762908',
-          'cd0bcec2-e89d-4aa6-92e7-eee249b0aba7',
-          '14979ab3-bdc2-40a8-a6fc-83da31a2f3bc',
-        ],
+        in: ['7223af10-8cfc-4c77-ab27-6cdaf4449624'],
       },
     },
   });
@@ -46,7 +37,7 @@ const run = async () => {
         Number(detail.actual_delivery_qty)
     ) {
       console.log(
-        `basic sent: ${basicDetail.deliver_goods_qty}, basic delivery: ${basicDetail.delivery_qty}, detail: ${detail.actual_delivery_qty}`
+        `basic sent: ${basicDetail.deliver_goods_qty}, detail sent: ${detail.actual_delivery_qty}`
       );
       await orderDB.procurement_order_details.updateMany({
         where: {
@@ -72,7 +63,7 @@ const run = async () => {
 
     if (Number(basicDetail.delivery_qty) !== Number(detail.final_qty)) {
       console.log(
-        `basic: ${basicDetail.delivery_qty}, detail: ${detail.final_qty}`
+        `basic final: ${basicDetail.delivery_qty}, detail final: ${detail.final_qty}`
       );
       await orderDB.procurement_order_details.updateMany({
         where: {

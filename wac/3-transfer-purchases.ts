@@ -1,159 +1,55 @@
-import { PrismaClient as ImInventory } from '../prisma/clients/im-inventory-prod';
+import { DatabaseService } from '../database';
 
 const run = async () => {
-  const imInventory = new ImInventory();
+  const database = new DatabaseService();
+  await database.connect();
 
-  const batchSize = 100;
-  let skip = 0;
-  let hasMoreOrders = true;
-
-  const total = await imInventory.supplier_orders.count({
+  const orders = await database.imProcurementProd.supplier_orders.findMany({
+    orderBy: {
+      receive_time: 'asc',
+    },
     where: {
+      receive_time: {
+        gt: new Date('2025-08-01T00:00:00.000Z'),
+        lt: new Date('2025-08-31T23:59:59.999Z'),
+      },
       status: {
         in: [4, 5],
       },
     },
-  });
-
-  console.log(`Total orders to process: ${total}`);
-
-  while (hasMoreOrders) {
-    console.log(
-      `Processing batch ${Math.floor(skip / batchSize) + 1} of ${Math.ceil(
-        total / batchSize
-      )}`
-    );
-
-    // Fetch orders with pagination
-    const orders = await imInventory.supplier_orders.findMany({
-      where: {
-        status: {
-          in: [4, 5],
+    include: {
+      supplier_order_details: {
+        include: {
+          supplier_items: true,
         },
       },
-      include: {
-        supplier_order_details: true,
-      },
-      orderBy: {
-        receive_time: 'asc',
-      },
-      skip,
-      take: batchSize,
-    });
+    },
+  });
 
-    if (orders.length === 0) {
-      hasMoreOrders = false;
-      break;
-    }
-
-    if (orders.length < batchSize) {
-      hasMoreOrders = false;
-    }
-
-    // Collect all unique shop_id and supplier_item_id combinations
-    const shopItemCombinations = new Set<string>();
-    const orderDetails: Array<{
-      order: any;
-      detail: any;
-    }> = [];
-
-    for (const order of orders) {
-      // Skip orders with null receive_time
-      if (!order.receive_time) {
-        continue;
-      }
-
-      for (const detail of order.supplier_order_details) {
-        const key = `${order.shop_id}-${detail.supplier_item_id}`;
-        shopItemCombinations.add(key);
-        orderDetails.push({ order, detail });
-      }
-    }
-
-    // Batch fetch all existing weighted prices in one query
-    const existingPrices = await imInventory.shop_item_weighted_price.findMany({
-      where: {
-        OR: Array.from(shopItemCombinations).map((key) => {
-          const [shop_id, supplier_item_id] = key.split('-');
-          return {
-            shop_id: parseInt(shop_id),
-            supplier_item_id: supplier_item_id,
-          };
-        }),
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
-
-    // Create a map for quick lookup
-    const priceMap = new Map<string, any>();
-    for (const price of existingPrices) {
-      const key = `${price.shop_id}-${price.supplier_item_id}`;
-      if (!priceMap.has(key)) {
-        priceMap.set(key, price);
-      }
-    }
-
-    // Prepare all data for batch insertion
-    const dataToInsert: any[] = [];
-
-    for (const { order, detail } of orderDetails) {
-      const key = `${order.shop_id}-${detail.supplier_item_id}`;
-      const existingItem = priceMap.get(key);
-
-      if (existingItem) {
-        // Update existing weighted price
-        const oldTotalQty = Number(existingItem.total_qty);
-        const oldTotalValue = Number(existingItem.total_value);
-        const newTotalQty = oldTotalQty + Number(detail.final_qty);
-        const newTotalValue =
-          oldTotalValue + Number(detail.price) * Number(detail.final_qty);
-        const newWeightedPrice = newTotalValue / newTotalQty;
-
-        dataToInsert.push({
-          shop_id: order.shop_id,
-          supplier_item_id: detail.supplier_item_id,
-          type: 'order_in',
-          source_order_id: order.id,
-          source_detail_id: detail.id,
-          created_at: order.receive_time!,
-          updated_at: order.receive_time!,
-          weighted_price: newWeightedPrice,
-          total_qty: newTotalQty,
-          total_value: newTotalValue,
-        });
-      } else {
-        // Create new weighted price
-        dataToInsert.push({
+  for (const order of orders) {
+    for (const detail of order.supplier_order_details) {
+      await database.imInventoryProd.shop_item_weighted_price.create({
+        data: {
           shop_id: order.shop_id,
           supplier_item_id: detail.supplier_item_id!,
-          type: 'order_in',
-          source_order_id: order.id,
-          source_detail_id: detail.id,
-          created_at: order.receive_time!,
-          updated_at: order.receive_time!,
-          weighted_price: detail.price,
           total_qty: detail.final_qty,
-          total_value: Number(detail.price) * Number(detail.final_qty),
-        });
-      }
-    }
-
-    // Batch insert all data in a transaction
-    if (dataToInsert.length > 0) {
-      await imInventory.$transaction(async (tx) => {
-        await tx.shop_item_weighted_price.createMany({
-          data: dataToInsert,
-        });
+          total_value: detail.total_final_amount,
+          source_id: order.id,
+          source_detail_id: detail.id,
+          type: 'order_in',
+          created_at: order.receive_time!,
+          status: 1,
+          order_to_base_factor: Number(
+            detail.supplier_items?.package_unit_to_base_ratio
+          ),
+        },
       });
     }
-
-    skip += batchSize;
   }
 
-  await imInventory.$disconnect();
   console.log('Processing completed successfully');
+  await database.disconnect();
+  process.exit(0);
 };
 
 run();
