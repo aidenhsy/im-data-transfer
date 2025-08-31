@@ -11,13 +11,11 @@ const run = async () => {
     where: {
       order_id: {
         in: [
-          '2d3c3646-4c37-4eda-a08e-01a9d894d776',
-          '963b5ecf-05bc-4948-8974-de3f1979fd9c',
-          'e74628ec-8657-46c9-8284-027a6bc23297',
-          'b0e02dae-140c-4c44-a06d-6b638c9fbfe4',
-          'c755691c-f961-4308-9045-5f2edafe5f22',
-          '2b7d5692-414c-4c78-b091-f6691f1fc7ea',
-          'b1d3d5c4-f614-4513-b63c-3412e4dad3e3',
+          'b6c8f0ee-53b4-490c-a0a3-83f5c537b95e',
+          '86fc6bf3-6c45-4de1-bbb3-60e70ee8c7ea',
+          '0b00f3b7-a6a2-4078-8e0a-560b00ad20c0',
+          '7cbf2659-6194-4851-80d0-ccd5f0b9aed3',
+          'fb18e632-3bf5-4d0b-ba5e-c62932073a68',
         ],
       },
     },
