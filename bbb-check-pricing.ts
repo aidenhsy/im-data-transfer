@@ -14,11 +14,12 @@ const run = async () => {
           },
         },
       },
-      take: 1000,
       orderBy: {
         created_at: 'desc',
       },
     });
+
+  console.log(details.length);
 
   for (const detail of details) {
     const pricing = await database.scmPricingProd.scm_good_pricing.findFirst({
