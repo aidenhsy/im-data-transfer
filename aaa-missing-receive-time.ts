@@ -20,6 +20,7 @@ const run = async () => {
         scm_order: {
           select: {
             arrival_time: true,
+            delivery_time: true,
           },
         },
       },
@@ -29,8 +30,8 @@ const run = async () => {
       console.log(order.id, 'not found');
       continue;
     }
-    if (bOrder.scm_order.arrival_time === null) {
-      console.log(order.id, 'arrival_time is null');
+    if (bOrder.scm_order.delivery_time === null) {
+      console.log(order.id, 'delivery_time is null');
       continue;
     }
     await database.imProcurementProd.supplier_orders.update({
@@ -38,7 +39,7 @@ const run = async () => {
         id: order.id,
       },
       data: {
-        receive_time: bOrder.scm_order.arrival_time,
+        receive_time: bOrder.scm_order.delivery_time,
       },
     });
 
@@ -47,7 +48,7 @@ const run = async () => {
         client_order_id: order.id,
       },
       data: {
-        customer_receive_time: bOrder.scm_order.arrival_time,
+        customer_receive_time: bOrder.scm_order.delivery_time,
       },
     });
   }
