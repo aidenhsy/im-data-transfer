@@ -25,8 +25,12 @@ const run = async () => {
       },
     });
 
-    if (!bOrder || bOrder.scm_order.arrival_time === null) {
+    if (!bOrder) {
       console.log(order.id, 'not found');
+      continue;
+    }
+    if (bOrder.scm_order.arrival_time === null) {
+      console.log(order.id, 'arrival_time is null');
       continue;
     }
     await database.imProcurementProd.supplier_orders.update({
