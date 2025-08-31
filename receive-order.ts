@@ -140,14 +140,10 @@ const runBatch = async () => {
       },
     });
 
-  console.log(orders.length);
-
-  console.log(orders.map((o) => `'${o.id}'`).join(','));
-
-  // for (const order of orders) {
-  //   if (order.status !== 4) {
-  //     await run(order.id);
-  //   }
-  // }
+  for (const order of orders) {
+    if (order.status !== 4) {
+      await run(order.id);
+    }
+  }
 };
 runBatch();
