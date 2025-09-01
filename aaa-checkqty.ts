@@ -11,14 +11,14 @@ const run = async () => {
     where: {
       order_id: {
         in: [
-          'f5579847-534c-4ae9-a237-c25be723f0aa',
-          '85ed7d21-efe6-4d07-87dd-1837fc872ec8',
-          'e1f4cd17-9100-4906-86d3-5e526ffc607c',
-          'f56526b9-5f8d-4dbe-9b84-fc7282e2e1a8',
-          '472ab316-a996-4f0d-9190-1e7ea6bf1d8e',
-          '094b6d33-e0a2-4892-878c-c4cac1762908',
-          'cd0bcec2-e89d-4aa6-92e7-eee249b0aba7',
-          '14979ab3-bdc2-40a8-a6fc-83da31a2f3bc',
+          'c19af095-9c8b-40ca-8d27-163ed032055a',
+          '3b4b8007-524a-41de-80cf-bae8fcfa950e',
+          '0c0c98ac-06c4-4a79-95b7-8fc1ef178506',
+          '00347f7a-a705-49ec-a250-1aacfddf4026',
+          '908245c9-1bda-4fed-80f1-8722cf11dd7d',
+          'cd4d21b1-0087-42cb-8813-fe70e7d05b30',
+          'c75a8f30-a0e9-4a58-b0c8-f0b77a66fa40',
+          '224fdb36-ca7a-4510-9874-4f549413abc3',
         ],
       },
     },
@@ -46,7 +46,7 @@ const run = async () => {
         Number(detail.actual_delivery_qty)
     ) {
       console.log(
-        `basic sent: ${basicDetail.deliver_goods_qty}, basic delivery: ${basicDetail.delivery_qty}, detail: ${detail.actual_delivery_qty}`
+        `basic sent: ${basicDetail.deliver_goods_qty}, detail sent: ${detail.actual_delivery_qty}`
       );
       await orderDB.procurement_order_details.updateMany({
         where: {
@@ -72,7 +72,7 @@ const run = async () => {
 
     if (Number(basicDetail.delivery_qty) !== Number(detail.final_qty)) {
       console.log(
-        `basic: ${basicDetail.delivery_qty}, detail: ${detail.final_qty}`
+        `basic final: ${basicDetail.delivery_qty}, detail final: ${detail.final_qty}`
       );
       await orderDB.procurement_order_details.updateMany({
         where: {
