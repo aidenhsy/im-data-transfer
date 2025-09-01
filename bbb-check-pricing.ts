@@ -72,15 +72,25 @@ const run = async () => {
       //     price: Number(pricing?.sale_price),
       //   },
       // });
-      await database.scmOrderProd.procurement_order_details.update({
-        where: {
-          id: orderDetail?.id,
-        },
-        data: {
-          price: Number(pricing?.sale_price),
-        },
-      });
-      console.log(detail.supplier_reference_id);
+      if (Number(detail.price) === Number(pricing?.sale_price)) {
+        await database.scmOrderProd.procurement_order_details.update({
+          where: {
+            id: orderDetail?.id,
+          },
+          data: {
+            price: Number(pricing?.sale_price),
+          },
+        });
+        await database.scmProd.scm_order_details.updateMany({
+          where: {
+            reference_id: detail.supplier_reference_id,
+          },
+          data: {
+            price: Number(pricing?.sale_price),
+          },
+        });
+        console.log(detail.supplier_reference_id);
+      }
     }
   }
 };
