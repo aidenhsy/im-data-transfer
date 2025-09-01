@@ -1,25 +1,21 @@
-import { DatabaseService } from './database';
+// import { DatabaseService } from './database';
 
-const run = async () => {
-  const database = new DatabaseService();
-  const supplierItems =
-    await database.imProcurementProd.supplier_items.findMany({
-      where: {
-        status: 1,
-      },
-    });
+// const run = async () => {
+//   const database = new DatabaseService();
 
-  for (const supplierItem of supplierItems) {
-    const pricing = await database.scmPricingProd.scm_good_pricing.findFirst({
-      where: {
-        external_reference_id: supplierItem.supplier_reference_id,
-      },
-    });
+//   const orders = await database.imInventoryProd;
 
-    if (Number(pricing?.sale_price) !== Number(supplierItem.price)) {
-      console.log(supplierItem.supplier_reference_id, 'not equal');
-    }
-  }
-};
+//   for (const supplierItem of supplierItems) {
+//     const pricing = await database.scmPricingProd.scm_good_pricing.findFirst({
+//       where: {
+//         external_reference_id: supplierItem.supplier_reference_id,
+//       },
+//     });
 
-run();
+//     if (Number(pricing?.sale_price) !== Number(supplierItem.price)) {
+//       console.log(supplierItem.supplier_reference_id, 'not equal');
+//     }
+//   }
+// };
+
+// run();
