@@ -22,8 +22,9 @@ const run = async () => {
           },
         },
       },
-      take: 10000,
     });
+
+  console.log(details.length);
 
   for (const detail of details) {
     const order =
