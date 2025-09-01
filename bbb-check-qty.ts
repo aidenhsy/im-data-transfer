@@ -14,7 +14,7 @@ const run = async () => {
         supplier_reference_id: true,
         order_id: true,
       },
-      take: 2000,
+      take: 10000,
     });
 
   for (const detail of details) {
