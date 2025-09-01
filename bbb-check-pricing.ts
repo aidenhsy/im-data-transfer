@@ -41,28 +41,28 @@ const run = async () => {
         },
       });
     if (Number(pricing?.sale_price) !== Number(detail.price)) {
-      console.log(
-        detail.supplier_reference_id,
-        'pricing mismatch',
-        'pricing price:',
-        pricing?.sale_price,
-        'detail price:',
-        detail.price,
-        'order detail price:',
-        orderDetail?.price
-      );
+      // console.log(
+      //   detail.supplier_reference_id,
+      //   'pricing mismatch',
+      //   'pricing price:',
+      //   pricing?.sale_price,
+      //   'detail price:',
+      //   detail.price,
+      //   'order detail price:',
+      //   orderDetail?.price
+      // );
     }
     if (Number(orderDetail?.price) !== Number(detail.price)) {
-      console.log(
-        detail.supplier_reference_id,
-        'order detail mismatch',
-        'pricing price:',
-        pricing?.sale_price,
-        'order detail price:',
-        orderDetail?.price,
-        'detail price:',
-        detail.price
-      );
+      // console.log(
+      //   detail.supplier_reference_id,
+      //   'order detail mismatch',
+      //   'pricing price:',
+      //   pricing?.sale_price,
+      //   'order detail price:',
+      //   orderDetail?.price,
+      //   'detail price:',
+      //   detail.price
+      // );
 
       // await database.imProcurementProd.supplier_order_details.update({
       //   where: {
@@ -80,6 +80,7 @@ const run = async () => {
           price: Number(pricing?.sale_price),
         },
       });
+      console.log(detail.supplier_reference_id);
     }
   }
 };
