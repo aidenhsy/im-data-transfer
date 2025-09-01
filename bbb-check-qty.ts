@@ -14,14 +14,6 @@ const run = async () => {
         supplier_reference_id: true,
         order_id: true,
       },
-      where: {
-        supplier_orders: {
-          receive_time: {
-            gt: new Date('2025-08-01T00:00:00.000Z'),
-            lt: new Date('2025-08-31T23:59:59.999Z'),
-          },
-        },
-      },
     });
 
   console.log(details.length);
