@@ -6,6 +6,7 @@ const run = async () => {
   const details =
     await database.imProcurementProd.supplier_order_details.findMany({
       select: {
+        id: true,
         price: true,
         supplier_reference_id: true,
         order_id: true,
@@ -35,6 +36,7 @@ const run = async () => {
           },
         },
         select: {
+          id: true,
           price: true,
         },
       });
@@ -61,6 +63,23 @@ const run = async () => {
         'detail price:',
         detail.price
       );
+
+      await database.imProcurementProd.supplier_order_details.update({
+        where: {
+          id: detail.id,
+        },
+        data: {
+          price: Number(pricing?.sale_price),
+        },
+      });
+      await database.scmOrderProd.procurement_order_details.update({
+        where: {
+          id: orderDetail?.id,
+        },
+        data: {
+          price: Number(pricing?.sale_price),
+        },
+      });
     }
   }
 };
