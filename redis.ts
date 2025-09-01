@@ -201,26 +201,21 @@ const run = async () => {
   await redis.connect();
 
   try {
-    // First, check what type of data structure this key contains
-    const keyType = await redis.getKeyType('daily-procurement-shop-51');
+    // Get all keys and count them
+    const allKeys = await redis.getAllKeys('*');
+    console.log(`\n=== Redis Key Count ===`);
+    console.log(`Total keys in Redis: ${allKeys.length}`);
 
-    // Get the value using the appropriate method based on type
-    const value = await redis.getKeyValue('daily-procurement-shop-51');
+    // Optional: Show first 10 keys as examples
+    if (allKeys.length > 0) {
+      console.log(`\nFirst 10 keys as examples:`);
+      allKeys.slice(0, 10).forEach((key: string, index: number) => {
+        console.log(`${index + 1}. ${key}`);
+      });
 
-    // Try to parse as JSON if it's a string
-    if (typeof value === 'string') {
-      try {
-        const json = JSON.parse(value);
-        console.log('Parsed JSON:', json.map(item => ({
-          supply_plan_item_id:item.supply_plan_item_id,
-          qty: item.qty,
-          supplier_item_id:item.supplier_item_id
-        })));
-      } catch (e) {
-        console.log('Value is not valid JSON string:', value);
+      if (allKeys.length > 10) {
+        console.log(`... and ${allKeys.length - 10} more keys`);
       }
-    } else {
-      console.log('Retrieved value (not a string):', value);
     }
   } catch (error) {
     console.error('Error in Redis operations:', error);
