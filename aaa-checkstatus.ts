@@ -25,7 +25,14 @@ const run = async () => {
 
     if (pOrder.status === 5 || pOrder.status === 4) {
       if (pOrder.status !== sOrder.status) {
-        console.log(pOrder.id, 'status mismatch');
+        console.log(
+          pOrder.id,
+          'status mismatch',
+          'p status',
+          pOrder.status,
+          's status',
+          sOrder.status
+        );
       }
     }
   }
