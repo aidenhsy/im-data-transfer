@@ -25,6 +25,14 @@ const run = async () => {
 
     if (pOrder.status === 5 || pOrder.status === 4) {
       if (pOrder.status !== sOrder.status) {
+        await database.scmOrderProd.procurement_orders.update({
+          where: {
+            id: sOrder.id,
+          },
+          data: {
+            status: pOrder.status,
+          },
+        });
         console.log(
           pOrder.id,
           'status mismatch',
