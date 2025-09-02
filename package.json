@@ -26,6 +26,7 @@
     "db:scm": "npx prisma db pull --schema=prisma/scm-prod.prisma && npx prisma generate --schema=prisma/scm-prod.prisma",
     "db:order": "npx prisma db pull --schema=prisma/scm-order-prod.prisma && npx prisma generate --schema=prisma/scm-order-prod.prisma",
     "db:procurement": "npx prisma db pull --schema=prisma/im-procurement-prod.prisma && npx prisma generate --schema=prisma/im-procurement-prod.prisma",
+    "dev:procurement": "npx prisma db pull --schema=prisma/im-procurement-dev.prisma && npx prisma generate --schema=prisma/im-procurement-dev.prisma",
     "db:improd": "npx prisma db pull --schema=prisma/im-prod.prisma && npx prisma generate --schema=prisma/im-prod.prisma",
     "db:imbasic": "npx prisma db pull --schema=prisma/im-basic-data-prod.prisma && npx prisma generate --schema=prisma/im-basic-data-prod.prisma"
   }
