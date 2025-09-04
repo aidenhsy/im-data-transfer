@@ -9,8 +9,18 @@ const run = async () => {
         id: true,
         supplier_item_id: true,
         shop_id: true,
+        supplier_items: {
+          select: {
+            supplier_reference_id: true,
+          },
+        },
+      },
+      where: {
+        generic_item_id: null,
       },
     });
+
+  console.log(countDetails.length);
 
   for (const countDetail of countDetails) {
     const planItemSupplierGood =
@@ -27,7 +37,16 @@ const run = async () => {
       });
 
     if (!planItemSupplierGood) {
-      console.log('planItemSupplierGood not found');
+      const genericId =
+        countDetail.supplier_items?.supplier_reference_id?.split('-')[2];
+      await databaseService.imInventoryDev.inventory_count_details.update({
+        where: {
+          id: countDetail.id,
+        },
+        data: {
+          generic_item_id: Number(genericId),
+        },
+      });
       continue;
     }
 
