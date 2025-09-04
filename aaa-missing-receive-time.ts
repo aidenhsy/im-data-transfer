@@ -66,7 +66,7 @@ const run = async () => {
       continue;
     }
     if (!scmDetail.scm_order?.receival_time) {
-      console.log(missingObj.reference_id, missingObj.reference_order_id);
+      console.log('receive time null');
       continue;
     }
 
