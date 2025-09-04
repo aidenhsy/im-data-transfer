@@ -4,6 +4,7 @@ import { PrismaClient as ScmOrderProd } from './prisma/clients/scm-order-prod';
 import { PrismaClient as ImInventoryProd } from './prisma/clients/im-inventory-prod';
 import { PrismaClient as ImProcurementDev } from './prisma/clients/im-procurement-dev';
 import { PrismaClient as ScmPricingProd } from './prisma/clients/scm-pricing-prod';
+import { PrismaClient as ImInventoryDev } from './prisma/clients/im-inventory-dev';
 
 export class DatabaseService {
   imProcurementProd: ImProcurementProd;
@@ -12,6 +13,7 @@ export class DatabaseService {
   imInventoryProd: ImInventoryProd;
   imProcurementDev: ImProcurementDev;
   scmPricingProd: ScmPricingProd;
+  imInventoryDev: ImInventoryDev;
 
   constructor() {
     this.imProcurementProd = new ImProcurementProd();
@@ -20,6 +22,7 @@ export class DatabaseService {
     this.imInventoryProd = new ImInventoryProd();
     this.imProcurementDev = new ImProcurementDev();
     this.scmPricingProd = new ScmPricingProd();
+    this.imInventoryDev = new ImInventoryDev();
   }
 
   async connect() {
@@ -30,6 +33,7 @@ export class DatabaseService {
       this.imInventoryProd.$connect(),
       this.imProcurementDev.$connect(),
       this.scmPricingProd.$connect(),
+      this.imInventoryDev.$connect(),
     ]);
   }
 
@@ -41,10 +45,7 @@ export class DatabaseService {
       this.imInventoryProd.$disconnect(),
       this.imProcurementDev.$disconnect(),
       this.scmPricingProd.$disconnect(),
+      this.imInventoryDev.$disconnect(),
     ]);
-  }
-
-  async getImProcurementProd() {
-    return this.imProcurementProd;
   }
 }
