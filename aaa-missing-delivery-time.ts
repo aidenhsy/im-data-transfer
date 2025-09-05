@@ -50,6 +50,7 @@ const run = async () => {
 
   // Combine
   const missingObjs: MissingObj[] = [...fromSupplier, ...fromScm];
+  console.log(missingObjs.length);
 
   for (const missingObj of missingObjs) {
     const scmDetail = await database.scmProd.scm_order_details.findFirst({
