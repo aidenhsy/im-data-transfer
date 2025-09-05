@@ -62,11 +62,13 @@ const run = async () => {
       },
     });
     if (!scmDetail) {
-      console.log(missingObj.reference_id, missingObj.reference_order_id);
       continue;
     }
     if (!scmDetail.scm_order?.receival_time) {
-      console.log('receive time null');
+      console.log({
+        reference_id: missingObj.reference_id,
+        reference_order_id: missingObj.reference_order_id,
+      });
       continue;
     }
 
