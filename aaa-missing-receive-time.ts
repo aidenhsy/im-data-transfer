@@ -64,7 +64,7 @@ const run = async () => {
     if (!scmDetail) {
       continue;
     }
-    if (!scmDetail.scm_order?.receival_time) {
+    if (!scmDetail.scm_order?.arrival_time) {
       console.log({
         reference_id: missingObj.reference_id,
         reference_order_id: missingObj.reference_order_id,
@@ -77,7 +77,7 @@ const run = async () => {
         id: missingObj.reference_order_id,
       },
       data: {
-        receive_time: scmDetail.scm_order.receival_time,
+        receive_time: scmDetail.scm_order.arrival_time,
       },
     });
     await database.scmOrderProd.procurement_orders.update({
@@ -85,7 +85,7 @@ const run = async () => {
         client_order_id: missingObj.reference_order_id,
       },
       data: {
-        customer_receive_time: scmDetail.scm_order.receival_time,
+        customer_receive_time: scmDetail.scm_order.arrival_time,
       },
     });
   }
