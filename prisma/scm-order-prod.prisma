@@ -1335,11 +1335,19 @@ model procurement_order_returns {
   client_return_id                        String?                                   @unique @db.VarChar
   created_at                              DateTime                                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
   updated_at                              DateTime                                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  return_reason_id                        Int?
   procurement_order_return_details        procurement_order_return_details[]
   procurement_order_return_status_history procurement_order_return_status_history[]
   client_organizations                    client_organizations                      @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   procurement_orders                      procurement_orders                        @relation(fields: [original_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  procurement_order_return_reasons        procurement_order_return_reasons?         @relation(fields: [return_reason_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop                                scm_shop                                  @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model procurement_order_return_reasons {
+  id                        Int                         @id @default(autoincrement())
+  name                      String                      @db.VarChar
+  procurement_order_returns procurement_order_returns[]
 }
 
 enum pricing_strategy_type {
