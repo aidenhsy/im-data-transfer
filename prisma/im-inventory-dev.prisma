@@ -639,6 +639,8 @@ model shop_item_weighted_price {
   generic_items        generic_items?             @relation(fields: [generic_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop             scm_shop                   @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_items       supplier_items             @relation(fields: [supplier_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([source_detail_id, type], map: "unique_source_detail_type")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1179,6 +1181,8 @@ model inventory_count_settings {
   updated_at      DateTime      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
   generic_items   generic_items @relation(fields: [generic_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop        scm_shop      @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([generic_item_id, shop_id, is_daily_count], map: "uq_inventory_count_settings")
 }
 
 enum pricing_strategy_type {

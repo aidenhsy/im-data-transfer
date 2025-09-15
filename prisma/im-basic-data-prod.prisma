@@ -129,19 +129,20 @@ model equipment_manufacturer {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model generic_items {
-  id                 Int                 @id(map: "scm_goods_pkey") @default(autoincrement())
-  name               String              @db.VarChar(60)
-  category_id        Int
-  status             Int                 @default(1) @db.SmallInt
-  create_time        DateTime?           @default(now()) @db.Timestamp(6)
-  update_time        DateTime?           @default(now()) @db.Timestamp(6)
-  letter_name        String?             @db.VarChar
-  photo_url          String?             @db.VarChar
-  base_unit_id       Int?
-  scm_goods_category scm_goods_category  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_category0")
-  standard_units     standard_units?     @relation(fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  ingredient         ingredient[]
-  supply_plan_items  supply_plan_items[]
+  id                        Int                         @id(map: "scm_goods_pkey") @default(autoincrement())
+  name                      String                      @db.VarChar(60)
+  category_id               Int
+  status                    Int                         @default(1) @db.SmallInt
+  create_time               DateTime?                   @default(now()) @db.Timestamp(6)
+  update_time               DateTime?                   @default(now()) @db.Timestamp(6)
+  letter_name               String?                     @db.VarChar
+  photo_url                 String?                     @db.VarChar
+  base_unit_id              Int?
+  scm_goods_category        scm_goods_category          @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_goods_category0")
+  standard_units            standard_units?             @relation(fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ingredient                ingredient[]
+  shop_specialty_plan_items shop_specialty_plan_items[]
+  supply_plan_items         supply_plan_items[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -390,6 +391,7 @@ model scm_shop {
   st_sales_plan                  st_sales_plan?                   @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_sales_plan_id_fkey83")
   scm_shop_scm_shop_account      scm_shop_scm_shop_account[]
   shop_equipment                 shop_equipment[]
+  shop_specialty_plan_items      shop_specialty_plan_items[]
   st_daily_count                 st_daily_count[]
   st_inventory_single            st_inventory_single[]
   st_kitchen_department          st_kitchen_department[]
@@ -431,6 +433,7 @@ model scm_shop_brand {
   big_org                                                  big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
   scm_supply_plan                                          scm_supply_plan?        @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_supply_plan_scm_supply_plan_brand_idToscm_shop_brand scm_supply_plan[]       @relation("scm_supply_plan_brand_idToscm_shop_brand")
+  st_food_item                                             st_food_item[]
   st_kitchen_department                                    st_kitchen_department[]
   st_sales_plan                                            st_sales_plan[]
 
@@ -748,7 +751,9 @@ model st_food_item {
   ml_index                       Int?
   create_date                    DateTime?                        @default(now()) @db.Date
   is_package                     Boolean                          @default(false)
+  item_code                      String?                          @db.VarChar(100)
   ingredient                     ingredient[]
+  scm_shop_brand                 scm_shop_brand?                  @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   st_food_category               st_food_category?                @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_food_item_category_id_fkey62")
   st_predict_daily_sales_details st_predict_daily_sales_details[]
   st_sales_plan_items            st_sales_plan_items[]
@@ -911,9 +916,10 @@ model standard_units {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model stock_category {
-  id                Int                 @id @default(autoincrement())
-  name              String?             @db.VarChar(50)
-  supply_plan_items supply_plan_items[]
+  id                        Int                         @id @default(autoincrement())
+  name                      String?                     @db.VarChar(50)
+  shop_specialty_plan_items shop_specialty_plan_items[]
+  supply_plan_items         supply_plan_items[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -984,6 +990,7 @@ model supply_plan_items {
   supply_plan_id          Int?
   item_id                 Int?
   stock_category_id       Int?
+  ingredient              ingredient[]
   plan_item_supplier_good plan_item_supplier_good[]
   generic_items           generic_items?            @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   stock_category          stock_category?           @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "supply_plan_items_stock_category_fk")
@@ -1017,17 +1024,33 @@ model shop_section {
 }
 
 model ingredient {
-  id              String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  food_item_id    String          @db.VarChar
-  generic_item_id Int
-  qty             Decimal?        @db.Decimal(12, 2)
-  base_unit_id    Int?
-  yield_pct       Decimal?        @db.Decimal(4, 2)
-  created_at      DateTime        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  updated_at      DateTime        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  standard_units  standard_units? @relation(fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  st_food_item    st_food_item    @relation(fields: [food_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  generic_items   generic_items   @relation(fields: [generic_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                  String             @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  food_item_id        String             @db.VarChar
+  generic_item_id     Int
+  qty                 Decimal?           @db.Decimal(12, 2)
+  base_unit_id        Int?
+  yield_pct           Decimal?           @db.Decimal(4, 2)
+  created_at          DateTime           @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at          DateTime           @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  supply_plan_item_id String?            @db.VarChar
+  standard_units      standard_units?    @relation(fields: [base_unit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  st_food_item        st_food_item       @relation(fields: [food_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  generic_items       generic_items      @relation(fields: [generic_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supply_plan_items   supply_plan_items? @relation(fields: [supply_plan_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([food_item_id, generic_item_id], map: "ingredient_unique")
+}
+
+model shop_specialty_plan_items {
+  id                String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  shop_id           Int?
+  item_id           Int?
+  stock_category_id Int?
+  generic_items     generic_items?  @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_shop          scm_shop?       @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stock_category    stock_category? @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([shop_id, item_id], map: "shop_specialty_plan_items_unique")
 }
 
 enum pricing_strategy_type {

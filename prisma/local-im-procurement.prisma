@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./clients/im-procurement-prod"
+  output   = "./clients/local-im-procurement"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("IM_PROCUREMENT_PROD_URL")
+  url      = env("LOCAL_IM_PROCUREMENT")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -410,22 +410,22 @@ model scm_shop_account {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_shop_brand {
-  id                                                       Int                     @id @default(autoincrement())
-  brand_name                                               String                  @db.VarChar(60)
-  create_time                                              DateTime?               @default(now()) @db.Timestamp(6)
-  tcsl_id                                                  String?                 @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  big_org_id                                               Int?                    @default(3)
-  is_enabled                                               Boolean?                @default(false)
-  supply_plan_id                                           Int?
-  brand_cities                                             brand_cities[]
-  scm_brand_account                                        scm_brand_account[]
-  scm_shop                                                 scm_shop[]
-  big_org                                                  big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
-  scm_supply_plan                                          scm_supply_plan?        @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_supply_plan_scm_supply_plan_brand_idToscm_shop_brand scm_supply_plan[]       @relation("scm_supply_plan_brand_idToscm_shop_brand")
-  st_ingredient                                            st_ingredient[]
-  st_kitchen_department                                    st_kitchen_department[]
-  st_sales_plan                                            st_sales_plan[]
+  id                                                             Int                     @id @default(autoincrement())
+  brand_name                                                     String                  @db.VarChar(60)
+  create_time                                                    DateTime?               @default(now()) @db.Timestamp(6)
+  tcsl_id                                                        String?                 @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  big_org_id                                                     Int?                    @default(3)
+  is_enabled                                                     Boolean?                @default(false)
+  supply_plan_id                                                 Int?
+  brand_cities                                                   brand_cities[]
+  scm_brand_account                                              scm_brand_account[]
+  scm_shop                                                       scm_shop[]
+  big_org                                                        big_org?                @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "scm_shop_brand_big_org_id_fkey80")
+  scm_supply_plan_scm_shop_brand_supply_plan_idToscm_supply_plan scm_supply_plan?        @relation("scm_shop_brand_supply_plan_idToscm_supply_plan", fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_supply_plan_scm_supply_plan_brand_idToscm_shop_brand       scm_supply_plan[]       @relation("scm_supply_plan_brand_idToscm_shop_brand")
+  st_ingredient                                                  st_ingredient[]
+  st_kitchen_department                                          st_kitchen_department[]
+  st_sales_plan                                                  st_sales_plan[]
 
   @@index([tcsl_id], map: "idx_sc_shop_brand_tcsl_id")
 }
@@ -453,16 +453,16 @@ model scm_shop_scm_shop_account {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model scm_supply_plan {
-  id                                                      Int                 @id @default(autoincrement())
-  name                                                    String?             @db.VarChar(60)
-  serial_num                                              String?             @unique @db.VarChar
-  organization_id                                         Int?
-  brand_id                                                Int?
-  scm_shop_brand                                          scm_shop_brand[]
-  scm_shop_brand_scm_supply_plan_brand_idToscm_shop_brand scm_shop_brand?     @relation("scm_supply_plan_brand_idToscm_shop_brand", fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  st_ingredient                                           st_ingredient[]
-  st_sales_plan                                           st_sales_plan[]
-  supply_plan_items                                       supply_plan_items[]
+  id                                                            Int                 @id @default(autoincrement())
+  name                                                          String?             @db.VarChar(60)
+  serial_num                                                    String?             @unique @db.VarChar
+  organization_id                                               Int?
+  brand_id                                                      Int?
+  scm_shop_brand_scm_shop_brand_supply_plan_idToscm_supply_plan scm_shop_brand[]    @relation("scm_shop_brand_supply_plan_idToscm_supply_plan")
+  scm_shop_brand_scm_supply_plan_brand_idToscm_shop_brand       scm_shop_brand?     @relation("scm_supply_plan_brand_idToscm_shop_brand", fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  st_ingredient                                                 st_ingredient[]
+  st_sales_plan                                                 st_sales_plan[]
+  supply_plan_items                                             supply_plan_items[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -731,23 +731,22 @@ model st_food_item {
 }
 
 model st_ingredient {
-  id                  Int                 @id @default(autoincrement())
-  food_item_id        String?             @db.VarChar
-  qty                 Decimal?            @db.Decimal
-  yield_pct           Decimal?            @db.Decimal
+  id                  Int             @id @default(autoincrement())
+  food_item_id        String?         @db.VarChar
+  qty                 Decimal?        @db.Decimal
+  yield_pct           Decimal?        @db.Decimal
   goods_id            Int?
   brand_id            Int
   order_column        Int?
-  sales_plan_id       String              @db.VarChar
+  sales_plan_id       String          @db.VarChar
   supply_plan_id      Int
-  supply_plan_good_id String              @db.VarChar
-  sales_plan_item_id  String              @db.VarChar
-  good_unit_id        String?             @db.VarChar
-  scm_shop_brand      scm_shop_brand      @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_brand_id_fkey73")
-  st_food_item        st_food_item?       @relation(fields: [food_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "st_ingredient_food_item_id_fkey61")
-  st_sales_plan       st_sales_plan       @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_sales_plan_id_fkey95")
-  st_sales_plan_items st_sales_plan_items @relation(fields: [sales_plan_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  scm_supply_plan     scm_supply_plan     @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_supply_plan_id_fkey94")
+  supply_plan_good_id String          @db.VarChar
+  sales_plan_item_id  String          @db.VarChar
+  good_unit_id        String?         @db.VarChar
+  scm_shop_brand      scm_shop_brand  @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_brand_id_fkey73")
+  st_food_item        st_food_item?   @relation(fields: [food_item_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "st_ingredient_food_item_id_fkey61")
+  st_sales_plan       st_sales_plan   @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_sales_plan_id_fkey95")
+  scm_supply_plan     scm_supply_plan @relation(fields: [supply_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_ingredient_supply_plan_id_fkey94")
 
   @@unique([goods_id, food_item_id, sales_plan_id, supply_plan_id], map: "unique_food_goods_sales_plan")
   @@unique([sales_plan_item_id, supply_plan_good_id], map: "unique_sales_item_supply_item")
@@ -887,13 +886,12 @@ model st_sales_plan {
 }
 
 model st_sales_plan_items {
-  id            String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  food_item_id  String?         @db.VarChar
-  sales_plan_id String?         @db.VarChar
-  is_enabled    Boolean         @default(true)
-  st_ingredient st_ingredient[]
-  st_food_item  st_food_item?   @relation(fields: [food_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_sales_plan_items_food_item_id_fkey82")
-  st_sales_plan st_sales_plan?  @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_sales_plan_items_sales_plan_id_fkey81")
+  id            String         @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  food_item_id  String?        @db.VarChar
+  sales_plan_id String?        @db.VarChar
+  is_enabled    Boolean        @default(true)
+  st_food_item  st_food_item?  @relation(fields: [food_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_sales_plan_items_food_item_id_fkey82")
+  st_sales_plan st_sales_plan? @relation(fields: [sales_plan_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "st_sales_plan_items_sales_plan_id_fkey81")
 
   @@unique([food_item_id, sales_plan_id], map: "unique_plan_item")
 }
@@ -916,19 +914,6 @@ model stock_category {
   name                      String?                     @db.VarChar(50)
   shop_specialty_plan_items shop_specialty_plan_items[]
   supply_plan_items         supply_plan_items[]
-}
-
-model submit_cart_attempts {
-  id              String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  shop_id         Int?
-  type            String?         @db.VarChar
-  items_num       Int?
-  is_successful   Boolean?        @default(false)
-  created_at      DateTime?       @default(now()) @db.Timestamp(6)
-  updated_at      DateTime?       @default(now()) @db.Timestamp(6)
-  last_error      String?
-  order_id        String          @db.VarChar
-  supplier_orders supplier_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -1087,16 +1072,6 @@ model user_roles {
   @@unique([user_id, role_id])
 }
 
-model supplier_order_status_history {
-  id              String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  order_id        String          @db.VarChar
-  status          Int
-  try_count       Int             @default(0)
-  notified_at     DateTime?       @db.Timestamp(6)
-  created_at      DateTime        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  supplier_orders supplier_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model shop_specialty_plan_item_supplier_good {
   id                        String                     @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar(50)
   plan_item_id              String?                    @db.VarChar(50)
@@ -1123,6 +1098,19 @@ model shop_specialty_plan_items {
   stock_category                         stock_category?                          @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([shop_id, item_id], map: "shop_specialty_plan_items_unique")
+}
+
+model submit_cart_attempts {
+  id              String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  shop_id         Int?
+  type            String?         @db.VarChar
+  items_num       Int?
+  is_successful   Boolean?        @default(false)
+  created_at      DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at      DateTime?       @default(now()) @db.Timestamp(6)
+  last_error      String?
+  order_id        String          @db.VarChar
+  supplier_orders supplier_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model supplier_order_return_details {
@@ -1161,6 +1149,16 @@ model supplier_order_returns {
   supplier_order_return_reasons supplier_order_return_reasons   @relation(fields: [return_reason_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop                      scm_shop                        @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier                      supplier                        @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model supplier_order_status_history {
+  id              String          @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  order_id        String          @db.VarChar
+  status          Int
+  try_count       Int             @default(0)
+  notified_at     DateTime?       @db.Timestamp(6)
+  created_at      DateTime        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  supplier_orders supplier_orders @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum pricing_strategy_type {
