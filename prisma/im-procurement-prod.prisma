@@ -915,6 +915,7 @@ model stock_category {
   id                        Int                         @id @default(autoincrement())
   name                      String?                     @db.VarChar(50)
   shop_specialty_plan_items shop_specialty_plan_items[]
+  supplier_order_details    supplier_order_details[]
   supply_plan_items         supply_plan_items[]
 }
 
@@ -1019,8 +1020,10 @@ model supplier_order_details {
   is_locked                     Boolean                        @default(false)
   total_order_amount            Decimal?                       @default(dbgenerated("round((order_qty * price), 2)")) @db.Decimal(12, 2)
   total_final_amount            Decimal?                       @default(dbgenerated("round((final_qty * price), 2)")) @db.Decimal(12, 2)
+  stock_category_id             Int?
   generic_items                 generic_items                  @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_orders               supplier_orders                @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stock_category                stock_category?                @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_items                supplier_items?                @relation(fields: [supplier_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_order_return_details supplier_order_return_details?
 

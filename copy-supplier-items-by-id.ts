@@ -3,8 +3,8 @@ import { DatabaseService } from './database';
 const run = async () => {
   const database = new DatabaseService();
 
-  const fromShop = 135;
-  const toShop = 143;
+  const fromShop = 143;
+  const toShop = 147;
 
   const supplyPlanItems =
     await database.imProcurementProd.plan_item_supplier_good.findMany({
@@ -22,19 +22,15 @@ const run = async () => {
   // 23 is city id for nanking
   for (const item of supplyPlanItems) {
     const referenceId = item.supplier_items?.supplier_reference_id;
-    const name = item.supplier_items?.name;
 
-    // Remove （呼和浩特） from the name if it exists
-    const cleanName = name?.replace(/（呼和浩特）/g, '');
+    const shortReferenceId = referenceId?.split('-').slice(0, 3).join('-');
+    const referenceIdWCity = `${shortReferenceId}-26`;
 
     const supplierItem =
       await database.imProcurementProd.supplier_items.findFirst({
         where: {
-          name: {
-            contains: cleanName,
-          },
           supplier_reference_id: {
-            contains: '-23-',
+            startsWith: referenceIdWCity,
           },
         },
       });
@@ -42,9 +38,9 @@ const run = async () => {
     if (supplierItem) {
       await database.imProcurementProd.plan_item_supplier_good.upsert({
         where: {
-          shop_id_supplier_item_id: {
+          plan_item_id_shop_id: {
+            plan_item_id: item.plan_item_id!,
             shop_id: toShop,
-            supplier_item_id: supplierItem.id,
           },
         },
         create: {
