@@ -30,8 +30,15 @@ const run = async () => {
       },
     });
   for (const item of returns) {
-    await database.imAccountingProd.inventory_ledger.create({
-      data: {
+    await database.imAccountingProd.inventory_ledger.upsert({
+      where: {
+        source_id_source_detail_id: {
+          source_id: item.return_id,
+          source_detail_id: item.id,
+        },
+      },
+      update: {},
+      create: {
         biz_type_id: 2,
         source_id: item.return_id,
         source_detail_id: item.id,
