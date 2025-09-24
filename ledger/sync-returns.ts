@@ -55,8 +55,8 @@ const run = async () => {
         package_unit: item.supplier_order_details.package_unit_name,
         price: item.supplier_order_details.price,
         total_value: -item.total_value!,
-        created_at: item.supplier_order_returns.created_at!,
-        updated_at: item.supplier_order_returns.created_at!,
+        created_at: item.supplier_order_returns.updated_at!,
+        updated_at: item.supplier_order_returns.updated_at!,
       },
     });
   }
