@@ -77,7 +77,7 @@ const run = async () => {
           biz_type_id: 1,
           source_id: detail.order_id,
           source_detail_id: detail.id,
-          shop_id: detail.supplier_orders.shop_id,
+          shop_id: Number(detail.supplier_orders.shop_id),
           brand_id: detail.supplier_orders.scm_shop.brand_id,
           org_id: detail.supplier_orders.scm_shop.big_org_id!,
           supplier_item_id: detail.supplier_item_id!,
@@ -96,8 +96,12 @@ const run = async () => {
           package_unit: detail.package_unit_name,
           price: Number(detail.price),
           total_value: Number(detail.total_final_amount),
-          created_at: detail.supplier_orders.receive_time!,
-          updated_at: detail.supplier_orders.receive_time!,
+          created_at: detail.supplier_orders.receive_time
+            ? detail.supplier_orders.receive_time
+            : new Date(),
+          updated_at: detail.supplier_orders.receive_time
+            ? detail.supplier_orders.receive_time
+            : new Date(),
         },
       });
     }
