@@ -55,12 +55,12 @@ const run = async () => {
         stock_id: item.supplier_order_details.stock_category_id,
         stock_name: item.supplier_order_details.stock_category?.name,
         base_unit_qty:
-          -Number(item.supplier_order_details.final_qty!) *
+          -Number(item.qty_returned) *
           Number(item.supplier_order_details.package_unit_to_base_ratio),
         base_unit: item.supplier_order_details.package_unit_name,
-        package_unit_qty: -item.supplier_order_details.final_qty!,
+        package_unit_qty: -item.qty_returned,
         package_unit: item.supplier_order_details.package_unit_name,
-        price: item.supplier_order_details.price,
+        price: item.unit_price,
         total_value: -item.total_value!,
         created_at: item.supplier_order_returns.updated_at!,
         updated_at: item.supplier_order_returns.updated_at!,
