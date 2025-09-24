@@ -21,6 +21,13 @@ const run = async () => {
       await database.imProcurementProd.supplier_order_details.findMany({
         skip,
         take: BATCH_SIZE,
+        where: {
+          supplier_orders: {
+            status: {
+              in: [4, 5],
+            },
+          },
+        },
         orderBy: { id: 'asc' }, // Essential for consistent pagination
         select: {
           id: true,
@@ -96,12 +103,8 @@ const run = async () => {
           package_unit: detail.package_unit_name,
           price: Number(detail.price),
           total_value: Number(detail.total_final_amount),
-          created_at: detail.supplier_orders.receive_time
-            ? detail.supplier_orders.receive_time
-            : new Date(),
-          updated_at: detail.supplier_orders.receive_time
-            ? detail.supplier_orders.receive_time
-            : new Date(),
+          created_at: detail.supplier_orders.receive_time!,
+          updated_at: detail.supplier_orders.receive_time!,
         },
       });
     }
