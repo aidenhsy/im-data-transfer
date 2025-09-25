@@ -47,7 +47,7 @@ const run = async () => {
       const finalQty = Number(detail.final_qty);
 
       if (correctFinal.toFixed(2) !== finalQty.toFixed(2)) {
-        console.log(correctFinal, finalQty);
+        console.log(detail.id);
       }
     }
   }
