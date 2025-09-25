@@ -32,10 +32,10 @@ const run = async () => {
         select: {
           id: true,
           order_id: true,
+          actual_delivery_qty: true,
           supplier_item_id: true,
           supplier_item_name: true,
           stock_category_id: true,
-          final_qty: true,
           package_unit_name: true,
           package_unit_to_base_ratio: true,
           price: true,
@@ -96,10 +96,10 @@ const run = async () => {
           stock_id: detail.stock_category_id,
           stock_name: detail.stock_category?.name,
           base_unit_qty:
-            Number(detail.final_qty) *
+            Number(detail.actual_delivery_qty) *
             Number(detail.package_unit_to_base_ratio),
           base_unit: detail.package_unit_name,
-          package_unit_qty: Number(detail.final_qty),
+          package_unit_qty: Number(detail.actual_delivery_qty),
           package_unit: detail.package_unit_name,
           price: Number(detail.price),
           total_value: Number(detail.total_final_amount),
