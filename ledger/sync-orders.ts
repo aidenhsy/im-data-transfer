@@ -26,6 +26,9 @@ const run = async () => {
             status: {
               in: [4, 5],
             },
+            receive_time: {
+              gte: new Date('2025-09-01T00:00:00.000Z'),
+            },
           },
         },
         orderBy: { id: 'asc' }, // Essential for consistent pagination
