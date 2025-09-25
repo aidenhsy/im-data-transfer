@@ -1021,6 +1021,7 @@ model supplier_order_details {
   total_order_amount            Decimal?                       @default(dbgenerated("round((order_qty * price), 2)")) @db.Decimal(12, 2)
   total_final_amount            Decimal?                       @default(dbgenerated("round((final_qty * price), 2)")) @db.Decimal(12, 2)
   stock_category_id             Int?
+  total_delivery_amount         Decimal?                       @default(dbgenerated("round((actual_delivery_qty * price), 2)")) @db.Decimal(12, 2)
   generic_items                 generic_items                  @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_orders               supplier_orders                @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   stock_category                stock_category?                @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
