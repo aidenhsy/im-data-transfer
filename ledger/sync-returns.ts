@@ -15,6 +15,11 @@ const run = async () => {
         supplier_order_details: {
           include: {
             stock_category: true,
+            supplier_orders: {
+              select: {
+                receive_time: true,
+              },
+            },
             generic_items: {
               include: {
                 scm_goods_category: true,
@@ -62,8 +67,8 @@ const run = async () => {
         package_unit: item.supplier_order_details.package_unit_name,
         price: item.unit_price,
         total_value: -item.total_value!,
-        created_at: item.supplier_order_returns.updated_at!,
-        updated_at: item.supplier_order_returns.updated_at!,
+        created_at: item.supplier_order_details.supplier_orders.receive_time!,
+        updated_at: item.supplier_order_details.supplier_orders.receive_time!,
       },
     });
   }
