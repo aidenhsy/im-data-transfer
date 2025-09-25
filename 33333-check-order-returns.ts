@@ -11,10 +11,12 @@ const run = async () => {
       await database.imProcurementProd.supplier_order_details.findMany({
         where: {
           supplier_orders: {
-            status: 4,
+            status: {
+              in: [4, 5],
+            },
             receive_time: {
               gte: new Date('2025-07-01T00:00:00.000Z'),
-              lte: new Date('2025-07-31T23:59:59.999Z'),
+              // lte: new Date('2025-07-31T23:59:59.999Z'),
             },
           },
         },
@@ -47,7 +49,9 @@ const run = async () => {
       const finalQty = Number(detail.final_qty);
 
       if (correctFinal.toFixed(2) !== finalQty.toFixed(2)) {
-        console.log(detail.id);
+        if (correctFinal > finalQty) {
+          console.log(`'${detail.id}',`);
+        }
       }
     }
   }
