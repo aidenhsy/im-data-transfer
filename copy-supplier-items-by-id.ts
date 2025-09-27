@@ -4,7 +4,7 @@ const run = async () => {
   const database = new DatabaseService();
 
   const fromShopId = 146;
-  const toShopId = 116;
+  const toShopId = 150;
 
   const toShop = await database.imBasicProd.scm_shop.findUnique({
     where: {
@@ -29,8 +29,17 @@ const run = async () => {
   for (const item of supplyPlanItems) {
     const referenceId = item.supplier_items?.supplier_reference_id;
 
-    const shortReferenceId = referenceId?.split('-').slice(0, 3).join('-');
-    const referenceIdWCity = `${shortReferenceId}-${toShop?.city_id}`;
+    if (!referenceId) {
+      continue;
+    }
+
+    const shortReferenceId = referenceId.split('-');
+    if (shortReferenceId.length < 3) {
+      continue;
+    }
+
+    const referenceIdWCity = `${shortReferenceId[0]}-${toShop?.client_tier_id}-${shortReferenceId[2]}-${toShop?.city_id}`;
+    console.log(referenceIdWCity);
 
     const supplierItem =
       await database.imProcurementProd.supplier_items.findFirst({
