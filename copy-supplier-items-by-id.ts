@@ -3,7 +3,7 @@ import { DatabaseService } from './database';
 const run = async () => {
   const database = new DatabaseService();
 
-  const fromShopId = 146;
+  const fromShopId = 141;
   const toShopId = 150;
 
   const toShop = await database.imBasicProd.scm_shop.findUnique({
@@ -39,7 +39,6 @@ const run = async () => {
     }
 
     const referenceIdWCity = `${shortReferenceId[0]}-${toShop?.client_tier_id}-${shortReferenceId[2]}-${toShop?.city_id}`;
-    console.log(referenceIdWCity);
 
     const supplierItem =
       await database.imProcurementProd.supplier_items.findFirst({
