@@ -16,7 +16,7 @@ const run = async () => {
     const parts = unit?.split('-');
     const unitId = parts?.slice(4).join('-');
 
-    const scmUnit = await database.scmProd.scm_good_units.findUnique({
+    const scmUnit = await database.scmPricingProd.scm_good_units.findUnique({
       where: {
         id: unitId,
       },
