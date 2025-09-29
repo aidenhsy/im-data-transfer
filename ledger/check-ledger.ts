@@ -65,32 +65,32 @@ const run = async () => {
   //   }
   // }
 
-  const inIds =
-    await database.imProcurementProd.supplier_order_details.findMany({
-      where: {
-        supplier_orders: {
-          status: 4,
-          receive_time: {
-            gte: new Date('2025-09-01T00:00:00.000Z'),
-          },
-        },
-      },
-      select: {
-        id: true,
-      },
-    });
-  console.log(inIds.length);
-  for (const inId of inIds) {
-    const ledger = await database.imAccountingProd.inventory_ledger.findFirst({
-      where: {
-        source_detail_id: inId.id,
-      },
-    });
-    if (!ledger) {
-      console.log(inId.id, 'no in ledger');
-      continue;
-    }
-  }
+  // const inIds =
+  //   await database.imProcurementProd.supplier_order_details.findMany({
+  //     where: {
+  //       supplier_orders: {
+  //         status: 4,
+  //         receive_time: {
+  //           gte: new Date('2025-09-01T00:00:00.000Z'),
+  //         },
+  //       },
+  //     },
+  //     select: {
+  //       id: true,
+  //     },
+  //   });
+  // console.log(inIds.length);
+  // for (const inId of inIds) {
+  //   const ledger = await database.imAccountingProd.inventory_ledger.findFirst({
+  //     where: {
+  //       source_detail_id: inId.id,
+  //     },
+  //   });
+  //   if (!ledger) {
+  //     console.log(inId.id, 'no in ledger');
+  //     continue;
+  //   }
+  // }
 
   const outIds =
     await database.imProcurementProd.supplier_order_return_details.findMany({
