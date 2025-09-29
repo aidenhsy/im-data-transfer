@@ -23,8 +23,13 @@ const run = async () => {
           },
         },
       },
+      where: {
+        stock_category_id: null,
+      },
     });
+  console.log(imProcurement.length);
 
+  let count = 0;
   for (const item of imProcurement) {
     const planItem =
       await database.imProcurementProd.supply_plan_items.findFirst({
@@ -36,6 +41,7 @@ const run = async () => {
       });
 
     if (planItem) {
+      count++;
       await database.imProcurementProd.supplier_order_details.update({
         where: {
           id: item.id,
@@ -47,7 +53,7 @@ const run = async () => {
     }
   }
 
-  console.log('Processing completed successfully');
+  console.log('Processing completed successfully', count);
   await database.disconnect();
   process.exit(0);
 };
