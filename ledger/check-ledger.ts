@@ -54,7 +54,9 @@ const run = async () => {
         console.log(
           'biz type 2',
           item.source_detail_id,
-          'return total_value mismatch'
+          'return total_value mismatch',
+          Number(detail.total_value),
+          Number(item.total_value)
         );
       }
     }
