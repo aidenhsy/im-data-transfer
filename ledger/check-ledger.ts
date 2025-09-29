@@ -114,6 +114,10 @@ const run = async () => {
       console.log(outId.id, 'no out ledger');
       continue;
     }
+    if (ledger.created_at < new Date('2025-09-01T00:00:00.000Z')) {
+      console.log(outId.id, 'created_at < 2025-09-01');
+      continue;
+    }
   }
 };
 
