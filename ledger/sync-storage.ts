@@ -8,13 +8,15 @@ import { DatabaseService } from '../database';
 
 //   const shops = await databaseService.imBasicProd.scm_shop.findMany({
 //     where: {
-//       status: 1,
+//       status: {
+//         not: 1,
+//       },
 //     },
 //   });
 
 //   for (const shop of shops) {
 //     for (const stockCategory of stockCategories) {
-//       await databaseService.imInventoryDev.storage_locations.create({
+//       await databaseService.imInventoryProd.storage_locations.create({
 //         data: {
 //           name: stockCategory.name,
 //           shop_id: shop.id,
