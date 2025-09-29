@@ -11,6 +11,8 @@ const run = async () => {
     },
   });
 
+  console.log(ledger.length);
+
   for (const item of ledger) {
     if (item.biz_type_id === 1) {
       const detail =
@@ -18,12 +20,15 @@ const run = async () => {
           where: {
             id: item.source_detail_id,
           },
+          select: {
+            total_delivery_amount: true,
+          },
         });
       if (!detail) {
         console.log('biz type 1', item.source_detail_id, 'no detail');
         continue;
       }
-      if (Number(detail.total_final_amount) !== Number(item.total_value)) {
+      if (Number(detail.total_delivery_amount) !== Number(item.total_value)) {
         console.log(
           'biz type 1',
           item.source_detail_id,
