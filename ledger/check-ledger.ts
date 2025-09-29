@@ -103,6 +103,18 @@ const run = async () => {
         },
       },
     });
+  console.log(outIds.length);
+  for (const outId of outIds) {
+    const ledger = await database.imAccountingProd.inventory_ledger.findFirst({
+      where: {
+        source_detail_id: outId.id,
+      },
+    });
+    if (!ledger) {
+      console.log(outId.id, 'no out ledger');
+      continue;
+    }
+  }
 };
 
 run();
