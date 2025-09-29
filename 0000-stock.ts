@@ -34,8 +34,8 @@ const run = async () => {
     const planItem =
       await database.imProcurementProd.supply_plan_items.findFirst({
         where: {
-          supply_plan_id:
-            item.supplier_orders.scm_shop.scm_shop_brand.supply_plan_id,
+          // supply_plan_id:
+          //   item.supplier_orders.scm_shop.scm_shop_brand.supply_plan_id,
           item_id: item.item_id,
         },
       });
