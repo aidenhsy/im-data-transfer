@@ -62,6 +62,8 @@ model biz_type {
   name             String             @unique @db.VarChar(50)
   created_at       DateTime           @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
   updated_at       DateTime           @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  biz_bill_type_id Int?
+  biz_type_bill    biz_type_bill?     @relation(fields: [biz_bill_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   inventory_ledger inventory_ledger[]
 }
 
@@ -302,33 +304,35 @@ model inventory_count_details {
 }
 
 model inventory_ledger {
-  id                 String         @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  biz_type_id        Int
-  source_id          String         @db.VarChar
-  source_detail_id   String         @db.VarChar
-  shop_id            Int
-  brand_id           Int
-  org_id             Int
-  supplier_item_id   String         @db.VarChar
-  supplier_item_name String         @db.VarChar
-  generic_item_id    Int
-  generic_item_name  String         @db.VarChar
-  category_id        Int
-  category_name      String         @db.VarChar
-  stock_id           Int?
-  stock_name         String?        @db.VarChar
-  base_unit_qty      Decimal        @db.Decimal(14, 4)
-  base_unit          String         @db.VarChar
-  package_unit_qty   Decimal        @db.Decimal(14, 4)
-  package_unit       String         @db.VarChar
-  price              Decimal        @db.Decimal(12, 2)
-  total_value        Decimal        @db.Decimal(12, 2)
-  created_at         DateTime       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  updated_at         DateTime       @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  biz_type           biz_type       @relation(fields: [biz_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_shop_brand     scm_shop_brand @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  big_org            big_org        @relation(fields: [org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_shop           scm_shop       @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                  String             @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  biz_type_id         Int
+  source_id           String             @db.VarChar
+  source_detail_id    String             @db.VarChar
+  shop_id             Int
+  brand_id            Int
+  org_id              Int
+  supplier_item_id    String             @db.VarChar
+  supplier_item_name  String             @db.VarChar
+  generic_item_id     Int
+  generic_item_name   String             @db.VarChar
+  category_id         Int
+  category_name       String             @db.VarChar
+  stock_id            Int?
+  stock_name          String?            @db.VarChar
+  base_unit_qty       Decimal            @db.Decimal(14, 4)
+  base_unit           String             @db.VarChar
+  package_unit_qty    Decimal            @db.Decimal(14, 4)
+  package_unit        String             @db.VarChar
+  price               Decimal            @db.Decimal(12, 2)
+  total_value         Decimal            @db.Decimal(12, 2)
+  created_at          DateTime           @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at          DateTime           @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  storage_location_id String?            @db.VarChar
+  biz_type            biz_type           @relation(fields: [biz_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_shop_brand      scm_shop_brand     @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  big_org             big_org            @relation(fields: [org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_shop            scm_shop           @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  storage_locations   storage_locations? @relation(fields: [storage_location_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([source_id, source_detail_id])
 }
@@ -497,6 +501,7 @@ model scm_shop {
   st_predict_daily_sales         st_predict_daily_sales[]
   st_predict_daily_sales_details st_predict_daily_sales_details[]
   st_predict_order               st_predict_order[]
+  storage_locations              storage_locations[]
   supplier_orders                supplier_orders[]
 }
 
@@ -1210,6 +1215,25 @@ model user_roles {
   scm_shop_account scm_shop_account @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([user_id, role_id])
+}
+
+model biz_type_bill {
+  id         Int        @id @default(autoincrement())
+  name       String?    @db.VarChar
+  created_at DateTime   @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at DateTime   @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  biz_type   biz_type[]
+}
+
+model storage_locations {
+  id               String             @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  name             String?            @db.VarChar
+  shop_id          Int?
+  storage_code     Int?
+  created_at       DateTime           @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at       DateTime           @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  inventory_ledger inventory_ledger[]
+  scm_shop         scm_shop?          @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum pricing_strategy_type {
