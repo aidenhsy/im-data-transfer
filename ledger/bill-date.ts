@@ -8,6 +8,7 @@ const run = async () => {
       id: true,
     },
   });
+  console.log(bills.length);
 
   for (const bill of bills) {
     const ledger = await database.imAccountingProd.inventory_ledger.findFirst({
@@ -30,6 +31,8 @@ const run = async () => {
       },
     });
   }
+  console.log('done');
+  process.exit(0);
 };
 
 run();
