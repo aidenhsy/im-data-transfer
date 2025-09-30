@@ -7,7 +7,7 @@ const run = async () => {
     await database.imInventoryProd.shop_item_weighted_price.findMany({
       where: {
         generic_item_id: null,
-        type: 'order_return',
+        type: 'stock_count',
       },
       select: {
         id: true,
