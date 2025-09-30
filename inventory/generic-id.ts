@@ -15,6 +15,8 @@ const run = async () => {
       },
     });
 
+  console.log(shopItemPrices.length);
+
   for (const shopItemPrice of shopItemPrices) {
     const genericItem =
       await database.imProcurementProd.supplier_order_details.findUnique({
@@ -39,3 +41,5 @@ const run = async () => {
     });
   }
 };
+
+run();
