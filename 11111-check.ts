@@ -52,6 +52,8 @@ const run = async () => {
       console.log(shop.shop_id);
       console.log(total);
       console.log(totalSale);
+    } else {
+      console.log(`${shop.shop_id} pass`);
     }
   }
 };
