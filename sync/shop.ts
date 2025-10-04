@@ -67,7 +67,7 @@ const runScm = async () => {
   }
 };
 
-// runScm();
+runScm();
 
 const runIm = async () => {
   const database = new DatabaseService();
@@ -119,4 +119,4 @@ const runIm = async () => {
   }
 };
 
-runIm();
+// runIm();
