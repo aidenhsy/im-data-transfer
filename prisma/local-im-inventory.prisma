@@ -1,0 +1,9 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./clients/local-im-inventory"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("LOCAL_IM_INVENTORY")
+}
