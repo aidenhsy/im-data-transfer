@@ -28,7 +28,9 @@ const run = async () => {
     .map((item) => item.ending_count_id)
     .filter((item) => item !== null);
 
-  const allIds = [...beginningIds, ...endingIds];
+  const allIds = [...endingIds];
+
+  console.log(allIds.length);
 
   for (const countId of allIds) {
     const countDetails =
