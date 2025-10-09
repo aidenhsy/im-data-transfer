@@ -33,6 +33,7 @@ const run = async () => {
   console.log(allIds.length);
 
   for (const countId of allIds) {
+    console.log(countId);
     const countDetails =
       await database.imInventoryProd.inventory_count_details.findMany({
         where: {
