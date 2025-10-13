@@ -49,31 +49,36 @@ const run = async () => {
   if (missingBillIds.length > 0) {
     console.log('missingBillIds');
     console.log(missingBillIds.map((bill) => bill.source_id));
-    for (const bill of missingBillIds) {
-      const procurementBill =
-        await database.imProcurementProd.supplier_orders.findFirst({
-          where: {
-            id: bill.source_id,
-          },
-        });
-      await database.imAccountingProd.inventory_ledger_bill.update({
-        where: {
-          id: bill.id,
-        },
-        data: {
-          created_at: procurementBill?.receive_time!,
-        },
-      });
-      await database.imAccountingProd.inventory_ledger.updateMany({
-        where: {
-          bill_id: bill.id,
-        },
-        data: {
-          created_at: procurementBill?.receive_time!,
-        },
-      });
-    }
   }
+
+  // if (missingBillIds.length > 0) {
+  //   console.log('missingBillIds');
+  //   console.log(missingBillIds.map((bill) => bill.source_id));
+  //   for (const bill of missingBillIds) {
+  //     const procurementBill =
+  //       await database.imProcurementProd.supplier_orders.findFirst({
+  //         where: {
+  //           id: bill.source_id,
+  //         },
+  //       });
+  //     await database.imAccountingProd.inventory_ledger_bill.update({
+  //       where: {
+  //         id: bill.id,
+  //       },
+  //       data: {
+  //         created_at: procurementBill?.receive_time!,
+  //       },
+  //     });
+  //     await database.imAccountingProd.inventory_ledger.updateMany({
+  //       where: {
+  //         bill_id: bill.id,
+  //       },
+  //       data: {
+  //         created_at: procurementBill?.receive_time!,
+  //       },
+  //     });
+  //   }
+  // }
 };
 
 run();
