@@ -25,9 +25,7 @@ const run = async () => {
         include: {
           supplier_order_return_details: {
             where: {
-              supplier_order_returns: {
-                status: 1,
-              },
+              status: 1,
             },
           },
         },

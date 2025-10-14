@@ -964,7 +964,9 @@ model supplier {
   big_org_id             Int?
   callback_url           String?                  @db.VarChar
   base_url               String?                  @db.VarChar
+  supplier_type_id       String?                  @db.VarChar
   big_org                big_org?                 @relation(fields: [big_org_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supplier_type          supplier_type?           @relation(fields: [supplier_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_items         supplier_items[]
   supplier_order_returns supplier_order_returns[]
   supplier_orders        supplier_orders[]
@@ -1133,18 +1135,20 @@ model shop_specialty_plan_items {
 }
 
 model supplier_order_return_details {
-  id                     String                 @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  return_id              String                 @db.VarChar
-  supplier_item_id       String                 @db.VarChar
-  source_detail_id       String                 @unique(map: "supplier_order_return_details_source_detail_id_uk") @db.VarChar
-  qty_returned           Decimal                @db.Decimal(12, 4)
-  unit_price             Decimal                @db.Decimal(12, 2)
-  total_value            Decimal?               @default(dbgenerated("(qty_returned * unit_price)")) @db.Decimal(12, 2)
-  created_at             DateTime               @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  updated_at             DateTime               @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  supplier_order_returns supplier_order_returns @relation(fields: [return_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  supplier_order_details supplier_order_details @relation(fields: [source_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  supplier_items         supplier_items         @relation(fields: [supplier_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                                       String                                    @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  return_id                                String                                    @db.VarChar
+  supplier_item_id                         String                                    @db.VarChar
+  source_detail_id                         String                                    @unique(map: "supplier_order_return_details_source_detail_id_uk") @db.VarChar
+  qty_returned                             Decimal                                   @db.Decimal(12, 4)
+  unit_price                               Decimal                                   @db.Decimal(12, 2)
+  total_value                              Decimal?                                  @default(dbgenerated("(qty_returned * unit_price)")) @db.Decimal(12, 2)
+  created_at                               DateTime                                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at                               DateTime                                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  status                                   Int?                                      @default(0) @db.SmallInt
+  supplier_order_returns                   supplier_order_returns                    @relation(fields: [return_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supplier_order_details                   supplier_order_details                    @relation(fields: [source_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supplier_items                           supplier_items                            @relation(fields: [supplier_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supplier_order_return_details_temp_order supplier_order_return_details_temp_order?
 }
 
 model supplier_order_return_reasons {
@@ -1163,11 +1167,14 @@ model supplier_order_returns {
   created_at                    DateTime                        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
   updated_at                    DateTime                        @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
   return_reason_id              Int
+  return_type_id                Int?
   supplier_order_return_details supplier_order_return_details[]
+  supplier_order_return_files   supplier_order_return_files[]
   supplier_orders               supplier_orders                 @relation(fields: [original_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_order_return_reasons supplier_order_return_reasons   @relation(fields: [return_reason_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop                      scm_shop                        @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier                      supplier                        @relation(fields: [supplier_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  supplier_order_return_type    supplier_order_return_type?     @relation(fields: [return_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "supplier_order_returns_supplier_order_return_type_fk")
 }
 
 model supplier_item_categories {
@@ -1186,6 +1193,50 @@ model supplier_item_units {
   ratio_to_base    Decimal  @db.Decimal(12, 4)
   created_at       DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
   updated_at       DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model supplier_order_return_details_temp_order {
+  id                            String                        @id(map: "supplier_order_return_details_extends_pk") @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar(50)
+  detail_id                     String                        @unique(map: "supplier_order_return_details_extends_unique") @db.VarChar(50)
+  temp_order_status             Int                           @default(0)
+  temp_order_id                 String?                       @db.VarChar(50)
+  created_at                    DateTime?                     @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at                    DateTime?                     @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  times                         Int                           @default(0)
+  remark                        String?                       @db.VarChar(2000)
+  supplier_order_return_details supplier_order_return_details @relation(fields: [detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "supplier_order_return_details_extends_supplier_order_return_det")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model supplier_order_return_files {
+  id                     String                 @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar(50)
+  return_order_id        String                 @db.VarChar(50)
+  file_name              String?                @db.VarChar(100)
+  file_url               String?                @db.VarChar(500)
+  creator                String?                @db.VarChar(100)
+  create_at              DateTime?              @db.Timestamp(6)
+  file_ext               String?                @db.VarChar(10)
+  supplier_order_returns supplier_order_returns @relation(fields: [return_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "supplier_order_return_files_fk")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model supplier_order_return_type {
+  id                     Int                      @id
+  name                   String                   @db.VarChar(10)
+  create_at              DateTime?                @default(now()) @db.Timestamp(6)
+  update_at              DateTime?                @default(now()) @db.Timestamp(6)
+  order_num              Int
+  supplier_order_returns supplier_order_returns[]
+}
+
+model supplier_type {
+  id                 String     @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  name               String?    @db.VarChar
+  supplier_type_code Int        @default(autoincrement())
+  created_at         DateTime?  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at         DateTime?  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  supplier           supplier[]
 }
 
 enum pricing_strategy_type {
