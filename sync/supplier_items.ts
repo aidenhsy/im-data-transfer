@@ -1,7 +1,7 @@
-import { DatabaseService } from '../database';
+import { DatabaseLocalService } from '../database-local';
 
 const run = async () => {
-  const databaseService = new DatabaseService();
+  const databaseService = new DatabaseLocalService();
   const supplierItems =
     await databaseService.imProcurementProd.supplier_items.findMany();
 
