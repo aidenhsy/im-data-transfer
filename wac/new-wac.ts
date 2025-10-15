@@ -57,7 +57,7 @@ const rundelivery = async () => {
   }
 };
 
-rundelivery();
+// rundelivery();
 
 const runReturns = async () => {
   const database = new DatabaseService();
@@ -116,4 +116,4 @@ const runReturns = async () => {
   process.exit(0);
 };
 
-// runReturns();
+runReturns();
