@@ -10,7 +10,6 @@ const run = async () => {
         gt: new Date('2025-09-30T00:00:00.000Z'),
       },
     },
-    take: 1,
     include: {
       inventory_count_details: {
         include: {
