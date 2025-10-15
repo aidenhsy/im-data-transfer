@@ -1,7 +1,7 @@
-import { DatabaseLocalService } from '../database-local';
+import { DatabaseService } from '../database';
 
 const rundelivery = async () => {
-  const database = new DatabaseLocalService();
+  const database = new DatabaseService();
 
   const details =
     await database.imProcurementProd.supplier_order_details.findMany({
@@ -39,7 +39,7 @@ const rundelivery = async () => {
   console.log(length);
 
   for (const detail of details) {
-    await database.imInventoryLocal.shop_item_weighted_price.create({
+    await database.imInventoryProd.shop_item_weighted_price.create({
       data: {
         shop_id: detail.supplier_orders.shop_id,
         source_id: detail.order_id,
@@ -57,16 +57,16 @@ const rundelivery = async () => {
   }
 };
 
-// rundelivery();
+rundelivery();
 
 const runReturns = async () => {
-  const database = new DatabaseLocalService();
+  const database = new DatabaseService();
 
   const details =
     await database.imProcurementProd.supplier_order_return_details.findMany({
       where: {
+        status: 1,
         supplier_order_returns: {
-          status: 1,
           supplier_orders: {
             receive_time: {
               gte: new Date('2025-10-01T00:00:00.000Z'),
@@ -96,7 +96,7 @@ const runReturns = async () => {
     });
 
   for (const detail of details) {
-    await database.imInventoryLocal.shop_item_weighted_price.create({
+    await database.imInventoryProd.shop_item_weighted_price.create({
       data: {
         shop_id: detail.supplier_order_returns.shop_id,
         source_id: detail.return_id,
@@ -116,4 +116,4 @@ const runReturns = async () => {
   process.exit(0);
 };
 
-runReturns();
+// runReturns();
