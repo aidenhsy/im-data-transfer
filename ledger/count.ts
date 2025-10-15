@@ -82,7 +82,10 @@ const run = async () => {
             source_id: count.id,
           },
         },
-        update: {},
+        update: {
+          created_at: count.created_at,
+          updated_at: count.updated_at,
+        },
         create: {
           biz_type_bill_id: 3,
           biz_type_id: 3,
@@ -90,6 +93,8 @@ const run = async () => {
           shop_id: count.shop_id!,
           brand_id: count.scm_shop!.brand_id,
           org_id: count.scm_shop!.big_org_id!,
+          created_at: count.created_at,
+          updated_at: count.updated_at,
         },
       });
 
@@ -153,7 +158,10 @@ const run = async () => {
             source_id: count.id,
           },
         },
-        update: {},
+        update: {
+          created_at: count.created_at,
+          updated_at: count.updated_at,
+        },
         create: {
           biz_type_bill_id: 4,
           biz_type_id: 4,
@@ -161,6 +169,8 @@ const run = async () => {
           shop_id: count.shop_id!,
           brand_id: count.scm_shop!.brand_id,
           org_id: count.scm_shop!.big_org_id!,
+          created_at: count.created_at,
+          updated_at: count.updated_at,
         },
       });
 
