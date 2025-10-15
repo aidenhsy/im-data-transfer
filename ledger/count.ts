@@ -29,6 +29,8 @@ const run = async () => {
   console.log(counts.length);
 
   for (const count of counts) {
+    console.log(`\n=== Processing count.id: ${count.id} ===`);
+
     const storageLocations =
       await database.imAccountingProd.storage_locations.findMany({
         where: {
