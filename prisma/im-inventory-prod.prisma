@@ -302,6 +302,7 @@ model inventory_count_details {
   generic_item_id        Int?
   stock_category_id      Int?
   delta_qty              Decimal?                 @default(dbgenerated("((COALESCE(count_qty, (0)::numeric) * COALESCE(base_qty_per_count, (0)::numeric)) - COALESCE(balance_qty, (0)::numeric))")) @db.Decimal(14, 4)
+  delta_qty_value        Decimal?                 @default(dbgenerated("(((COALESCE(count_qty, (0)::numeric) * COALESCE(base_qty_per_count, (0)::numeric)) - COALESCE(balance_qty, (0)::numeric)) * COALESCE(weighted_price, (0)::numeric))")) @db.Decimal(14, 4)
   inventory_count_counts inventory_count_counts[]
   generic_items          generic_items?           @relation(fields: [generic_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   inventory_count        inventory_count          @relation(fields: [inventory_count_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
