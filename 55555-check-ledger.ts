@@ -78,4 +78,44 @@ const run = async () => {
   // }
 };
 
-run();
+// run();
+
+const runDetail = async () => {
+  const database = new DatabaseService();
+
+  const details =
+    await database.imProcurementProd.supplier_order_details.findMany({
+      where: {
+        supplier_orders: {
+          status: 4,
+          receive_time: {
+            gte: new Date('2025-10-01T00:00:00.000Z'),
+          },
+        },
+      },
+      select: {
+        id: true,
+        total_delivery_amount: true,
+      },
+    });
+
+  for (const detail of details) {
+    const ledger = await database.imAccountingProd.inventory_ledger.findFirst({
+      where: {
+        source_detail_id: detail.id,
+      },
+      select: {
+        total_value: true,
+      },
+    });
+
+    const diff = Math.abs(
+      Number(detail.total_delivery_amount) - Number(ledger?.total_value)
+    );
+    if (diff > 1) {
+      console.log(detail.id, diff);
+    }
+  }
+};
+
+runDetail();
