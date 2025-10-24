@@ -99,16 +99,27 @@ const runDetail = async () => {
       },
     });
 
-  for (const detail of details) {
-    const ledger = await database.imAccountingProd.inventory_ledger.findFirst({
-      where: {
-        source_detail_id: detail.id,
-      },
-      select: {
-        total_value: true,
-      },
-    });
+  console.log('details', details.length);
 
+  const ledgers = await database.imAccountingProd.inventory_ledger.findMany({
+    where: {
+      created_at: {
+        gte: new Date('2025-10-01T00:00:00.000Z'),
+      },
+    },
+    select: {
+      id: true,
+      source_detail_id: true,
+      total_value: true,
+    },
+  });
+
+  console.log('ledgers', ledgers.length);
+
+  for (const detail of details) {
+    const ledger = ledgers.find(
+      (ledger) => ledger.source_detail_id === detail.id
+    );
     const diff = Math.abs(
       Number(detail.total_delivery_amount) - Number(ledger?.total_value)
     );
