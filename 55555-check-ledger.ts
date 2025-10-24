@@ -31,9 +31,6 @@ const run = async () => {
       },
     });
 
-  console.log(ledger.length);
-  console.log(procurementBills.length);
-
   const missingLedger = procurementBills.filter(
     (bill) => !ledger.some((ledger) => ledger.source_id === bill.id)
   );
