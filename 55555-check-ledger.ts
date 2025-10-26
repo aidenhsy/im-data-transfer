@@ -1,85 +1,5 @@
 import { DatabaseService } from './database';
 
-const run = async () => {
-  const database = new DatabaseService();
-
-  const ledger = await database.imAccountingProd.inventory_ledger_bill.findMany(
-    {
-      where: {
-        created_at: {
-          gte: new Date('2025-10-01T00:00:00.000Z'),
-        },
-        biz_type_id: 1,
-      },
-      select: {
-        id: true,
-        source_id: true,
-      },
-    }
-  );
-
-  const procurementBills =
-    await database.imProcurementProd.supplier_orders.findMany({
-      select: {
-        id: true,
-      },
-      where: {
-        status: 4,
-        receive_time: {
-          gte: new Date('2025-10-01T00:00:00.000Z'),
-        },
-      },
-    });
-
-  const missingLedger = procurementBills.filter(
-    (bill) => !ledger.some((ledger) => ledger.source_id === bill.id)
-  );
-
-  if (missingLedger.length > 0) {
-    console.log('missingLedger');
-    console.log(missingLedger.map((bill) => bill.id));
-  }
-
-  const missingBillIds = ledger.filter(
-    (ledger) => !procurementBills.some((bill) => bill.id === ledger.source_id)
-  );
-  if (missingBillIds.length > 0) {
-    console.log('missingBillIds');
-    console.log(missingBillIds.map((bill) => bill.source_id));
-  }
-
-  // if (missingBillIds.length > 0) {
-  //   console.log('missingBillIds');
-  //   console.log(missingBillIds.map((bill) => bill.source_id));
-  //   for (const bill of missingBillIds) {
-  //     const procurementBill =
-  //       await database.imProcurementProd.supplier_orders.findFirst({
-  //         where: {
-  //           id: bill.source_id,
-  //         },
-  //       });
-  //     await database.imAccountingProd.inventory_ledger_bill.update({
-  //       where: {
-  //         id: bill.id,
-  //       },
-  //       data: {
-  //         created_at: procurementBill?.receive_time!,
-  //       },
-  //     });
-  //     await database.imAccountingProd.inventory_ledger.updateMany({
-  //       where: {
-  //         bill_id: bill.id,
-  //       },
-  //       data: {
-  //         created_at: procurementBill?.receive_time!,
-  //       },
-  //     });
-  //   }
-  // }
-};
-
-// run();
-
 const runDetail = async () => {
   const database = new DatabaseService();
 
@@ -129,4 +49,61 @@ const runDetail = async () => {
   }
 };
 
-runDetail();
+// runDetail();
+
+const runReturn = async () => {
+  const database = new DatabaseService();
+
+  const returns =
+    await database.imProcurementProd.supplier_order_returns.findMany({
+      where: {
+        status: 1,
+        supplier_orders: {
+          receive_time: {
+            gte: new Date('2025-10-01T00:00:00.000Z'),
+          },
+        },
+      },
+      include: {
+        supplier_order_return_details: true,
+        supplier_orders: true,
+      },
+    });
+
+  const returnBills =
+    await database.imAccountingProd.inventory_ledger_bill.findMany({
+      where: {
+        biz_type_id: 2,
+        created_at: {
+          gte: new Date('2025-10-01T00:00:00.000Z'),
+        },
+      },
+    });
+
+  console.log('returnDetails', returns.length);
+  console.log('returnBills', returnBills.length);
+
+  if (returnBills.length < returns.length) {
+    console.log('returnBills < returns');
+    const missingReturnIds = returns
+      .filter(
+        (returnItem) =>
+          !returnBills.some((bill) => bill.source_id === returnItem.id)
+      )
+      .map((returnItem) => returnItem.id);
+
+    for (const returnId of missingReturnIds) {
+      const returnItem = returns.find(
+        (returnItem) => returnItem.id === returnId
+      );
+
+      if (!returnItem) {
+        continue;
+      }
+
+      console.log(returnItem.id);
+    }
+  }
+};
+
+runReturn();
