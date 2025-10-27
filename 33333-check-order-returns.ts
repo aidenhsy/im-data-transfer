@@ -40,6 +40,9 @@ const run = async () => {
     skip += BATCH_SIZE;
 
     for (const detail of details) {
+      if (!detail.supplier_order_return_details) {
+        continue;
+      }
       const correctFinal =
         Number(detail.actual_delivery_qty) -
         Number(detail.supplier_order_return_details?.qty_returned ?? 0);
