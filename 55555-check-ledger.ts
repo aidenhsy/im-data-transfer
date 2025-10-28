@@ -35,18 +35,6 @@ const runDetail = async () => {
   });
 
   console.log('ledgers', ledgers.length);
-
-  for (const detail of details) {
-    const ledger = ledgers.find(
-      (ledger) => ledger.source_detail_id === detail.id
-    );
-    const diff = Math.abs(
-      Number(detail.total_delivery_amount) - Number(ledger?.total_value)
-    );
-    if (diff > 1) {
-      console.log(detail.id, diff);
-    }
-  }
 };
 
 // runDetail();
@@ -106,4 +94,46 @@ const runReturn = async () => {
   }
 };
 
-runReturn();
+// runReturn();
+
+const checkReturns = async () => {
+  const database = new DatabaseService();
+
+  const procurementDetails =
+    await database.imProcurementProd.supplier_order_details.findMany({
+      where: {
+        supplier_orders: {
+          status: 4,
+          receive_time: {
+            gte: new Date('2025-10-01T00:00:00.000Z'),
+          },
+        },
+      },
+    });
+  console.log('procurementDetails', procurementDetails.length);
+
+  for (const detail of procurementDetails) {
+    const returnDetail =
+      await database.imProcurementProd.supplier_order_return_details.findFirst({
+        where: {
+          source_detail_id: detail.id,
+          supplier_order_returns: {
+            status: 1,
+          },
+        },
+      });
+    if (!returnDetail) {
+      continue;
+    }
+    const correctFinal =
+      Number(detail.total_delivery_amount) - Number(returnDetail.total_value);
+
+    const diff = Math.abs(Number(detail.total_final_amount) - correctFinal);
+
+    if (diff > 1) {
+      console.log(detail.id, diff);
+    }
+  }
+};
+
+checkReturns();
