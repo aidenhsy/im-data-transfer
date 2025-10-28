@@ -131,7 +131,7 @@ const checkReturns = async () => {
     const diff = Math.abs(Number(detail.total_final_amount) - correctFinal);
 
     if (diff > 1) {
-      console.log(detail.id, diff);
+      console.log(`'${detail.id}',`);
     }
   }
 };
