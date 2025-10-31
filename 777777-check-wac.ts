@@ -161,8 +161,8 @@ const orderReturn = async () => {
         data: {
           shop_id: returnDetailItem.supplier_order_returns.shop_id,
           supplier_item_id: returnDetailItem.supplier_item_id!,
-          total_qty: returnDetailItem.qty_returned,
-          total_value: returnDetailItem.total_value,
+          total_qty: -returnDetailItem.qty_returned,
+          total_value: -Number(returnDetailItem.total_value!),
           source_id: returnDetailItem.return_id,
           source_detail_id: returnDetailItem.id,
           type: 'order_return',
@@ -213,7 +213,8 @@ const orderReturn = async () => {
         continue;
       }
       const diff = Math.abs(
-        Number(wac.total_value) - Number(returnDetail.total_value)
+        Math.abs(Number(returnDetail.total_value)) -
+          Math.abs(Number(wac.total_value))
       );
       if (diff > 1) {
         console.log(wac.total_value, returnDetail.total_value);
