@@ -18,6 +18,8 @@ const run = async () => {
     }
   );
 
+  console.log('ledger', ledger.length);
+
   const procurementBills =
     await database.imProcurementProd.supplier_orders.findMany({
       select: {
@@ -30,10 +32,21 @@ const run = async () => {
         },
       },
     });
+  console.log('procurementBills', procurementBills.length);
 
   const missingLedger = procurementBills.filter(
     (bill) => !ledger.some((ledger) => ledger.source_id === bill.id)
   );
+
+  const missingBillIds = ledger.filter(
+    (ledger) => !procurementBills.some((bill) => bill.id === ledger.source_id)
+  );
+  if (missingBillIds.length > 0) {
+    console.log(
+      'missingBillIds',
+      missingBillIds.map((ledger) => ledger.id)
+    );
+  }
 
   if (missingLedger.length > 0) {
     for (const ledger of missingLedger) {
@@ -182,6 +195,9 @@ const runReturn = async () => {
           include: {
             scm_shop: true,
             supplier_order_return_details: {
+              where: {
+                status: 1,
+              },
               include: {
                 supplier_order_details: {
                   include: {
@@ -201,6 +217,9 @@ const runReturn = async () => {
         });
 
       if (!returnItem) {
+        continue;
+      }
+      if (returnItem.supplier_order_return_details.length === 0) {
         continue;
       }
       console.log(returnItem.id);

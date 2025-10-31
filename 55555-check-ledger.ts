@@ -26,6 +26,7 @@ const runDetail = async () => {
       created_at: {
         gte: new Date('2025-10-01T00:00:00.000Z'),
       },
+      biz_type_id: 1,
     },
     select: {
       id: true,
@@ -35,9 +36,45 @@ const runDetail = async () => {
   });
 
   console.log('ledgers', ledgers.length);
+  if (ledgers.length < details.length) {
+    console.log('ledgers < details');
+    const missingDetailIds = details.filter(
+      (detail) =>
+        !ledgers.some((ledger) => ledger.source_detail_id === detail.id)
+    );
+    console.log(
+      'missingDetailIds',
+      missingDetailIds.map((detail) => detail.id)
+    );
+  }
+
+  if (ledgers.length === details.length) {
+    console.log('ledgers === details');
+
+    for (const ledger of ledgers) {
+      const detail = details.find(
+        (detail) => detail.id === ledger.source_detail_id
+      );
+      if (!detail) {
+        console.log(ledger.source_detail_id, 'no detail');
+        continue;
+      }
+      const diff = Math.abs(
+        Number(detail.total_delivery_amount) - Number(ledger.total_value)
+      );
+      if (diff > 1) {
+        console.log(
+          detail.id,
+          'total_delivery_amount mismatch',
+          Number(detail.total_delivery_amount),
+          Number(ledger.total_value)
+        );
+      }
+    }
+  }
 };
 
-// runDetail();
+runDetail();
 
 const runReturn = async () => {
   const database = new DatabaseService();
@@ -99,41 +136,48 @@ const runReturn = async () => {
 const checkReturns = async () => {
   const database = new DatabaseService();
 
-  const procurementDetails =
-    await database.imProcurementProd.supplier_order_details.findMany({
+  const returnDetails =
+    await database.imProcurementProd.supplier_order_return_details.findMany({
+      select: {
+        id: true,
+      },
       where: {
-        supplier_orders: {
-          status: 4,
-          receive_time: {
-            gte: new Date('2025-10-01T00:00:00.000Z'),
-          },
-        },
+        status: 1,
       },
     });
-  console.log('procurementDetails', procurementDetails.length);
 
-  for (const detail of procurementDetails) {
-    const returnDetail =
-      await database.imProcurementProd.supplier_order_return_details.findFirst({
-        where: {
-          source_detail_id: detail.id,
-          supplier_order_returns: {
-            status: 1,
-          },
-        },
-      });
-    if (!returnDetail) {
-      continue;
-    }
-    const correctFinal =
-      Number(detail.total_delivery_amount) - Number(returnDetail.total_value);
+  console.log('returnDetails', returnDetails.length);
 
-    const diff = Math.abs(Number(detail.total_final_amount) - correctFinal);
+  const ledgers = await database.imAccountingProd.inventory_ledger.findMany({
+    select: {
+      id: true,
+      source_detail_id: true,
+    },
+    where: {
+      biz_type_id: 2,
+    },
+  });
+  console.log('ledgers', ledgers.length);
 
-    if (diff > 1) {
-      console.log(`'${detail.id}',`);
-    }
-  }
+  const missingReturnDetailIds = returnDetails.filter(
+    (returnDetail) =>
+      !ledgers.some((ledger) => ledger.source_detail_id === returnDetail.id)
+  );
+  console.log(
+    'missingReturnDetailIds',
+    missingReturnDetailIds.map((returnDetail) => returnDetail.id)
+  );
+
+  const missingLedgerIds = ledgers.filter(
+    (ledger) =>
+      !returnDetails.some(
+        (returnDetail) => returnDetail.id === ledger.source_detail_id
+      )
+  );
+  console.log(
+    'missingLedgerIds',
+    missingLedgerIds.map((ledger) => ledger.id)
+  );
 };
 
-checkReturns();
+// checkReturns();
