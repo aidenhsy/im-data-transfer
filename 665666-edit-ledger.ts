@@ -150,84 +150,85 @@ const runReturn = async () => {
   const database = new DatabaseService();
 
   const returns =
-    await database.imProcurementProd.supplier_order_returns.findMany({
+    await database.imProcurementProd.supplier_order_return_details.findMany({
       where: {
         status: 1,
-        supplier_orders: {
-          receive_time: {
-            gte: new Date('2025-10-01T00:00:00.000Z'),
+        supplier_order_returns: {
+          supplier_orders: {
+            receive_time: {
+              gte: new Date('2025-10-01T00:00:00.000Z'),
+            },
           },
         },
       },
       select: {
         id: true,
+        return_id: true,
       },
     });
 
-  const returnBills =
-    await database.imAccountingProd.inventory_ledger_bill.findMany({
-      where: {
-        biz_type_id: 2,
-        created_at: {
-          gte: new Date('2025-10-01T00:00:00.000Z'),
-        },
+  const ledgers = await database.imAccountingProd.inventory_ledger.findMany({
+    where: {
+      biz_type_id: 2,
+      created_at: {
+        gte: new Date('2025-10-01T00:00:00.000Z'),
       },
-    });
+    },
+    select: {
+      id: true,
+      source_detail_id: true,
+    },
+  });
 
   console.log('returnDetails', returns.length);
-  console.log('returnBills', returnBills.length);
+  console.log('ledgers', ledgers.length);
 
-  if (returnBills.length < returns.length) {
-    console.log('returnBills < returns');
+  if (ledgers.length < returns.length) {
+    console.log('ledgers < returns');
     const missingReturnIds = returns
       .filter(
         (returnItem) =>
-          !returnBills.some((bill) => bill.source_id === returnItem.id)
+          !ledgers.some((ledger) => ledger.source_detail_id === returnItem.id)
       )
       .map((returnItem) => returnItem.id);
+    console.log('missingReturnIds', missingReturnIds);
 
-    for (const returnId of missingReturnIds) {
-      const returnItem =
-        await database.imProcurementProd.supplier_order_returns.findFirst({
-          where: {
-            id: returnId,
-          },
-          include: {
-            scm_shop: true,
-            supplier_order_return_details: {
-              where: {
-                status: 1,
+    for (const returnDetailId of missingReturnIds) {
+      const returnDetailItem =
+        await database.imProcurementProd.supplier_order_return_details.findFirst(
+          {
+            where: {
+              id: returnDetailId,
+            },
+            include: {
+              supplier_order_returns: {
+                include: {
+                  scm_shop: true,
+                },
               },
-              include: {
-                supplier_order_details: {
-                  include: {
-                    supplier_items: true,
-                    stock_category: true,
-                    generic_items: {
-                      include: {
-                        scm_goods_category: true,
-                        standard_units: true,
-                      },
+              supplier_items: true,
+              supplier_order_details: {
+                include: {
+                  generic_items: {
+                    include: {
+                      scm_goods_category: true,
                     },
                   },
+                  stock_category: true,
                 },
               },
             },
-          },
-        });
+          }
+        );
 
-      if (!returnItem) {
+      if (!returnDetailItem) {
+        console.log(`returnDetailItem ${returnDetailId} not found`);
         continue;
       }
-      if (returnItem.supplier_order_return_details.length === 0) {
-        continue;
-      }
-      console.log(returnItem.id);
-
       const storageLocations =
         await database.imAccountingProd.storage_locations.findMany({
           where: {
-            shop_id: Number(returnItem.scm_shop.id),
+            shop_id: Number(returnDetailItem.supplier_order_returns.shop_id),
           },
           select: {
             id: true,
@@ -236,66 +237,107 @@ const runReturn = async () => {
         });
 
       const newBill =
-        await database.imAccountingProd.inventory_ledger_bill.create({
-          data: {
+        await database.imAccountingProd.inventory_ledger_bill.upsert({
+          create: {
             biz_type_bill_id: 2,
             biz_type_id: 2,
-            source_id: returnItem.id,
-            shop_id: returnItem.scm_shop.id,
-            brand_id: returnItem.scm_shop.brand_id,
+            source_id: returnDetailItem.return_id,
+            shop_id: returnDetailItem.supplier_order_returns.shop_id,
+            brand_id: returnDetailItem.supplier_order_returns.scm_shop.brand_id,
             org_id: 1,
-            created_at: returnItem.created_at!,
+            created_at: returnDetailItem.supplier_order_returns.created_at!,
+          },
+          update: {
+            created_at: returnDetailItem.supplier_order_returns.created_at!,
+          },
+          where: {
+            biz_type_id_source_id: {
+              biz_type_id: 2,
+              source_id: returnDetailItem.return_id,
+            },
           },
         });
 
-      for (const detail of returnItem.supplier_order_return_details) {
-        const storageLocation = storageLocations.find(
-          (storage) =>
-            storage.storage_code ===
+      const storageLocation = storageLocations.find(
+        (storage) =>
+          storage.storage_code ===
+          Number(
+            `${returnDetailItem.supplier_order_returns.shop_id}0000${returnDetailItem.supplier_order_details.stock_category_id}`
+          )
+      );
+
+      await database.imAccountingProd.inventory_ledger.create({
+        data: {
+          biz_type_id: 2,
+          source_id: returnDetailItem.return_id,
+          source_detail_id: returnDetailItem.id,
+          shop_id: returnDetailItem.supplier_order_returns.shop_id,
+          brand_id: returnDetailItem.supplier_order_returns.scm_shop.brand_id,
+          org_id: 1,
+          supplier_item_id: returnDetailItem.supplier_item_id!,
+          supplier_item_name: returnDetailItem.supplier_items?.name!,
+          generic_item_id: returnDetailItem.supplier_order_details.item_id,
+          generic_item_name:
+            returnDetailItem.supplier_order_details.generic_items?.name!,
+          category_id:
+            returnDetailItem.supplier_order_details.generic_items.category_id,
+          category_name:
+            returnDetailItem.supplier_order_details.generic_items
+              .scm_goods_category.name,
+          stock_id: returnDetailItem.supplier_order_details.stock_category_id,
+          stock_name:
+            returnDetailItem.supplier_order_details.stock_category?.name,
+          base_unit_qty:
+            -Number(returnDetailItem.qty_returned) *
             Number(
-              `${returnItem.scm_shop.id}0000${detail.supplier_order_details.stock_category_id}`
-            )
-        );
-
-        await database.imAccountingProd.inventory_ledger.create({
-          data: {
-            biz_type_id: 2,
-            source_id: returnItem.id,
-            source_detail_id: detail.id,
-            shop_id: returnItem.scm_shop.id,
-            brand_id: returnItem.scm_shop.brand_id,
-            org_id: 1,
-            supplier_item_id: detail.supplier_order_details.supplier_item_id!,
-            supplier_item_name:
-              detail.supplier_order_details.supplier_items?.name!,
-            generic_item_id: detail.supplier_order_details.generic_items.id,
-            generic_item_name: detail.supplier_order_details.generic_items.name,
-            category_id:
-              detail.supplier_order_details.generic_items.category_id,
-            category_name:
-              detail.supplier_order_details.generic_items.scm_goods_category
-                .name,
-            stock_id: detail.supplier_order_details.stock_category_id,
-            stock_name: detail.supplier_order_details.stock_category?.name,
-            base_unit_qty:
-              -Number(detail.qty_returned) *
-              Number(detail.supplier_order_details.package_unit_to_base_ratio),
-            base_unit: detail.supplier_order_details.package_unit_name,
-            package_unit_qty: -Number(detail.qty_returned),
-            package_unit: detail.supplier_order_details.package_unit_name,
-            price: Number(detail.unit_price),
-            total_value: -Number(detail.total_value!),
-            created_at: returnItem.created_at!,
-            storage_location_id: storageLocation?.id,
-            other_side_id: '1',
-            other_side_name: '星晴供应链',
-            other_side_type: '供应商',
-            bill_id: newBill.id,
-            biz_type_bill_id: 2,
-          },
-        });
-      }
+              returnDetailItem.supplier_order_details.package_unit_to_base_ratio
+            ),
+          base_unit: returnDetailItem.supplier_order_details.package_unit_name,
+          package_unit_qty: -Number(returnDetailItem.qty_returned),
+          package_unit:
+            returnDetailItem.supplier_order_details.package_unit_name,
+          price: Number(returnDetailItem.unit_price),
+          total_value: -Number(returnDetailItem.total_value!),
+          created_at: returnDetailItem.supplier_order_returns.created_at!,
+          storage_location_id: storageLocation?.id,
+          other_side_id: '1',
+          other_side_name: '星晴供应链',
+          other_side_type: '供应商',
+          bill_id: newBill.id,
+          biz_type_bill_id: 2,
+        },
+      });
     }
+  }
+};
+
+const dateMismatch = async () => {
+  const database = new DatabaseService();
+  const ledgerBills =
+    await database.imAccountingProd.inventory_ledger_bill.findMany({
+      where: {
+        created_at: {
+          gte: new Date('2025-11-01T00:00:00.000Z'),
+        },
+        biz_type_bill_id: 2,
+      },
+    });
+
+  for (const ledgerBill of ledgerBills) {
+    const ledger =
+      await database.imProcurementProd.supplier_order_returns.findFirst({
+        where: {
+          id: ledgerBill.source_id,
+        },
+        select: {
+          supplier_orders: {
+            select: {
+              receive_time: true,
+            },
+          },
+        },
+      });
+    console.log(ledger?.supplier_orders?.receive_time, ledgerBill.source_id);
   }
 };
 
@@ -305,6 +347,8 @@ const main = async () => {
     await run();
   } else if (arg === 'return') {
     await runReturn();
+  } else if (arg === 'dateMismatch') {
+    await dateMismatch();
   } else {
     console.error('Usage: ts-node script.ts [run|return]');
     process.exit(1);
