@@ -18,6 +18,7 @@ const checkInventoryUnits = async () => {
       },
     });
   console.log(inventoryCountDetails.length);
+  let badCounts = [];
   for (const inventoryCountDetail of inventoryCountDetails) {
     const inventoryCountCount =
       await database.imInventoryProd.inventory_count_counts.findFirst({
@@ -34,6 +35,9 @@ const checkInventoryUnits = async () => {
         inventoryCountCount.unit_name,
         inventoryCountDetail.count_unit
       );
+      badCounts.push(inventoryCountDetail.id);
+      console.log(badCounts.length);
+      console.log(badCounts.map((id) => id));
     }
   }
 };
