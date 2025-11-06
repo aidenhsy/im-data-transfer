@@ -6,6 +6,7 @@ const run = async () => {
   const details =
     await database.imInventoryProd.inventory_count_details.findMany({
       select: {
+        id: true,
         supplier_item_id: true,
         weighted_price: true,
         inventory_count_id: true,
@@ -45,11 +46,16 @@ const run = async () => {
     const diff = Number(detail.weighted_price) - Number(lastWeightedPrice);
     if (
       Math.abs(lastWeightedPrice) > 0 &&
-      Math.abs(diff) / Math.abs(lastWeightedPrice) > 0.1
+      Math.abs(diff) / Math.abs(lastWeightedPrice) > 0.2
     ) {
-      console.log(
-        `last: ${lastWeightedPrice}, count: ${detail.weighted_price}`
-      );
+      await database.imInventoryProd.inventory_count_details.update({
+        where: {
+          id: detail.id,
+        },
+        data: {
+          weighted_price: Number(lastWeightedPrice),
+        },
+      });
     }
   }
 };
