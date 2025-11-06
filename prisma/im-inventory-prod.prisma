@@ -309,6 +309,8 @@ model inventory_count_details {
   scm_shop               scm_shop?                @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   stock_category         stock_category?          @relation(fields: [stock_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   supplier_items         supplier_items           @relation(fields: [supplier_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([inventory_count_id, supplier_item_id], map: "inventory_count_details_unique_count_item")
 }
 
 model outbox_events {
@@ -1189,6 +1191,7 @@ model inventory_count_settings {
   is_daily_count  Boolean       @default(true)
   created_at      DateTime      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
   updated_at      DateTime      @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  safety_qty      Int           @default(0)
   generic_items   generic_items @relation(fields: [generic_item_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   scm_shop        scm_shop      @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
