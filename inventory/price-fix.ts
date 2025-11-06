@@ -43,7 +43,10 @@ const run = async () => {
     const lastWeightedPrice =
       Number(lastOrder.price) / Number(lastOrder.package_unit_to_base_ratio);
     const diff = Number(detail.weighted_price) - Number(lastWeightedPrice);
-    if (Math.abs(diff) > 2) {
+    if (
+      Math.abs(lastWeightedPrice) > 0 &&
+      Math.abs(diff) / Math.abs(lastWeightedPrice) > 0.1
+    ) {
       console.log(
         `last: ${lastWeightedPrice}, count: ${detail.weighted_price}`
       );
