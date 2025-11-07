@@ -8,8 +8,18 @@ const run = async () => {
   const orderDB = new Order();
 
   const ORDER_IDS = [
-    '03e18507-fbd4-45d8-b6bf-86fc2993162c',
-    '10a6f107-2de9-44bb-9782-f98af9592660',
+    '52842c69-3b1b-4adb-be8a-88706e40ce72',
+    'e3ff7f80-c4ac-470a-b054-b51fb0341c0f',
+    'bd558c88-f44d-4f9b-872f-d7adadb819c7',
+    'a04b22dd-c517-4d6b-8cee-7781ec334d72',
+    '27db2515-5c7c-46f8-913f-f52e5a6f2d96',
+    '139fd4ae-d2fa-4052-857f-52d845049198',
+    '0a096556-03a2-4864-9edc-ee48927514a6',
+    '415c5419-d416-4ca4-b6bb-2584b9b3f273',
+    'dd1a7962-00fe-4541-928d-e3c5f6afd7ec',
+    '19c3b9c5-5e2a-458d-a728-4e55719a6597',
+    '4f72a870-22d8-450f-90fa-5c21fb4005ec',
+    'b61c0873-dc3d-495f-a3bc-fb0bdb0a1e4a',
   ];
 
   const details = await procurementDB.supplier_order_details.findMany({
