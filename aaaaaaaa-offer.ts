@@ -6,9 +6,6 @@ const run = async () => {
   const inventoryCounts =
     await database.imInventoryProd.inventory_count.findMany({
       where: {
-        created_at: {
-          gte: new Date('2025-11-01T00:00:00.000Z'),
-        },
         type: 1,
       },
       select: {
