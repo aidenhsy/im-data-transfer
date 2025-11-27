@@ -11,6 +11,9 @@ const run = async () => {
       select: {
         id: true,
       },
+      orderBy: {
+        created_at: 'desc',
+      },
     });
 
   for (const inventoryCount of inventoryCounts) {
