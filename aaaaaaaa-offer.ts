@@ -7,6 +7,7 @@ const run = async () => {
     await database.imInventoryProd.inventory_count.findMany({
       where: {
         type: 1,
+        status: 1,
       },
       select: {
         id: true,
