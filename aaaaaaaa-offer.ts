@@ -14,6 +14,9 @@ const run = async () => {
     });
 
   for (const inventoryCount of inventoryCounts) {
+    if (inventoryCount.id.length < 10) {
+      continue;
+    }
     console.log(`Inventory count ${inventoryCount.id}-----`);
     const details =
       await database.imInventoryProd.inventory_count_details.findMany({
