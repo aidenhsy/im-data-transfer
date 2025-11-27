@@ -1,4 +1,5 @@
 import { createClient } from 'redis';
+import { DatabaseService } from './database';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -62,10 +63,6 @@ class RedisConnection {
   async getAllKeys(pattern: string = '*') {
     try {
       const keys = await this.client.keys(pattern);
-      console.log(
-        `Found ${keys.length} keys matching pattern "${pattern}":`,
-        keys
-      );
       return keys;
     } catch (error) {
       console.error(`Error getting keys with pattern "${pattern}":`, error);
@@ -81,7 +78,6 @@ class RedisConnection {
         return acc;
       }, {} as Record<string, string>);
 
-      console.log('Multiple keys retrieved:', result);
       return result;
     } catch (error) {
       console.error('Error getting multiple keys:', error);
@@ -125,7 +121,6 @@ class RedisConnection {
   async getKeyValue(key: string) {
     try {
       const type = await this.client.type(key);
-      console.log(`Key "${key}" type:`, type);
 
       let value;
       switch (type) {
@@ -154,7 +149,6 @@ class RedisConnection {
           return null;
       }
 
-      console.log(`Value for key "${key}":`, value);
       return value;
     } catch (error) {
       console.error(`Error getting value for key "${key}":`, error);
@@ -198,6 +192,7 @@ class RedisConnection {
 
 const run = async () => {
   const redis = new RedisConnection();
+  const database = new DatabaseService();
   await redis.connect();
 
   try {
@@ -207,15 +202,46 @@ const run = async () => {
     console.log(`Total keys in Redis: ${allKeys.length}`);
 
     // Optional: Show first 10 keys as examples
-    if (allKeys.length > 0) {
-      console.log(`\nFirst 10 keys as examples:`);
-      allKeys.slice(0, 10).forEach((key: string, index: number) => {
-        console.log(`${index + 1}. ${key}`);
-      });
+    for (const key of allKeys) {
+      console.log(key);
+      const value = await redis.getKeyValue(key);
+      const itemsToKeep = [];
 
-      if (allKeys.length > 10) {
-        console.log(`... and ${allKeys.length - 10} more keys`);
+      for (const item of value.items) {
+        if (item.reference_id && item.reference_id.startsWith('20251111')) {
+          const newReferenceId = item.reference_id.replace(
+            /^20251111/,
+            '20251112'
+          );
+          item.reference_id = newReferenceId;
+          const procurementGood =
+            await database.imProcurementProd.supplier_items.findFirst({
+              where: {
+                supplier_reference_id: newReferenceId,
+              },
+            });
+          if (!procurementGood) {
+            console.log('Good not found - removing item:', newReferenceId);
+            continue; // Skip adding to itemsToKeep
+          }
+          if (Number(procurementGood?.price) === Number(item.price)) {
+            // console.log('Price is the same');
+          } else {
+            // console.log(
+            //   'Price is different',
+            //   procurementGood?.price,
+            //   item.price
+            // );
+            // Update price in Redis
+            item.price = procurementGood?.price;
+            console.log('Updated price in Redis:', item.price);
+          }
+        }
+        itemsToKeep.push(item);
       }
+
+      value.items = itemsToKeep;
+      await redis.getClient().json.set(key, '$', value);
     }
   } catch (error) {
     console.error('Error in Redis operations:', error);
