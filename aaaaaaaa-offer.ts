@@ -41,6 +41,12 @@ const run = async () => {
         });
 
       if (!count) {
+        await database.imInventoryProd.inventory_count_details.delete({
+          where: {
+            id: detail.id,
+          },
+        });
+
         await database.imInventoryProd.shop_item_weighted_price.deleteMany({
           where: {
             source_detail_id: detail.id,
