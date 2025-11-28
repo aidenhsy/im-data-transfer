@@ -9,7 +9,7 @@ const run = async () => {
         type: 'stock_count',
       },
       orderBy: {
-        created_at: 'desc',
+        created_at: 'asc',
       },
     });
 
