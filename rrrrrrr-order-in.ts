@@ -16,7 +16,12 @@ const run = async () => {
   console.log(shopitems.length);
 
   let badRecords = 0;
+  let processedCount = 0;
   for (const shopitem of shopitems) {
+    processedCount++;
+    if (processedCount % 1000 === 0) {
+      console.log(`Processed ${processedCount} / ${shopitems.length} items`);
+    }
     const previousItems =
       await database.imInventoryProd.shop_item_weighted_price.findMany({
         where: {
