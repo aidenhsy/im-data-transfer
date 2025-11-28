@@ -15,6 +15,7 @@ const run = async () => {
 
   console.log(shopitems.length);
 
+  let badRecords = 0;
   for (const shopitem of shopitems) {
     const previousItems =
       await database.imInventoryProd.shop_item_weighted_price.findMany({
@@ -52,6 +53,7 @@ const run = async () => {
       Math.abs(correctWeightedPrice - shopItemPrice) / Math.abs(shopItemPrice);
     if (percentageDifference > 0.15) {
       // 20% difference
+      badRecords++;
       await database.imInventoryProd.inventory_count_details.update({
         where: {
           id: shopitem.source_detail_id!,
@@ -72,6 +74,7 @@ const run = async () => {
       });
     }
   }
+  console.log(badRecords);
 };
 
 run();
