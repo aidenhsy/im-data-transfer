@@ -48,8 +48,22 @@ const run = async () => {
     const shopItemPrice =
       Number(shopitem.total_value) / Number(shopitem.total_qty_base);
 
-    if (Math.abs(weightedPrice - shopItemPrice) > 0.0001) {
-      console.log(shopitem.id, weightedPrice, shopItemPrice);
+    const percentageDifference =
+      Math.abs(weightedPrice - shopItemPrice) / Math.abs(shopItemPrice);
+    if (percentageDifference > 0.15) {
+      // 20% difference
+      const detail =
+        await database.imInventoryProd.inventory_count_details.findUnique({
+          where: {
+            id: shopitem.source_detail_id!,
+          },
+        });
+      console.log(
+        shopitem.id,
+        weightedPrice,
+        shopItemPrice,
+        detail?.weighted_price
+      );
     }
   }
 };
