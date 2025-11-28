@@ -8,11 +8,12 @@ const run = async () => {
       where: {
         type: 'stock_count',
       },
-      take: 1000,
       orderBy: {
         created_at: 'asc',
       },
     });
+
+  console.log(shopitems.length);
 
   for (const shopitem of shopitems) {
     const previousItems =
