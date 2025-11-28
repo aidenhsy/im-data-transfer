@@ -72,6 +72,7 @@ const run = async () => {
           total_value: newTotalValue,
         },
       });
+      console.log(shopitem.id, correctWeightedPrice, shopItemPrice);
     }
   }
   console.log(badRecords);
