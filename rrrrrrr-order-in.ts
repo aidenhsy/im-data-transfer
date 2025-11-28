@@ -44,26 +44,32 @@ const run = async () => {
       0
     );
 
-    const weightedPrice = totalValue / totalQty;
+    const correctWeightedPrice = totalValue / totalQty;
     const shopItemPrice =
       Number(shopitem.total_value) / Number(shopitem.total_qty_base);
 
     const percentageDifference =
-      Math.abs(weightedPrice - shopItemPrice) / Math.abs(shopItemPrice);
+      Math.abs(correctWeightedPrice - shopItemPrice) / Math.abs(shopItemPrice);
     if (percentageDifference > 0.15) {
       // 20% difference
-      const detail =
-        await database.imInventoryProd.inventory_count_details.findUnique({
-          where: {
-            id: shopitem.source_detail_id!,
-          },
-        });
-      console.log(
-        shopitem.id,
-        weightedPrice,
-        shopItemPrice,
-        detail?.weighted_price
-      );
+      await database.imInventoryProd.inventory_count_details.update({
+        where: {
+          id: shopitem.source_detail_id!,
+        },
+        data: {
+          weighted_price: correctWeightedPrice,
+        },
+      });
+      const newTotalValue =
+        correctWeightedPrice * Number(shopitem.total_qty_base);
+      await database.imInventoryProd.shop_item_weighted_price.update({
+        where: {
+          id: shopitem.id,
+        },
+        data: {
+          total_value: newTotalValue,
+        },
+      });
     }
   }
 };
