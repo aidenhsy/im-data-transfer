@@ -1,50 +1,54 @@
-// import { DatabaseService } from './database';
-import { DatabaseLocalService } from './database-local';
+import { DatabaseService } from './database';
 
 const run = async () => {
-  const database = new DatabaseLocalService();
+  const database = new DatabaseService();
 
-  let count = 0;
-  const shops = await database.imInventoryLocal.scm_shop.findMany({
-    select: {
-      id: true,
-    },
-  });
-  console.log('shops.length', shops.length);
+  const take = 1000;
+  let skip = 0;
 
-  const supplierItems = await database.imInventoryLocal.supplier_items.findMany(
-    {
-      select: {
-        id: true,
-      },
-    }
-  );
-
-  console.log('supplierItems.length', supplierItems.length);
-
-  for (const shop of shops) {
-    for (const supplierItem of supplierItems) {
-      const shopItem =
-        await database.imInventoryLocal.shop_item_weighted_price.findFirst({
-          where: {
-            shop_id: shop.id,
-            supplier_item_id: supplierItem.id,
+  while (true) {
+    console.log(`Processing batch ${skip + 1} to ${skip + take}`);
+    const orders =
+      await database.imProcurementProd.supplier_order_details.findMany({
+        orderBy: {
+          id: 'asc',
+        },
+        take,
+        skip,
+        where: {
+          supplier_orders: {
+            status: 4,
+            receive_time: {
+              gte: new Date('2025-11-01T00:00:00.000Z'),
+            },
           },
-          orderBy: {
-            created_at: 'asc',
+        },
+      });
+
+    const shopItems =
+      await database.imInventoryProd.shop_item_weighted_price.findMany({
+        where: {
+          source_detail_id: {
+            in: orders.map((order) => order.id),
           },
-        });
-      if (!shopItem) {
-        continue;
-      }
-      if (Number(shopItem?.total_qty) < 0) {
-        console.log(shopItem?.id, shop.id, supplierItem.id);
-        count++;
-      }
+        },
+      });
+
+    if (shopItems.length !== orders.length) {
+      const missingShopItems = orders.filter(
+        (order) =>
+          !shopItems.some((shopItem) => shopItem.source_detail_id === order.id)
+      );
+      console.log(missingShopItems);
+      continue;
     }
+
+    if (orders.length === 0) {
+      break;
+    }
+
+    skip += take;
   }
-
-  console.log(count);
 };
 
 run();
