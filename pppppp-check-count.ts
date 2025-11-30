@@ -27,8 +27,8 @@ const run = async () => {
     );
 
     if (response.data.msg !== 'success') {
-      console.log(response.data);
-      return;
+      // console.log(response.data.data);
+      continue;
     }
 
     const count = await database.imInventoryProd.inventory_count.findUnique({
@@ -54,6 +54,7 @@ const run = async () => {
         where: {
           supplier_orders: {
             shop_id: count?.scm_shop?.id,
+            status: 4,
             created_at: {
               gte: new Date('2025-11-01T00:00:00.000Z'),
             },
@@ -109,7 +110,7 @@ const run = async () => {
       }
     );
 
-    console.log(deleteResponse.data, 'deleted');
+    console.log(deleteResponse.data.data, 'deleted');
   }
 };
 
