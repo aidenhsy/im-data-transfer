@@ -35,6 +35,30 @@ const run = async () => {
       },
     });
 
+  const uniqueProcurement =
+    await database.imProcurementProd.supplier_order_details.findMany({
+      where: {
+        supplier_orders: {
+          shop_id: count?.scm_shop?.id,
+          created_at: {
+            gte: new Date('2025-11-01T00:00:00.000Z'),
+          },
+        },
+      },
+      distinct: ['supplier_item_id'],
+      select: {
+        supplier_item_id: true,
+      },
+    });
+
+  const missingProcurement = uniqueProcurement.filter(
+    (item) =>
+      !details.some(
+        (detail) => detail.supplier_item_id === item.supplier_item_id
+      )
+  );
+  console.log('missingProcurement', missingProcurement.length);
+
   for (const detail of details) {
     const lastPurchase =
       await database.imProcurementProd.supplier_items.findFirst({
@@ -49,9 +73,19 @@ const run = async () => {
       Number(lastPurchase?.price) /
       Number(lastPurchase?.package_unit_to_base_ratio);
 
-    console.log(
-      `last price: ${lastPrice}, weighted price: ${detail.weighted_price}`
-    );
+    if (Number(detail.weighted_price) === 0) {
+      continue;
+    }
+
+    if (lastPrice > 2 * Number(detail.weighted_price)) {
+      console.log(
+        `⚠️  lastPrice (${lastPrice}) is MORE than double of weighted_price (${detail.weighted_price}) for ${detail.supplier_item_id} on ${count?.scm_shop?.id}`
+      );
+    } else if (lastPrice < Number(detail.weighted_price) / 2) {
+      console.log(
+        `⚠️  lastPrice (${lastPrice}) is LESS than half of weighted_price (${detail.weighted_price}) for ${detail.supplier_item_id} on ${count?.scm_shop?.id}`
+      );
+    }
   }
 
   const deleteResponse = await axios.post(
