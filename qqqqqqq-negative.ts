@@ -20,7 +20,6 @@ const run = async () => {
         month: '2025-11',
       },
       select: {
-        id: true,
         ending_count_id: true,
         shop_id: true,
       },
@@ -29,7 +28,7 @@ const run = async () => {
       },
     });
   for (const count of counts) {
-    console.log(count.shop_id, count.id);
+    console.log(count.shop_id, count.ending_count_id);
     const invCount = await database.imInventoryProd.inventory_count.findUnique({
       where: {
         id: count.ending_count_id!,
