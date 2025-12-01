@@ -98,7 +98,6 @@ ORDER BY r.supplier_item_id, r.created_at DESC, r.id DESC`;
         },
       });
     }
-    break;
   }
 };
 
