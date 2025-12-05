@@ -32,7 +32,6 @@ const run = async () => {
           console.log(newReferenceId, 'no pricing');
           continue;
         }
-        console.log(newReferenceId, 'updating');
         await database.imProcurementProd.supplier_order_details.update({
           where: { id: detail.id },
           data: {
