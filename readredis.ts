@@ -1,64 +1,46 @@
 import { createClient } from 'redis';
-
-// TypeScript interface for the order item data
-interface OrderItem {
-  totalPrice: number;
-  pgId: string;
-  num: number;
-  shopName: string;
-  letterName: string;
-  cateName: string;
-  saleUnit: string;
-  referenceId: string;
-  sid: string;
-  price: number;
-  shopId: number;
-  specText: string;
-  goodsName: string;
-  address: string;
-  filePath: string;
-  smallUnit: string;
-  moniker: string;
-  weighing: number;
-  soldTime: string;
-  accountId: number;
-  createTime: string;
-  cateId: number;
-  brandId: number;
-  categoryId: number;
-  ratio: number;
-}
+import { DatabaseService } from './database';
 
 const redisClient = createClient({
   socket: {
-    host: 'r-j6cmc31ieymi0w8s39pd.redis.rds.aliyuncs.com',
+    host: '47.242.114.49',
     port: 6379,
   },
   password: 'Jones88888!',
 });
 
 async function connectToRedis() {
+  const database = new DatabaseService();
   try {
     await redisClient.connect();
     console.log('Connected to Redis successfully!');
 
-    // Test the connection - get list data
-
-    const listValues = await redisClient.lRange('card_1351111111111111', 0, -1);
-
-    // Parse JSON strings into objects
-    const parsedData: OrderItem[] = listValues
-      .map((item, index) => {
-        try {
-          return JSON.parse(item);
-        } catch (error) {
-          console.error(`Error parsing item ${index}:`, error);
-          return null;
+    // List all keys and get JSON values
+    const keys = await redisClient.keys('*');
+    for (const key of keys) {
+      const value: any = await redisClient.json.get(key);
+      if (value.items.length > 0) {
+        for (const item of value.items) {
+          console.log(item.reference_id);
+          const newReferenceId = item.reference_id.replace(
+            '20251204-',
+            '20251205-'
+          );
+          const pricing =
+            await database.scmPricingProd.scm_good_pricing.findFirst({
+              where: {
+                external_reference_id: newReferenceId,
+              },
+            });
+          if (!pricing) {
+            console.log(newReferenceId, 'no pricing');
+            continue;
+          }
+          console.log(item.price);
         }
-      })
-      .filter((item) => item !== null);
+      }
+    }
 
-    console.log(parsedData[0]);
     process.exit(0);
   } catch (error) {
     console.error('Redis connection error:', error);

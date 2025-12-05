@@ -6,7 +6,7 @@ const run = async () => {
   const orders = await database.imProcurementProd.supplier_orders.findMany({
     where: {
       order_date: '2025-12-05',
-      type: 3,
+      type: 9,
     },
     include: {
       supplier_order_details: true,
