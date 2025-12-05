@@ -30,6 +30,9 @@ const run = async () => {
 
         if (!pricing) {
           console.log(newReferenceId, 'no pricing');
+          await database.imProcurementProd.supplier_order_details.delete({
+            where: { id: detail.id },
+          });
           continue;
         }
         await database.imProcurementProd.supplier_order_details.update({
