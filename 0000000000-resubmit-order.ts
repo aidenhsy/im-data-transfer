@@ -18,6 +18,7 @@ const run = async () => {
   });
   console.log(orders.length);
   for (const order of orders) {
+    console.log(order.id);
     await axios.post(
       `https://imms.shaihukeji.com/procurement/orders/resubmit`,
       {
