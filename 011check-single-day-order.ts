@@ -22,31 +22,35 @@ const run = async () => {
   });
 
   for (const order of orders) {
+    console.log(`updating order: ${order.id}`);
     const scmDetails = await database.scmProd.scm_order_details.findMany({
       where: {
         reference_order_id: order.id,
       },
     });
 
-    const scmOrderDetails =
-      await database.scmOrderProd.procurement_order_details.findMany({
+    for (const detail of scmDetails) {
+      const scmDetail = scmDetails.find(
+        (d) => d.reference_id === detail.reference_id
+      );
+      if (!scmDetail) {
+        console.log('not found', detail.reference_id);
+        continue;
+      }
+
+      await database.scmProd.scm_order_details.update({
         where: {
-          procurement_orders: {
-            client_order_id: order.id,
-          },
+          id: scmDetail.id,
+        },
+        data: {
+          deliver_goods_qty: detail.num,
+          delivery_qty: detail.num,
         },
       });
-
-    if (
-      scmDetails.length !== scmOrderDetails.length ||
-      order.supplier_order_details.length !== scmOrderDetails.length
-    ) {
-      console.log('mismatched', order.id);
-      console.log(
-        `scmDetails: ${scmDetails.length}, scmOrderDetails: ${scmOrderDetails.length}, order.supplier_order_details: ${order.supplier_order_details.length}`
-      );
     }
   }
+  console.log('done');
+  process.exit(0);
 };
 
 run();
