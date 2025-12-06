@@ -42,6 +42,9 @@ const run = async () => {
       order.supplier_order_details.length !== scmOrderDetails.length
     ) {
       console.log('mismatched', order.id);
+      console.log(
+        `scmDetails: ${scmDetails.length}, scmOrderDetails: ${scmOrderDetails.length}, order.supplier_order_details: ${order.supplier_order_details.length}`
+      );
     }
   }
 };
