@@ -22,13 +22,27 @@ const run = async () => {
   });
 
   for (const order of orders) {
-    const scmOrderDetails = await database.scmProd.scm_order_details.findMany({
+    const scmDetails = await database.scmProd.scm_order_details.findMany({
       where: {
         reference_order_id: order.id,
       },
     });
 
-    console.log(order.supplier_order_details.length, scmOrderDetails.length);
+    const scmOrderDetails =
+      await database.scmOrderProd.procurement_order_details.findMany({
+        where: {
+          procurement_orders: {
+            client_order_id: order.id,
+          },
+        },
+      });
+
+    if (
+      scmDetails.length !== scmOrderDetails.length ||
+      order.supplier_order_details.length !== scmOrderDetails.length
+    ) {
+      console.log('mismatched', order.id);
+    }
   }
 };
 
