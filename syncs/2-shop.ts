@@ -1,65 +1,24 @@
-import { PrismaClient as IMProcurement } from '../prisma/clients/im-procurement-prod';
-import { PrismaClient as IMBasicData } from '../prisma/clients/im-basic-data-prod';
+import { DatabaseService } from '../database';
 
 const run = async () => {
-  const imProcurement = new IMProcurement();
-  const imBasicData = new IMBasicData();
+  const database = new DatabaseService();
 
-  const shops = await imProcurement.scm_shop.findMany();
+  const devShops = await database.scmOrderDev.scm_shop.findMany();
 
-  for (const shop of shops) {
-    const { client_tier_id, ...rest } = shop;
-    await imBasicData.scm_shop.upsert({
-      where: { id: shop.id },
-      update: {
-        ...rest,
+  const shops = await database.scmOrderProd.scm_shop.findMany();
+  for (const devShop of devShops) {
+    console.log(`Syncing shop ${devShop.id}`);
+    const shop = shops.find((shop) => shop.id === devShop.id);
+    if (!shop) {
+      console.log(`Shop ${devShop.id} not found in prod shops`);
+      continue;
+    }
+    await database.scmOrderDev.scm_shop.update({
+      where: {
+        id: devShop.id,
       },
-      create: {
-        ...rest,
-        open_hours: [
-          {
-            weekday: '星期一',
-            open_hour: '09:00',
-            close_hour: '21:00',
-            day_of_week: 1,
-          },
-          {
-            weekday: '星期二',
-            open_hour: '09:00',
-            close_hour: '21:00',
-            day_of_week: 2,
-          },
-          {
-            weekday: '星期三',
-            open_hour: '09:00',
-            close_hour: '21:00',
-            day_of_week: 3,
-          },
-          {
-            weekday: '星期四',
-            open_hour: '09:00',
-            close_hour: '21:00',
-            day_of_week: 4,
-          },
-          {
-            weekday: '星期五',
-            open_hour: '09:00',
-            close_hour: '21:00',
-            day_of_week: 5,
-          },
-          {
-            weekday: '星期六',
-            open_hour: '09:00',
-            close_hour: '21:00',
-            day_of_week: 6,
-          },
-          {
-            weekday: '星期日',
-            open_hour: '09:00',
-            close_hour: '21:00',
-            day_of_week: 7,
-          },
-        ],
+      data: {
+        ...shop,
       },
     });
   }

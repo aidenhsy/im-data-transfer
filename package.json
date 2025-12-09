@@ -25,6 +25,7 @@
   "scripts": {
     "db:inventory": "npx prisma db pull --schema=prisma/im-inventory-prod.prisma && npx prisma generate --schema=prisma/im-inventory-prod.prisma",
     "dev:inventory": "npx prisma db pull --schema=prisma/im-inventory-dev.prisma && npx prisma generate --schema=prisma/im-inventory-dev.prisma",
+    "dev:scm-order": "npx prisma db pull --schema=prisma/scm-order-dev.prisma && npx prisma generate --schema=prisma/scm-order-dev.prisma",
     "local:inventory": "npx prisma db pull --schema=prisma/im-inventory-local.prisma && npx prisma generate --schema=prisma/im-inventory-local.prisma",
     "local:procurement": "npx prisma db pull --schema=prisma/local-im-procurement.prisma && npx prisma generate --schema=prisma/local-im-procurement.prisma",
     "local:scm-order": "npx prisma db pull --schema=prisma/local-scm-order.prisma && npx prisma generate --schema=prisma/local-scm-order.prisma",
