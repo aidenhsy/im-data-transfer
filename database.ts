@@ -8,7 +8,7 @@ import { PrismaClient as ScmPricingProd } from './prisma/clients/scm-pricing-pro
 import { PrismaClient as ImInventoryDev } from './prisma/clients/im-inventory-dev';
 import { PrismaClient as ImBasicProd } from './prisma/clients/im-basic-data-prod';
 import { PrismaClient as ImPredictProd } from './prisma/clients/im-predict-prod';
-import { PrismaClient as ScmOrderDev } from './prisma/clients/scm-order-dev';
+// import { PrismaClient as ScmOrderDev } from './prisma/clients/scm-order-dev';
 // import { PrismaClient as ImInventoryLocal } from './prisma/clients/im-inventory-local';
 // import { PrismaClient as ImProcurementLocal } from './prisma/clients/local-im-procurement';
 // import { PrismaClient as ScmOrderLocal } from './prisma/clients/local-scm-order';
@@ -25,7 +25,7 @@ export class DatabaseService {
   imBasicProd: ImBasicProd;
   imAccountingProd: ImAccountingProd;
   imPredictProd: ImPredictProd;
-  scmOrderDev: ScmOrderDev;
+  // scmOrderDev: ScmOrderDev;
   // imInventoryLocal: ImInventoryLocal;
   // imProcurementLocal: ImProcurementLocal;
   // scmOrderLocal: ScmOrderLocal;
@@ -42,7 +42,7 @@ export class DatabaseService {
     this.imBasicProd = new ImBasicProd();
     this.imAccountingProd = new ImAccountingProd();
     this.imPredictProd = new ImPredictProd();
-    this.scmOrderDev = new ScmOrderDev();
+    // this.scmOrderDev = new ScmOrderDev();
     // this.imInventoryLocal = new ImInventoryLocal();
     // this.imProcurementLocal = new ImProcurementLocal();
     // this.scmOrderLocal = new ScmOrderLocal();
@@ -61,7 +61,7 @@ export class DatabaseService {
       this.imBasicProd.$connect(),
       this.imAccountingProd.$connect(),
       this.imPredictProd.$connect(),
-      this.scmOrderDev.$connect(),
+      // this.scmOrderDev.$connect(),
       // this.imInventoryLocal.$connect(),
       // this.imProcurementLocal.$connect(),
       // this.scmOrderLocal.$connect(),
@@ -81,7 +81,7 @@ export class DatabaseService {
       this.imBasicProd.$disconnect(),
       this.imAccountingProd.$disconnect(),
       this.imPredictProd.$disconnect(),
-      this.scmOrderDev.$disconnect(),
+      // this.scmOrderDev.$disconnect(),
       // this.imInventoryLocal.$disconnect(),
       // this.imProcurementLocal.$disconnect(),
       // this.scmOrderLocal.$disconnect(),
