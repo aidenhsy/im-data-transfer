@@ -9,7 +9,7 @@ const run = async () => {
       status: 50,
       type: 9,
       created_at: {
-        gte: new Date('2025-12-12 00:00:00'),
+        gte: new Date('2025-12-13 00:00:00'),
       },
     },
     select: {
