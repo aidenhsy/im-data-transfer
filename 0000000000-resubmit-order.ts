@@ -7,9 +7,11 @@ const run = async () => {
   const orders = await database.imProcurementProd.supplier_orders.findMany({
     where: {
       status: 50,
-      type: 3,
+      type: {
+        in: [3, 9],
+      },
       created_at: {
-        gte: new Date('2025-12-13 00:00:00'),
+        gte: new Date('2025-12-14 00:00:00'),
       },
     },
     select: {

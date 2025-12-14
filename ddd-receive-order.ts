@@ -6,8 +6,8 @@ const run = async () => {
 
   const orders = await database.scmProd.scm_order.findMany({
     where: {
-      status: 3,
-      delivery_day_info_id: '2025-12-13',
+      status: 9,
+      delivery_day_info_id: '2025-12-14',
       automatic: 1,
     },
     select: {
