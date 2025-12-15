@@ -11,7 +11,7 @@ const run = async () => {
         in: [3, 9],
       },
       created_at: {
-        gte: new Date('2025-12-14 00:00:00'),
+        gte: new Date('2025-12-15 00:00:00'),
       },
     },
     select: {
