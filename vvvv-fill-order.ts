@@ -15,22 +15,6 @@ const run = async () => {
 
   for (const order of orders) {
     console.log(`checking order ${order.client_order_id}`);
-    // let orderId: number;
-    // const scmOrder = await database.scmProd.scm_order.findFirst({
-    //   where: {
-    //     reference_id: order.client_order_id,
-    //   },
-    // });
-    // if (scmOrder) {
-    //   orderId = scmOrder.id;
-    // } else {
-    //   const newOrder = await database.scmProd.scm_order.create({
-    //     data: {
-    //       reference_id: order.client_order_id,
-    //     },
-    //   });
-    //   orderId = newOrder.id;
-    // }
     for (const detail of order.procurement_order_details) {
       const sortItem = await database.scmProd.scm_order_details.findFirst({
         where: {
@@ -40,15 +24,19 @@ const run = async () => {
       });
       if (!sortItem) {
         console.log(`sort item ${detail.reference_id} not found`);
-        // await database.scmProd.scm_order_details.create({
-        //   data: {
-        //     reference_order_id: order.client_order_id,
-        //     reference_id: detail.reference_id,
-        //     num: detail.order_qty?.toString() ?? '0',
-        //     price: detail.price,
-        //   },
-        // });
+        continue;
       }
+
+      if (Number(sortItem.deliver_goods_qty) === 0) {
+        console.log(
+          `update deliver goods qty for sort item ${detail.reference_id}`
+        );
+      }
+      // console.log(
+      //   sortItem.deliver_goods_qty,
+      //   sortItem.delivery_qty,
+      //   detail.deliver_qty
+      // );
     }
   }
 };
