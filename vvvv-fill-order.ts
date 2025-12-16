@@ -33,11 +33,39 @@ const run = async () => {
 
       if (Number(sortItem.deliver_goods_qty) === 0) {
         zero++;
-        // console.log(
-        //   sortItem.deliver_goods_qty,
-        //   sortItem.delivery_qty,
-        //   detail.deliver_qty
-        // );
+        await database.scmProd.scm_order_details.update({
+          where: {
+            id: sortItem.id,
+          },
+          data: {
+            deliver_goods_qty: sortItem.num,
+            delivery_qty: sortItem.num,
+          },
+        });
+        await database.scmOrderProd.procurement_order_details.update({
+          where: {
+            id: detail.id,
+          },
+          data: {
+            deliver_qty: sortItem.num,
+            final_qty: sortItem.num,
+            customer_receive_qty: sortItem.num,
+          },
+        });
+        await database.imProcurementProd.supplier_order_details.updateMany({
+          where: {
+            supplier_reference_id: detail.reference_id!,
+            order_id: order.client_order_id,
+          },
+          data: {
+            actual_delivery_qty: sortItem.num,
+            confirm_delivery_qty: sortItem.num,
+            final_qty: sortItem.num,
+          },
+        });
+        console.log(
+          `updated deliver goods qty for sort item ${detail.reference_id}`
+        );
       } else {
         nonZero++;
       }
