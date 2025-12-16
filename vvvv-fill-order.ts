@@ -29,14 +29,11 @@ const run = async () => {
 
       if (Number(sortItem.deliver_goods_qty) === 0) {
         console.log(
-          `update deliver goods qty for sort item ${detail.reference_id}`
+          sortItem.deliver_goods_qty,
+          sortItem.delivery_qty,
+          detail.deliver_qty
         );
       }
-      // console.log(
-      //   sortItem.deliver_goods_qty,
-      //   sortItem.delivery_qty,
-      //   detail.deliver_qty
-      // );
     }
   }
 };
