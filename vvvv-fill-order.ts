@@ -13,9 +13,13 @@ const run = async () => {
     },
   });
 
+  let total = 0;
+  let zero = 0;
+  let nonZero = 0;
   for (const order of orders) {
     console.log(`checking order ${order.client_order_id}`);
     for (const detail of order.procurement_order_details) {
+      total++;
       const sortItem = await database.scmProd.scm_order_details.findFirst({
         where: {
           reference_order_id: order.client_order_id,
@@ -28,14 +32,18 @@ const run = async () => {
       }
 
       if (Number(sortItem.deliver_goods_qty) === 0) {
-        console.log(
-          sortItem.deliver_goods_qty,
-          sortItem.delivery_qty,
-          detail.deliver_qty
-        );
+        zero++;
+        // console.log(
+        //   sortItem.deliver_goods_qty,
+        //   sortItem.delivery_qty,
+        //   detail.deliver_qty
+        // );
+      } else {
+        nonZero++;
       }
     }
   }
+  console.log(`total: ${total}, zero: ${zero}, nonZero: ${nonZero}`);
 };
 
 run();
