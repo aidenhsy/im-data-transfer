@@ -5,8 +5,8 @@ const run = async () => {
 
   const orders = await database.scmOrderProd.procurement_orders.findMany({
     where: {
-      order_date: '2025-12-15',
-      type: 3,
+      order_date: '2025-12-16',
+      type: 9,
     },
     include: {
       procurement_order_details: true,
