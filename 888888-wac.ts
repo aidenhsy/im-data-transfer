@@ -27,9 +27,9 @@ const run = async () => {
           created_at: 'asc',
         },
       });
-    console.log(
-      goodWac.map((w) => ({ type: w.type, total_qty_base: w.total_qty_base }))
-    );
+    // console.log(
+    //   goodWac.map((w) => ({ type: w.type, total_qty_base: w.total_qty_base }))
+    // );
     let balance = 0;
     for (const wac of goodWac) {
       // console.log(`beginning balance: ${balance}`);
