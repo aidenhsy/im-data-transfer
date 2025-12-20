@@ -9,6 +9,7 @@ import { PrismaClient as ImInventoryDev } from './prisma/clients/im-inventory-de
 import { PrismaClient as ImBasicProd } from './prisma/clients/im-basic-data-prod';
 import { PrismaClient as ImPredictProd } from './prisma/clients/im-predict-prod';
 import { PrismaClient as ScmBackupProd } from './prisma/clients/scm-backup';
+import { PrismaClient as ImOrderProd } from './prisma/clients/im-order-prod';
 // import { PrismaClient as ScmOrderDev } from './prisma/clients/scm-order-dev';
 // import { PrismaClient as ImInventoryLocal } from './prisma/clients/im-inventory-local';
 // import { PrismaClient as ImProcurementLocal } from './prisma/clients/local-im-procurement';
@@ -27,6 +28,7 @@ export class DatabaseService {
   imAccountingProd: ImAccountingProd;
   imPredictProd: ImPredictProd;
   scmBackupProd: ScmBackupProd;
+  imOrderProd: ImOrderProd;
   // scmOrderDev: ScmOrderDev;
   // imInventoryLocal: ImInventoryLocal;
   // imProcurementLocal: ImProcurementLocal;
@@ -45,6 +47,7 @@ export class DatabaseService {
     this.imAccountingProd = new ImAccountingProd();
     this.imPredictProd = new ImPredictProd();
     this.scmBackupProd = new ScmBackupProd();
+    this.imOrderProd = new ImOrderProd();
     // this.scmOrderDev = new ScmOrderDev();
     // this.imInventoryLocal = new ImInventoryLocal();
     // this.imProcurementLocal = new ImProcurementLocal();
@@ -65,6 +68,7 @@ export class DatabaseService {
       this.imAccountingProd.$connect(),
       this.imPredictProd.$connect(),
       this.scmBackupProd.$connect(),
+      this.imOrderProd.$connect(),
       // this.scmOrderDev.$connect(),
       // this.imInventoryLocal.$connect(),
       // this.imProcurementLocal.$connect(),
@@ -86,6 +90,7 @@ export class DatabaseService {
       this.imAccountingProd.$disconnect(),
       this.imPredictProd.$disconnect(),
       this.scmBackupProd.$disconnect(),
+      this.imOrderProd.$disconnect(),
       // this.scmOrderDev.$disconnect(),
       // this.imInventoryLocal.$disconnect(),
       // this.imProcurementLocal.$disconnect(),

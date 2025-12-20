@@ -5,8 +5,8 @@ const run = async () => {
 
   const orders = await database.scmOrderProd.procurement_orders.findMany({
     where: {
-      order_date: '2025-12-15',
-      type: 3,
+      order_date: '2025-12-16',
+      type: 9,
       status: {
         notIn: [4],
       },
@@ -15,18 +15,19 @@ const run = async () => {
       procurement_order_details: true,
     },
   });
+  console.log(orders.length);
 
-  for (const order of orders) {
-    console.log(`checking order ${order.client_order_id}`);
-    await database.scmOrderProd.procurement_orders.update({
-      where: {
-        id: order.id,
-      },
-      data: {
-        status: 3,
-      },
-    });
-  }
+  // for (const order of orders) {
+  //   console.log(`checking order ${order.client_order_id}`);
+  //   await database.scmOrderProd.procurement_orders.update({
+  //     where: {
+  //       id: order.id,
+  //     },
+  //     data: {
+  //       status: 3,
+  //     },
+  //   });
+  // }
 };
 
 run();

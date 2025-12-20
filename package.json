@@ -36,6 +36,7 @@
     "db:procurement": "npx prisma db pull --schema=prisma/im-procurement-prod.prisma && npx prisma generate --schema=prisma/im-procurement-prod.prisma",
     "dev:procurement": "npx prisma db pull --schema=prisma/im-procurement-dev.prisma && npx prisma generate --schema=prisma/im-procurement-dev.prisma",
     "db:improd": "npx prisma db pull --schema=prisma/im-prod.prisma && npx prisma generate --schema=prisma/im-prod.prisma",
+    "db:imorder": "npx prisma db pull --schema=prisma/im-order-prod.prisma && npx prisma generate --schema=prisma/im-order-prod.prisma",
     "db:imbasic": "npx prisma db pull --schema=prisma/im-basic-data-prod.prisma && npx prisma generate --schema=prisma/im-basic-data-prod.prisma",
     "db:imaccounting": "npx prisma db pull --schema=prisma/im-accounting-prod.prisma && npx prisma generate --schema=prisma/im-accounting-prod.prisma",
     "db:impredict": "npx prisma db pull --schema=prisma/im-predict-prod.prisma && npx prisma generate --schema=prisma/im-predict-prod.prisma",
