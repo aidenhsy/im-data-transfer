@@ -1,0 +1,121 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/approval-requests": {
+      "post": {
+        "operationId": "ApprovalRequestController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateApprovalRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Approval request created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalRequestResponseDto"
+                }
+              }
+            }
+          },
+          "409": { "description": "Approval request already exists" }
+        },
+        "summary": "Create a new approval request",
+        "tags": ["Approval Requests"]
+      }
+    }
+  },
+  "info": {
+    "title": "Approval API",
+    "description": "The Approval API description",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    { "url": "http://localhost:4701", "description": "Local Development" },
+    {
+      "url": "https://immsdev.shaihukeji.com/approval",
+      "description": "Development"
+    },
+    {
+      "url": "https://imms.shaihukeji.com/approval",
+      "description": "Production"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "CreateApprovalRequestDto": {
+        "type": "object",
+        "properties": {
+          "bizType": {
+            "type": "string",
+            "description": "Business type (e.g., EMPLOYEE_CREATE, PO_CREATE)",
+            "example": "EMPLOYEE_CREATE"
+          },
+          "bizId": {
+            "type": "string",
+            "description": "Business ID (e.g., employeeId, orderId)",
+            "example": "emp-12345"
+          },
+          "requesterId": {
+            "type": "string",
+            "description": "ID of the requester",
+            "example": "user-67890"
+          },
+          "snapshot": {
+            "type": "object",
+            "description": "Snapshot of request data (immutable)",
+            "example": {
+              "employeeName": "John Doe",
+              "department": "Engineering",
+              "salary": 100000
+            }
+          }
+        },
+        "required": ["bizType", "bizId", "requesterId"]
+      },
+      "ApprovalRequestResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "bizType": { "type": "string", "example": "EMPLOYEE_CREATE" },
+          "bizId": { "type": "string", "example": "emp-12345" },
+          "status": { "type": "number", "example": 0, "enum": [0, 1, 2, 3] },
+          "statusLabel": { "type": "string", "example": "Pending" },
+          "requesterId": { "type": "string", "example": "user-67890" },
+          "snapshot": {
+            "type": "object",
+            "example": {
+              "employeeName": "John Doe",
+              "department": "Engineering"
+            }
+          },
+          "createdAt": { "format": "date-time", "type": "string" },
+          "updatedAt": { "format": "date-time", "type": "string" }
+        },
+        "required": [
+          "id",
+          "bizType",
+          "bizId",
+          "status",
+          "statusLabel",
+          "requesterId",
+          "createdAt",
+          "updatedAt"
+        ]
+      }
+    }
+  }
+}

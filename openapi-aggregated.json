@@ -1,0 +1,226 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "IMMS Aggregated API",
+    "version": "1.0.0",
+    "description": "Aggregated OpenAPI for frontend client generation"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4700",
+      "description": "Local (single base URL; paths are namespaced)"
+    }
+  ],
+  "tags": [],
+  "paths": {
+    "/hr/employees": {
+      "post": {
+        "description": "Creates a new employee with the provided information. Employee number and email must be unique.",
+        "operationId": "HR_createEmployee",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HR_CreateEmployeeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Employee successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HR_CreateEmployeeResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          },
+          "409": {
+            "description": "Employee number or email already exists"
+          }
+        },
+        "summary": "Create a new employee",
+        "tags": ["employees"]
+      }
+    },
+    "/approval/approval-requests": {
+      "post": {
+        "operationId": "APPROVAL_ApprovalRequestController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/APPROVAL_CreateApprovalRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Approval request created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APPROVAL_ApprovalRequestResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Approval request already exists"
+          }
+        },
+        "summary": "Create a new approval request",
+        "tags": ["Approval Requests"]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HR_CreateEmployeeDto": {
+        "type": "object",
+        "properties": {
+          "employeeNo": {
+            "type": "string",
+            "description": "Unique employee number (business identifier)",
+            "example": "EMP001",
+            "maxLength": 50
+          },
+          "name": {
+            "type": "string",
+            "description": "Employee full name",
+            "example": "John Doe",
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "description": "Employee email address",
+            "example": "john.doe@example.com",
+            "maxLength": 255
+          },
+          "phone": {
+            "type": "string",
+            "description": "Employee phone number",
+            "example": "+1234567890",
+            "maxLength": 30
+          },
+          "hiredAt": {
+            "type": "string",
+            "description": "Date when the employee was hired (ISO date string)",
+            "example": "2024-01-15",
+            "format": "date"
+          }
+        },
+        "required": ["employeeNo", "name"]
+      },
+      "HR_CreateEmployeeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the created employee",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        },
+        "required": ["id"]
+      },
+      "APPROVAL_CreateApprovalRequestDto": {
+        "type": "object",
+        "properties": {
+          "bizType": {
+            "type": "string",
+            "description": "Business type (e.g., EMPLOYEE_CREATE, PO_CREATE)",
+            "example": "EMPLOYEE_CREATE"
+          },
+          "bizId": {
+            "type": "string",
+            "description": "Business ID (e.g., employeeId, orderId)",
+            "example": "emp-12345"
+          },
+          "requesterId": {
+            "type": "string",
+            "description": "ID of the requester",
+            "example": "user-67890"
+          },
+          "snapshot": {
+            "type": "object",
+            "description": "Snapshot of request data (immutable)",
+            "example": {
+              "employeeName": "John Doe",
+              "department": "Engineering",
+              "salary": 100000
+            }
+          }
+        },
+        "required": ["bizType", "bizId", "requesterId"]
+      },
+      "APPROVAL_ApprovalRequestResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "bizType": {
+            "type": "string",
+            "example": "EMPLOYEE_CREATE"
+          },
+          "bizId": {
+            "type": "string",
+            "example": "emp-12345"
+          },
+          "status": {
+            "type": "number",
+            "example": 0,
+            "enum": [0, 1, 2, 3]
+          },
+          "statusLabel": {
+            "type": "string",
+            "example": "Pending"
+          },
+          "requesterId": {
+            "type": "string",
+            "example": "user-67890"
+          },
+          "snapshot": {
+            "type": "object",
+            "example": {
+              "employeeName": "John Doe",
+              "department": "Engineering"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "bizType",
+          "bizId",
+          "status",
+          "statusLabel",
+          "requesterId",
+          "createdAt",
+          "updatedAt"
+        ]
+      }
+    },
+    "parameters": {},
+    "responses": {},
+    "securitySchemes": {}
+  }
+}

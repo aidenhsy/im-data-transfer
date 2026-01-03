@@ -1,0 +1,105 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/employees": {
+      "post": {
+        "description": "Creates a new employee with the provided information. Employee number and email must be unique.",
+        "operationId": "createEmployee",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateEmployeeDto" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Employee successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateEmployeeResponseDto"
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input data" },
+          "409": { "description": "Employee number or email already exists" }
+        },
+        "summary": "Create a new employee",
+        "tags": ["employees"]
+      }
+    }
+  },
+  "info": {
+    "title": "HR Basic API",
+    "description": "The HR Basic API description",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    { "url": "http://localhost:4700", "description": "Local Development" },
+    {
+      "url": "https://immsdev.shaihukeji.com/hr-basic",
+      "description": "Development"
+    },
+    {
+      "url": "https://imms.shaihukeji.com/hr-basic",
+      "description": "Production"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "CreateEmployeeDto": {
+        "type": "object",
+        "properties": {
+          "employeeNo": {
+            "type": "string",
+            "description": "Unique employee number (business identifier)",
+            "example": "EMP001",
+            "maxLength": 50
+          },
+          "name": {
+            "type": "string",
+            "description": "Employee full name",
+            "example": "John Doe",
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "description": "Employee email address",
+            "example": "john.doe@example.com",
+            "maxLength": 255
+          },
+          "phone": {
+            "type": "string",
+            "description": "Employee phone number",
+            "example": "+1234567890",
+            "maxLength": 30
+          },
+          "hiredAt": {
+            "type": "string",
+            "description": "Date when the employee was hired (ISO date string)",
+            "example": "2024-01-15",
+            "format": "date"
+          }
+        },
+        "required": ["employeeNo", "name"]
+      },
+      "CreateEmployeeResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the created employee",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        },
+        "required": ["id"]
+      }
+    }
+  }
+}
