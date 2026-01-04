@@ -16,7 +16,7 @@ const run = async () => {
     const isWeekend = dayOfWeek === 6 || dayOfWeek === 7; // Saturday or Sunday
     const isWorking = isWeekend ? 0 : 1; // Working days are Monday-Friday
 
-    await database.imPredictProd.day_info.upsert({
+    await database.scmOrderProd.day_info.upsert({
       where: {
         id: dateStr,
       },
