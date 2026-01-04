@@ -3,7 +3,7 @@ import { DatabaseService } from '../database';
 const run = async () => {
   const database = new DatabaseService();
 
-  const startDate = new Date('2026-01-06');
+  const startDate = new Date('2026-01-01');
   const endDate = new Date('2026-12-31');
 
   for (
@@ -16,7 +16,7 @@ const run = async () => {
     const isWeekend = dayOfWeek === 6 || dayOfWeek === 7; // Saturday or Sunday
     const isWorking = isWeekend ? 0 : 1; // Working days are Monday-Friday
 
-    await database.scmProd.day_info.upsert({
+    await database.imPredictProd.day_info.upsert({
       where: {
         id: dateStr,
       },
