@@ -12,6 +12,7 @@
     "redis": "^5.6.0",
     "reflect-metadata": "^0.2.2",
     "typescript": "^5.8.2",
+    "uuid": "^13.0.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "local:procurement": "npx prisma db pull --schema=prisma/local-im-procurement.prisma && npx prisma generate --schema=prisma/local-im-procurement.prisma",
     "local:scm-order": "npx prisma db pull --schema=prisma/local-scm-order.prisma && npx prisma generate --schema=prisma/local-scm-order.prisma",
     "local:scm": "npx prisma db pull --schema=prisma/local-scm.prisma && npx prisma generate --schema=prisma/local-scm.prisma",
+    "local:scm-sort": "npx prisma db pull --schema=prisma/local-scm-sort.prisma && npx prisma generate --schema=prisma/local-scm-sort.prisma",
     "db:scm": "npx prisma db pull --schema=prisma/scm-prod.prisma && npx prisma generate --schema=prisma/scm-prod.prisma",
     "db:scm-backup": "npx prisma db pull --schema=prisma/scm-backup.prisma && npx prisma generate --schema=prisma/scm-backup.prisma",
     "db:order": "npx prisma db pull --schema=prisma/scm-order-prod.prisma && npx prisma generate --schema=prisma/scm-order-prod.prisma",
