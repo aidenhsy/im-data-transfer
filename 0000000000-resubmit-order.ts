@@ -11,7 +11,7 @@ const run = async () => {
         in: [3, 9],
       },
       created_at: {
-        gte: new Date('2025-12-16 00:00:00'),
+        gte: new Date('2026-02-12 00:00:00'),
       },
     },
     select: {
@@ -25,7 +25,7 @@ const run = async () => {
       `https://imms.shaihukeji.com/procurement/orders/resubmit`,
       {
         order_id: order.id,
-      }
+      },
     );
   }
 };

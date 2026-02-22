@@ -36,7 +36,6 @@ const run = async () => {
     await orderDb.scm_goods.upsert({
       where: {
         id: sGood.id,
-
       },
       update: {
         ...rest,

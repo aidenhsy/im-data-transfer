@@ -5,7 +5,7 @@ const run = async () => {
 
   const orders = await database.imProcurementProd.supplier_orders.findMany({
     where: {
-      order_date: '2026-02-12',
+      order_date: '2026-02-22',
       type: {
         in: [3, 9],
       },
@@ -17,10 +17,10 @@ const run = async () => {
 
   for (const order of orders) {
     for (const detail of order.supplier_order_details) {
-      if (detail.supplier_reference_id?.startsWith('20260211-')) {
+      if (detail.supplier_reference_id?.startsWith('20260221-')) {
         const newReferenceId = detail.supplier_reference_id.replace(
-          '20260211-',
-          '20260212-',
+          '20260221-',
+          '20260222-',
         );
 
         const pricing =
