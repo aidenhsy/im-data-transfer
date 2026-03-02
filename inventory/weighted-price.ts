@@ -1,13 +1,13 @@
 import { DatabaseService } from '../database';
 import { Decimal } from '@prisma/client/runtime/library';
+import { randomUUID } from 'crypto';
 
 /**
- * Repair script: fix negative current_qty_base in v_shop_item_current.
+ * Repair script: eliminate all negative current_qty_base in v_shop_item_current.
  *
- * For each (supplier_item, shop) with current_qty_base < 0:
- *   Walk the chain of submitted counts ordered by created_at.
- *   Rule: balance_qty of count N = count_qty_base of count N-1.
- *   Fix balance_qty on the detail, and total_qty + total_value on the WAC entry.
+ * Phase 1: Fix count chains — balance_qty of count N = count_qty_base of count N-1.
+ * Phase 2: For any items still negative after chain fix, insert an adjustment
+ *          entry in shop_item_weighted_price to bring the balance to zero.
  *
  * Run with DRY_RUN=true (default) to preview, DRY_RUN=false to apply.
  */
@@ -20,6 +20,11 @@ interface NegativeItem {
   current_qty_base: Decimal;
 }
 
+interface WacRef {
+  generic_item_id: number | null;
+  stock_category_id: number | null;
+}
+
 const run = async () => {
   const db = new DatabaseService();
 
@@ -27,7 +32,11 @@ const run = async () => {
     `Mode: ${DRY_RUN ? 'DRY RUN (no writes)' : 'LIVE – writing changes'}\n`,
   );
 
-  // Step 1: Find all items with negative current stock
+  // ════════════════════════════════════════════════════════════════════════
+  // Phase 1: Fix count chains
+  // ════════════════════════════════════════════════════════════════════════
+  console.log('═══ Phase 1: Fix count chains ═══\n');
+
   const negativeItems = await db.imInventoryProd.$queryRaw<NegativeItem[]>`
     SELECT supplier_item_id, shop_id, current_qty_base
     FROM v_shop_item_current
@@ -38,14 +47,13 @@ const run = async () => {
     `Found ${negativeItems.length} item(s) with negative current_qty_base.\n`,
   );
 
-  let totalFixed = 0;
+  let chainFixes = 0;
 
   for (const item of negativeItems) {
     console.log(
       `\n--- supplier_item=${item.supplier_item_id}  shop=${item.shop_id}  current_qty=${item.current_qty_base} ---`,
     );
 
-    // Step 2: Get the full chain of submitted count details for this item
     const chain = await db.imInventoryProd.inventory_count_details.findMany({
       where: {
         supplier_item_id: item.supplier_item_id,
@@ -70,7 +78,6 @@ const run = async () => {
 
     console.log(`  Chain length: ${chain.length} count details`);
 
-    // Step 3: Walk the chain and fix mismatches
     let prevCountQtyBase: Decimal | null = null;
 
     for (const detail of chain) {
@@ -128,20 +135,99 @@ const run = async () => {
             }
           }
 
-          totalFixed++;
+          chainFixes++;
         }
       }
 
-      // Advance chain: only actually-counted details set the "previous" reference
       if (detail.count_qty !== null) {
         prevCountQtyBase = detail.count_qty_base;
       }
     }
   }
 
+  console.log(`\nPhase 1 done. Chain fixes: ${chainFixes}\n`);
+
+  // ════════════════════════════════════════════════════════════════════════
+  // Phase 2: Zero out remaining negative balances with adjustment entries
+  // ════════════════════════════════════════════════════════════════════════
+  console.log('═══ Phase 2: Insert adjustments for remaining negative items ═══\n');
+
+  const stillNegative = await db.imInventoryProd.$queryRaw<NegativeItem[]>`
+    SELECT supplier_item_id, shop_id, current_qty_base
+    FROM v_shop_item_current
+    WHERE current_qty_base < 0
+  `;
+
   console.log(
-    `\nDone. Total details fixed: ${totalFixed}  Negative items processed: ${negativeItems.length}`,
+    `${stillNegative.length} item(s) still negative after chain fix.\n`,
   );
+
+  let adjustments = 0;
+
+  for (const item of stillNegative) {
+    const correctionQty = new Decimal(item.current_qty_base).abs();
+
+    // Get generic_item_id and stock_category_id from the latest WAC entry
+    const ref = await db.imInventoryProd.$queryRaw<WacRef[]>`
+      SELECT generic_item_id, stock_category_id
+      FROM shop_item_weighted_price
+      WHERE supplier_item_id = ${item.supplier_item_id}
+        AND shop_id = ${item.shop_id}
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+
+    const genericItemId = ref[0]?.generic_item_id ?? null;
+    const stockCategoryId = ref[0]?.stock_category_id ?? null;
+    const sourceDetailId = randomUUID();
+
+    console.log(
+      `  supplier_item=${item.supplier_item_id}  shop=${item.shop_id}\n` +
+        `    current_qty : ${item.current_qty_base}\n` +
+        `    adjustment  : +${correctionQty}  (to bring to 0)\n` +
+        `    source_detail_id: ${sourceDetailId}`,
+    );
+
+    if (!DRY_RUN) {
+      await db.imInventoryProd.$executeRaw`
+        INSERT INTO shop_item_weighted_price (
+          shop_id, supplier_item_id,
+          total_qty, total_value,
+          type, order_to_base_factor,
+          source_id, source_detail_id,
+          generic_item_id, stock_category_id, status
+        ) VALUES (
+          ${item.shop_id}, ${item.supplier_item_id},
+          ${correctionQty}, 0,
+          'adjustment'::shop_item_price_event_type, 1,
+          'negative-balance-fix', ${sourceDetailId}::varchar,
+          ${genericItemId}, ${stockCategoryId}, 1
+        )
+      `;
+      console.log(`    ✓ Adjustment inserted`);
+    }
+
+    adjustments++;
+  }
+
+  console.log(
+    `\nPhase 2 done. Adjustments: ${adjustments}\n`,
+  );
+
+  // ════════════════════════════════════════════════════════════════════════
+  // Final verification
+  // ════════════════════════════════════════════════════════════════════════
+  const finalCheck = await db.imInventoryProd.$queryRaw<[{ count: bigint }]>`
+    SELECT count(*) FROM v_shop_item_current WHERE current_qty_base < 0
+  `;
+
+  console.log(
+    `\n═══ Summary ═══\n` +
+      `  Phase 1 chain fixes : ${chainFixes}\n` +
+      `  Phase 2 adjustments : ${adjustments}\n` +
+      `  Remaining negative  : ${finalCheck[0].count}\n`,
+  );
+
   process.exit(0);
 };
 
