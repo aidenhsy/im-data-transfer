@@ -133,9 +133,9 @@ const run = async () => {
             } else {
               console.log(`    ✓ Updated detail only`);
             }
-          }
 
-          chainFixes++;
+            chainFixes++;
+          }
         }
       }
 
@@ -205,9 +205,8 @@ const run = async () => {
         )
       `;
       console.log(`    ✓ Adjustment inserted`);
+      adjustments++;
     }
-
-    adjustments++;
   }
 
   console.log(
