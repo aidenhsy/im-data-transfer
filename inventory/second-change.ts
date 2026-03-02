@@ -18,6 +18,9 @@ interface NegativeItem {
   supplier_item_id: string;
   shop_id: number;
   current_qty_base: Decimal;
+}
+
+interface WacRef {
   generic_item_id: number | null;
   stock_category_id: number | null;
 }
@@ -35,7 +38,7 @@ const run = async () => {
   console.log('═══ Phase 1: Fix count chains ═══\n');
 
   const negativeItems = await db.imInventoryProd.$queryRaw<NegativeItem[]>`
-    SELECT supplier_item_id, shop_id, current_qty_base, generic_item_id, stock_category_id
+    SELECT supplier_item_id, shop_id, current_qty_base
     FROM v_shop_item_current
     WHERE current_qty_base < 0
   `;
@@ -149,18 +152,8 @@ const run = async () => {
   // ════════════════════════════════════════════════════════════════════════
   console.log('═══ Phase 2: Insert adjustments for remaining negative items ═══\n');
 
-  // Clean up wrong adjustments from previous runs
-  if (!DRY_RUN) {
-    const deleted = await db.imInventoryProd.shop_item_weighted_price.deleteMany({
-      where: { source_id: 'negative-balance-fix' },
-    });
-    if (deleted.count > 0) {
-      console.log(`Cleaned up ${deleted.count} previous adjustment(s).\n`);
-    }
-  }
-
   const stillNegative = await db.imInventoryProd.$queryRaw<NegativeItem[]>`
-    SELECT supplier_item_id, shop_id, current_qty_base, generic_item_id, stock_category_id
+    SELECT supplier_item_id, shop_id, current_qty_base
     FROM v_shop_item_current
     WHERE current_qty_base < 0
   `;
@@ -173,11 +166,23 @@ const run = async () => {
 
   for (const item of stillNegative) {
     const correctionQty = new Decimal(item.current_qty_base).abs();
+
+    // Get generic_item_id and stock_category_id from the latest WAC entry
+    const ref = await db.imInventoryProd.$queryRaw<WacRef[]>`
+      SELECT generic_item_id, stock_category_id
+      FROM shop_item_weighted_price
+      WHERE supplier_item_id = ${item.supplier_item_id}
+        AND shop_id = ${item.shop_id}
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+
+    const genericItemId = ref[0]?.generic_item_id ?? null;
+    const stockCategoryId = ref[0]?.stock_category_id ?? null;
     const sourceDetailId = randomUUID();
 
     console.log(
       `  supplier_item=${item.supplier_item_id}  shop=${item.shop_id}\n` +
-        `    generic_item_id: ${item.generic_item_id}\n` +
         `    current_qty : ${item.current_qty_base}\n` +
         `    adjustment  : +${correctionQty}  (to bring to 0)\n` +
         `    source_detail_id: ${sourceDetailId}`,
@@ -196,7 +201,7 @@ const run = async () => {
           ${correctionQty}, 0,
           'adjustment'::shop_item_price_event_type, 1,
           'negative-balance-fix', ${sourceDetailId}::varchar,
-          ${item.generic_item_id}, ${item.stock_category_id}, 1
+          ${genericItemId}, ${stockCategoryId}, 1
         )
       `;
       console.log(`    ✓ Adjustment inserted`);
