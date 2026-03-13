@@ -12,6 +12,7 @@ model cities {
   id               Int                @id @default(autoincrement())
   name             String?            @unique(map: "unique_city_name") @db.VarChar
   is_active        Boolean?           @default(true)
+  regions          regions[]
   scm_good_pricing scm_good_pricing[]
 }
 
@@ -121,6 +122,8 @@ model procurement_order_details {
   @@unique([reference_id, order_id], map: "unique_reference_order")
   @@index([reference_id, order_id], map: "idx_reference_order")
   @@index([reference_id], map: "idx_procurement_order_details_reference_id")
+  @@index([name], map: "idx_procurement_order_details_name")
+  @@index([name(ops: raw("gin_trgm_ops"))], map: "idx_procurement_order_details_name_gin", type: Gin)
 }
 
 model procurement_order_status_history {
@@ -151,9 +154,13 @@ model procurement_orders {
   customer_receive_time            DateTime?                          @db.Timestamp(6)
   sent_time                        DateTime?                          @db.Timestamp(6)
   estimated_delivery_time          DateTime?                          @db.Timestamp(6)
+  expires_at                       DateTime?                          @default(dbgenerated("((now() AT TIME ZONE 'Asia/Shanghai'::text) + '24:00:00'::interval)")) @db.Timestamp(6)
+  region_id                        Int?
+  remarks                          String?
   procurement_order_details        procurement_order_details[]
   procurement_order_returns        procurement_order_returns[]
   procurement_order_status_history procurement_order_status_history[]
+  regions                          regions?                           @relation(fields: [region_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model role_menus {
@@ -1300,18 +1307,26 @@ model outbox_events {
 }
 
 model procurement_order_return_details {
-  id                        String                    @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  return_id                 String                    @db.VarChar
-  good_id                   Int
-  good_name                 String                    @db.VarChar
-  source_detail_id          String                    @unique @db.VarChar
-  qty_returned              Decimal                   @db.Decimal(12, 4)
-  unit_price                Decimal                   @db.Decimal(12, 2)
-  total_value               Decimal?                  @default(dbgenerated("(qty_returned * unit_price)")) @db.Decimal(12, 2)
-  created_at                DateTime                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  updated_at                DateTime                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  procurement_order_returns procurement_order_returns @relation(fields: [return_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  procurement_order_details procurement_order_details @relation(fields: [source_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                                             String                                           @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  return_id                                      String                                           @db.VarChar
+  good_id                                        Int
+  good_name                                      String                                           @db.VarChar
+  source_detail_id                               String                                           @unique @db.VarChar
+  qty_returned                                   Decimal                                          @db.Decimal(12, 4)
+  unit_price                                     Decimal                                          @db.Decimal(12, 2)
+  total_value                                    Decimal?                                         @default(dbgenerated("(qty_returned * unit_price)")) @db.Decimal(12, 2)
+  created_at                                     DateTime                                         @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at                                     DateTime                                         @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  status                                         Int                                              @default(0)
+  approval_callback_status                       Int                                              @default(0)
+  return_reason_id                               Int
+  client_return_detail_id                        String?                                          @db.VarChar(50)
+  procurement_order_return_detail_status_history procurement_order_return_detail_status_history[]
+  procurement_order_return_reasons               procurement_order_return_reasons                 @relation(fields: [return_reason_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "procurement_order_return_details_procurement_order_return_reaso")
+  procurement_order_returns                      procurement_order_returns                        @relation(fields: [return_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  procurement_order_details                      procurement_order_details                        @relation(fields: [source_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  procurement_order_return_details_extends       procurement_order_return_details_extends?
+  procurement_order_return_files                 procurement_order_return_files[]
 }
 
 model procurement_order_return_status_history {
@@ -1322,32 +1337,120 @@ model procurement_order_return_status_history {
   notified_at               DateTime?                 @db.Timestamp(6)
   created_at                DateTime                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
   updated_at                DateTime                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  reference_ids             Json?
+  return_client_detail_ids  Json?
   procurement_order_returns procurement_order_returns @relation(fields: [return_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model procurement_order_returns {
-  id                                      String                                    @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
-  client_id                               Int
-  shop_id                                 Int
-  original_order_id                       String                                    @db.VarChar
-  status                                  Int                                       @default(0)
-  note                                    String?
-  client_return_id                        String?                                   @unique @db.VarChar
-  created_at                              DateTime                                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  updated_at                              DateTime                                  @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
-  return_reason_id                        Int?
-  procurement_order_return_details        procurement_order_return_details[]
-  procurement_order_return_status_history procurement_order_return_status_history[]
-  client_organizations                    client_organizations                      @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  procurement_orders                      procurement_orders                        @relation(fields: [original_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  procurement_order_return_reasons        procurement_order_return_reasons?         @relation(fields: [return_reason_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  scm_shop                                scm_shop                                  @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                                             String                                           @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  client_id                                      Int
+  shop_id                                        Int
+  original_order_id                              String                                           @db.VarChar
+  status                                         Int                                              @default(0)
+  note                                           String?
+  client_return_id                               String?                                          @unique @db.VarChar
+  created_at                                     DateTime                                         @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at                                     DateTime                                         @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  return_reason_id                               Int?
+  return_type_id                                 Int?
+  procurement_order_return_detail_status_history procurement_order_return_detail_status_history[]
+  procurement_order_return_details               procurement_order_return_details[]
+  procurement_order_return_files                 procurement_order_return_files[]
+  procurement_order_return_status_history        procurement_order_return_status_history[]
+  client_organizations                           client_organizations                             @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  procurement_orders                             procurement_orders                               @relation(fields: [original_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  procurement_order_return_type                  procurement_order_return_type?                   @relation(fields: [return_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "procurement_order_returns_procurement_order_return_type_fk")
+  procurement_order_return_reasons               procurement_order_return_reasons?                @relation(fields: [return_reason_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scm_shop                                       scm_shop                                         @relation(fields: [shop_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model procurement_order_return_reasons {
-  id                        Int                         @id @default(autoincrement())
-  name                      String                      @db.VarChar
+  id                               Int                                @id @default(autoincrement())
+  name                             String                             @db.VarChar
+  procurement_order_return_details procurement_order_return_details[]
+  procurement_order_returns        procurement_order_returns[]
+}
+
+model goods {
+  id                 Int      @id @default(autoincrement())
+  name               String
+  category_id        Int
+  base_meta_unit_id  Int
+  base_sale_unit     String   @db.VarChar
+  meta_to_sale_ratio Decimal  @db.Decimal
+  is_public          Boolean  @default(false)
+  photo_url          String?  @db.VarChar
+  tt_code            String?  @db.VarChar
+  status             Int      @default(1)
+  creator            String   @db.VarChar
+  updater            String   @db.VarChar
+  created_at         DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at         DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model procurement_order_return_detail_status_history {
+  id                               String                           @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar(50)
+  return_id                        String                           @db.VarChar(50)
+  return_detail_id                 String                           @db.VarChar(50)
+  client_return_detail_id          String                           @db.VarChar(50)
+  status                           Int
+  try_count                        Int                              @default(0)
+  notified_at                      DateTime?                        @db.Timestamp(6)
+  created_at                       DateTime                         @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at                       DateTime                         @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  client_return_id                 String                           @db.VarChar(50)
+  procurement_order_return_details procurement_order_return_details @relation(fields: [return_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "procurement_order_return_detail_status_history_procurement_orde")
+  procurement_order_returns        procurement_order_returns        @relation(fields: [return_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model procurement_order_return_details_extends {
+  id                               String                           @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar
+  return_detail_id                 String                           @unique(map: "procurement_order_return_details_extends_return_id_uk") @db.VarChar
+  delivery_user                    String?                          @db.VarChar(50)
+  delivery_at                      DateTime?                        @db.Timestamp(6)
+  supplier_confirm_at              DateTime?                        @db.Timestamp(6)
+  supplier_return_at               DateTime?                        @db.Timestamp(6)
+  created_at                       DateTime                         @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at                       DateTime                         @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  procurement_order_return_details procurement_order_return_details @relation(fields: [return_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "procurement_order_return_details_extends_return_id_fkey")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model procurement_order_return_files {
+  id                               String                           @id @default(dbgenerated("(uuid_generate_v4())::character varying")) @db.VarChar(50)
+  return_order_id                  String                           @db.VarChar(50)
+  file_name                        String?                          @db.VarChar(100)
+  file_url                         String?                          @db.VarChar(500)
+  creator                          String?                          @db.VarChar(100)
+  create_at                        DateTime?                        @db.Timestamp(6)
+  file_ext                         String?                          @db.VarChar(10)
+  return_detail_id                 String                           @db.VarChar(50)
+  procurement_order_returns        procurement_order_returns        @relation(fields: [return_order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "procurement_order_return_files_fk")
+  procurement_order_return_details procurement_order_return_details @relation(fields: [return_detail_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "procurement_order_return_files_procurement_order_return_details")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model procurement_order_return_type {
+  id                        Int                         @id
+  name                      String?                     @db.VarChar(10)
+  create_at                 DateTime?                   @default(now()) @db.Timestamp(6)
+  update_at                 DateTime?                   @default(now()) @db.Timestamp(6)
+  order_num                 Int?
   procurement_order_returns procurement_order_returns[]
+}
+
+model regions {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @db.VarChar
+  city_id            Int
+  creator            String               @db.VarChar
+  created_at         DateTime             @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  updated_at         DateTime             @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)")) @db.Timestamp(6)
+  procurement_orders procurement_orders[]
+  cities             cities               @relation(fields: [city_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum pricing_strategy_type {
